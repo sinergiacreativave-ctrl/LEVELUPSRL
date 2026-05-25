@@ -154,47 +154,53 @@
 </div>
 
 <script>
-    // Configuración de las URLs de tu proyecto
-    // ¡IMPORTANTE! Reemplaza este enlace por tu ID de Google Sheets publicado como CSV
+    // =========================================================================
+    // CONFIGURACIÓN DE ENLACES (¡Cambia estos dos valores con tus datos reales!)
+    // =========================================================================
+    
+    // 1. Pega aquí el enlace largo .csv que te dio Google Sheets al publicar en la web
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv";
     
-    // Ruta base de tus imágenes en GitHub (Donde están tus pociones, monedas y stickers)
-    const IMAGE_BASE_URL = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPOSITORIO/main/assets/";
+    // 2. Ruta base de tus imágenes en GitHub (Cambia TU_USUARIO y TU_REPOSITORIO)
+    const IMAGE_BASE_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/assets/";
 
-    // Función para obtener el ID de la URL (?id=1)
+    // =========================================================================
+    // CÓDIGO DEL MOTOR DEL JUEGO
+    // =========================================================================
+
+    // Obtener el ID desde el enlace de la web (?id=7)
     function getPlayerIdFromURL() {
         const params = new URLSearchParams(window.location.search);
         let id = params.get('id');
         if (!id) return null;
-        return id.replace('#', '').trim(); // Limpia el '#' por si acaso
+        return id.replace('#', '').trim(); // Limpia el '#' por si viene en el QR
     }
 
-    // Función para procesar y renderizar las imágenes en un contenedor
+    // Dibujar las imágenes en la mochila y los premios
     function renderAssets(containerId, dataString) {
         const container = document.getElementById(containerId);
-        container.innerHTML = ''; // Limpiar contenedor
+        container.innerHTML = ''; 
         
         if (!dataString || dataString.trim() === "" || dataString === "0") {
             container.innerHTML = '<span style="color:#4e4e7d; font-size:9px;">Vacío</span>';
             return;
         }
 
-        // Separa los elementos por coma
         const items = dataString.split(',');
         items.forEach(item => {
             const itemName = item.trim();
             if (itemName !== "") {
                 const img = document.createElement('img');
-                // Si guardaste el nombre con la extensión, la usa directo. Si no, le añade .png
                 img.src = itemName.endsWith('.png') ? IMAGE_BASE_URL + itemName : IMAGE_BASE_URL + itemName + '.png';
                 img.alt = itemName;
                 img.title = itemName;
-                img.onerror = () => { img.style.display = 'none'; }; // Oculta si la imagen no existe en GitHub
+                img.onerror = () => { img.style.display = 'none'; }; // Oculta si la imagen no se encuentra
                 container.appendChild(img);
             }
         });
     }
 
+    // Cargar y procesar la base de datos de Google Sheets
     async function loadPlayerData() {
         const targetId = getPlayerIdFromURL();
         if (!targetId) {
@@ -208,40 +214,63 @@
             const response = await fetch(SHEET_CSV_URL);
             const data = await response.text();
             
-            // Separar el CSV por filas
-            const rows = data.split('\n').map(row => row.split(','));
+            // Función inteligente para separar CSV respetando comas dentro de comillas
+            const parseCSV = (text) => {
+                let lines = text.split('\n');
+                return lines.map(line => {
+                    let result = [];
+                    let current = '';
+                    let inQuotes = false;
+                    for (let i = 0; i < line.length; i++) {
+                        let char = line[i];
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            result.push(current.trim());
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    result.push(current.trim());
+                    return result;
+                });
+            };
+
+            const rows = parseCSV(data);
+            const headers = rows[0];
             
-            // Asumiendo el orden clásico de tus columnas de la hoja principal:
-            // Columna B (Índice 1): ID del alumno (#1, #2...)
-            // Columna C (Índice 2): Gamer Tag
-            // Columna D (Índice 3): Grado
-            // Columna I (Índice 8): Inventario Ítems (Mochila)
-            // Columna J (Índice 9): Stickers Premio
-            // Columna L (Índice 11): Puntaje Total
-            // Columna M (Índice 12): Penalizaciones
+            // Localizar las columnas dinámicamente según el nombre de sus encabezados
+            const idxId = headers.findIndex(h => h.toLowerCase() === 'id');
+            const idxTag = headers.findIndex(h => h.toLowerCase() === 'gamer tag');
+            const idxGrade = headers.findIndex(h => h.toLowerCase() === 'grado');
+            const idxMochila = headers.findIndex(h => h.toLowerCase() === 'inventario ítems');
+            const idxPremios = headers.findIndex(h => h.toLowerCase() === 'stickers premio');
+            const idxScore = headers.findIndex(h => h.toLowerCase() === 'puntaje total');
+            const idxPenalties = headers.findIndex(h => h.toLowerCase() === 'penalizaciones');
 
             let playerFound = false;
 
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
-                if (!row[1]) continue; // Fila vacía
+                if (idxId === -1 || !row[idxId]) continue;
 
-                // Limpiar el ID de la fila para comparar de forma justa
-                const rowId = row[1].replace('#', '').trim();
+                // Limpiar el ID de la fila (#7 -> 7)
+                const rowId = row[idxId].replace('#', '').trim();
 
                 if (rowId === targetId) {
                     playerFound = true;
                     
-                    // Asignar los textos básicos
+                    // Cargar textos en la interfaz
                     document.getElementById('player-id').textContent = `#${rowId}`;
-                    document.getElementById('player-tag').textContent = row[2] || "Sin Tag";
-                    document.getElementById('player-grade').textContent = row[3] || "-";
-                    document.getElementById('player-score').textContent = row[11] || "0";
-                    document.getElementById('player-penalties').textContent = row[12] || "0";
+                    document.getElementById('player-tag').textContent = row[idxTag] || "Sin Tag";
+                    document.getElementById('player-grade').textContent = row[idxGrade] || "-";
+                    document.getElementById('player-score').textContent = row[idxScore] || "0";
+                    document.getElementById('player-penalties').textContent = row[idxPenalties] || "0";
 
-                    // Renderizar las imágenes de la mochila y los premios
-                    renderAssets('mochila-grid', row[8]); // Columna I
-                    renderAssets('premios-grid', row[9]);  // Columna J
+                    // Procesar las imágenes correspondientes
+                    renderAssets('mochila-grid', row[idxMochila]); 
+                    renderAssets('premios-grid', row[idxPremios]);  
 
                     break;
                 }
@@ -251,7 +280,7 @@
             if (playerFound) {
                 document.getElementById('profile').style.display = 'block';
             } else {
-                document.getElementById('error').textContent = `JUGADOR NO ENCONTRADO: El ID #${targetId} no está registrado.`;
+                document.getElementById('error').textContent = `JUGADOR NO ENCONTRADO: El ID #${targetId} no coincide en la base de datos pública.`;
                 document.getElementById('error').style.display = 'block';
             }
 
@@ -263,7 +292,6 @@
         }
     }
 
-    // Ejecutar al cargar la página
     window.onload = loadPlayerData;
 </script>
 
