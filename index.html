@@ -2,89 +2,355 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>LEVEL UP - Perfil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVEL UP! - Panel de Jugador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { background: #12121c; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .container { max-width: 500px; margin: auto; border: 4px solid #4e4e7d; padding: 20px; background: #1a1a2e; }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #4e4e7d; margin-bottom: 10px; }
-        .grid-assets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; min-height: 50px; }
-        .grid-assets img { width: 50px; height: 50px; border: 1px solid #4e4e7d; background: #000; }
+        :root {
+            --bg-dark: #12042b;       
+            --panel-bg: #240c4d;      
+            --neon-cyan: #00ffff;     
+            --neon-pink: #ff007f;     
+            --neon-yellow: #fffb00;   
+            --text-light: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                linear-gradient(rgba(18, 4, 43, 0.3) 50%, rgba(0, 0, 0, 0.4) 50%),
+                linear-gradient(90deg, rgba(255, 0, 127, 0.05), rgba(0, 255, 255, 0.05));
+            background-size: 100% 4px, 40px 40px; 
+            color: var(--text-light);
+            font-family: 'Press Start 2P', monospace;
+            text-align: center;
+            margin: 0;
+            padding: 15px;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 10px auto;
+            background: var(--panel-bg);
+            border: 6px solid var(--neon-cyan);
+            padding: 20px;
+            box-shadow: 0px 0px 20px var(--neon-cyan), inset 0px 0px 15px rgba(0,255,255,0.3);
+            position: relative;
+        }
+
+        .brand-logo {
+            max-width: 85%;
+            height: auto;
+            margin: 0 auto 15px auto;
+            display: block;
+            filter: drop-shadow(0px 0px 8px var(--neon-pink));
+        }
+
+        .avatar-frame {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 15px auto;
+            border: 4px solid var(--neon-pink);
+            background-color: #000;
+            box-shadow: 0px 0px 10px var(--neon-pink);
+        }
+
+        .avatar-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gamertag {
+            color: var(--neon-yellow);
+            font-size: 16px;
+            text-shadow: 3px 3px 0px #000;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+
+        .player-id {
+            font-size: 9px;
+            color: #a393eb;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            border: 4px solid var(--neon-yellow);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 2px dashed #441880;
+            padding-bottom: 8px;
+        }
+
+        .stat-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .stat-label {
+            color: var(--neon-cyan);
+        }
+
+        .xp-counter {
+            color: var(--neon-yellow);
+            font-size: 14px;
+        }
+
+        .lives-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+
+        .inventory-title {
+            color: var(--neon-pink);
+            font-size: 10px;
+            margin-bottom: 10px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .inventory-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .slot {
+            background: #110226;
+            border: 2px solid #441880;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+        }
+
+        .slot.active {
+            border-color: var(--neon-cyan);
+            box-shadow: 0px 0px 10px var(--neon-cyan);
+        }
+
+        .slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0.15; 
+        }
+
+        .slot.active img {
+            opacity: 1;    
+            filter: drop-shadow(0px 0px 4px var(--neon-cyan));
+        }
+
+        .penalty-text {
+            font-size: 11px;
+        }
+
+        .character-desc {
+            font-size: 9px;
+            color: #bfa6ff;
+            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            border-left: 4px solid var(--neon-pink);
+            text-align: left;
+        }
+
+        .system-msg {
+            margin-top: 100px;
+            font-size: 12px;
+            color: var(--neon-pink);
+            text-shadow: 2px 2px 0px #000;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Level Up!</h1>
-    <div id="loader">Cargando perfil...</div>
-    <div id="profile" style="display:none;">
-        <img id="avatar" class="avatar" src="" alt="Avatar">
-        <h2 id="name"></h2>
-        <p>Puntos: <span id="score"></span></p>
-        <p>Mochila:</p>
-        <div id="mochila-grid" class="grid-assets"></div>
-        <p>Stickers:</p>
-        <div id="stickers-grid" class="grid-assets"></div>
+    <div class="container" id="game-card" style="display: none;">
+        <img id="game-logo" class="brand-logo" src="" alt="LOGO">
+        
+        <div class="avatar-frame">
+            <img id="avatar" src="" alt="Avatar">
+        </div>
+
+        <div id="gamertag" class="gamertag">JUGADOR</div>
+        <div class="player-id">ID: <span id="player-id-val">000</span></div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">SCORE XP:</span>
+                <span id="xp-points" class="xp-counter">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">VIDAS HP:</span>
+                <div id="lives-display" class="lives-container"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">ALERTA:</span>
+                <span id="penalty-status" class="penalty-text">NINGUNA</span>
+            </div>
+        </div>
+
+        <div class="inventory-title">ITEMS DE ESTACIÓN</div>
+        <div class="inventory-slots">
+            <div class="slot" id="slot-pocion" title="Poción de Vida">
+                <img id="img-pocion" src="" alt="Poción">
+            </div>
+            <div class="slot" id="slot-tiempo" title="Tiempo Extra">
+                <img id="img-tiempo" src="" alt="Tiempo Extra">
+            </div>
+            <div class="slot" id="slot-proteccion" title="Protección de Vida">
+                <img id="img-proteccion" src="" alt="Protección">
+            </div>
+            <div class="slot" id="slot-ayuda" title="Ayuda de NPC">
+                <img id="img-ayuda" src="" alt="Ayuda">
+            </div>
+        </div>
+
+        <div id="character-desc" class="character-desc"></div>
     </div>
-</div>
 
-<script>
-    // Tu enlace de Google Sheets publicado como CSV
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv";
-    
-    // Usamos esta proxy para evitar el bloqueo del navegador (CORS)
-    const PROXY = "https://api.allorigins.win/get?url=" + encodeURIComponent(CSV_URL);
+    <div id="loading-msg" class="system-msg">CONECTANDO AL SERVIDOR ARCADE...</div>
+    <div id="error-msg" class="system-msg" style="display: none;">ERROR: DISCO DE JUEGO NO ENCONTRADO</div>
 
-    async function init() {
-        const params = new URLSearchParams(window.location.search);
-        const targetId = params.get('id')?.replace('#', '').trim();
+    <script>
+        // =========================================================================
+        // ENLACE DIRECTO DE TU EXCEL ACTUALIZADO (.XLSX)
+        // =========================================================================
+        const EXCEL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=xlsx'; 
         
-        try {
-            const response = await fetch(PROXY);
-            const json = await response.json();
-            const rows = json.contents.split('\n').map(r => r.split(','));
+        // Nombres idénticos de tus imágenes en GitHub
+        const LOGO_URL = 'logo.png'; 
+        const ICONO_VIDA = 'vida.png';
+        const ICONO_POCION = '2 Pocion.png';
+        const ICONO_TIEMPO = '3 Tiempo extra.png';
+        const ICONO_PROTECCION = '4 Protección de vida.png';
+        const ICONO_AYUDA = '5 Ayuda.png';
+        // =========================================================================
 
-            let encontrado = false;
-            for(let i = 1; i < rows.length; i++) {
-                if (rows[i][1]?.trim() === targetId) {
-                    // Columna A (0): Avatar, Columna C (2): Nombre, Columna L (11): Puntos
-                    document.getElementById('avatar').src = rows[i][0].trim();
-                    document.getElementById('name').textContent = rows[i][2];
-                    document.getElementById('score').textContent = rows[i][11];
+        // Vinculación de imágenes locales
+        document.getElementById('game-logo').src = LOGO_URL;
+        document.getElementById('img-pocion').src = ICONO_POCION;
+        document.getElementById('img-tiempo').src = ICONO_TIEMPO;
+        document.getElementById('img-proteccion').src = ICONO_PROTECCION;
+        document.getElementById('img-ayuda').src = ICONO_AYUDA;
+
+        // Lee el parámetro de la URL (?id=1)
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerId = urlParams.get('id');
+
+        if(!playerId) {
+            document.getElementById('loading-msg').style.display = 'none';
+            document.getElementById('error-msg').innerText = "INSERT COIN: FALTA ID JUGADOR (?id=...)";
+            document.getElementById('error-msg').style.display = 'block';
+        } else {
+            fetch(EXCEL_URL)
+                .then(res => {
+                    if(!res.ok) throw new Error("Error de conexión");
+                    return res.arrayBuffer();
+                })
+                .then(buffer => {
+                    const workbook = XLSX.read(buffer, { type: 'array' });
                     
-                    // Columna J (9): Items, Columna K (10): Stickers
-                    renderItems('mochila-grid', rows[i][9]);
-                    renderItems('stickers-grid', rows[i][10]);
+                    // Busca específicamente en la pestaña "Base Datos" que subiste
+                    const sheetName = workbook.SheetNames.find(n => n.toLowerCase().includes('base')) || workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const data = XLSX.utils.sheet_to_json(worksheet);
                     
-                    document.getElementById('profile').style.display = 'block';
-                    document.getElementById('loader').style.display = 'none';
-                    encontrado = true;
-                    break;
-                }
-            }
-            if(!encontrado) document.getElementById('loader').textContent = "Jugador no encontrado.";
-        } catch(e) { 
-            console.error(e);
-            document.getElementById('loader').textContent = "Error de conexión. Intenta de nuevo."; 
+                    // Compara limpiando los símbolos como '#' para evitar incompatibilidades
+                    const player = data.find(row => {
+                        let idCelda = String(row['ID'] || row['id'] || '').trim().toLowerCase().replace('#', '');
+                        let idBuscado = String(playerId).trim().toLowerCase().replace('#', '');
+                        return idCelda === idBuscado;
+                    });
+
+                    document.getElementById('loading-msg').style.display = 'none';
+
+                    if(player) {
+                        document.getElementById('game-card').style.display = 'block';
+                        
+                        // Mapeo exacto de tus nuevas columnas
+                        const gamertagVal = player['Gamer Tag'] || player['ID'];
+                        const xpVal = player['Puntaje Total'] || '0';
+                        const hpVal = player['Salud HP'] || '3';
+                        const avatarVal = player['Avatar URL'] || '';
+                        const descVal = player['Descripción Personaje'] || 'SISTEMA DE JUEGO CONECTADO';
+                        const penaltyVal = player['Penalizaciones'] || '0';
+                        const inventarioVal = String(player['Inventario Ítems'] || '').toLowerCase();
+
+                        // Carga de datos de texto
+                        document.getElementById('player-id-val').innerText = String(player['ID'] || playerId);
+                        document.getElementById('gamertag').innerText = String(gamertagVal).toUpperCase();
+                        document.getElementById('avatar').src = avatarVal || 'https://via.placeholder.com/140/000000/ffffff?text=AVATAR';
+                        document.getElementById('xp-points').innerText = xpVal;
+                        document.getElementById('character-desc').innerText = descVal;
+                        
+                        // Estado de Infracciones o Alertas
+                        if(penaltyVal && penaltyVal !== '0' && String(penaltyVal).toLowerCase() !== 'ninguna') {
+                            document.getElementById('penalty-status').innerText = String(penaltyVal).toUpperCase();
+                            document.getElementById('penalty-status').style.color = "#ff3333";
+                        } else {
+                            document.getElementById('penalty-status').innerText = "NINGUNA";
+                            document.getElementById('penalty-status').style.color = "#00ffff";
+                        }
+
+                        // Renderizado de corazones con "vida.png"
+                        const hpCount = parseInt(hpVal) || 0;
+                        const livesDisplay = document.getElementById('lives-display');
+                        livesDisplay.innerHTML = ''; 
+                        
+                        if(hpCount <= 0) {
+                            livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:10px;">GAME OVER</span>';
+                        } else {
+                            for(let i = 0; i < hpCount; i++) {
+                                const img = document.createElement('img');
+                                img.src = ICONO_VIDA;
+                                img.className = 'live-icon';
+                                livesDisplay.appendChild(img);
+                            }
+                        }
+
+                        // Activación de slots iluminados según la columna "Inventario Ítems"
+                        if(inventarioVal.includes('pocion') || inventarioVal.includes('poción')) document.getElementById('slot-pocion').classList.add('active');
+                        if(inventarioVal.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
+                        if(inventarioVal.includes('proteccion') || inventarioVal.includes('protección')) document.getElementById('slot-proteccion').classList.add('active');
+                        if(inventarioVal.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
+
+                    } else {
+                        document.getElementById('error-msg').innerText = "JUGADOR NO REGISTRADO EN LA BASE DE DATOS";
+                        document.getElementById('error-msg').style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('loading-msg').style.display = 'none';
+                    document.getElementById('error-msg').innerText = "ERROR DE LECTURA DE EXCEL ARCADE";
+                    document.getElementById('error-msg').style.display = 'block';
+                });
         }
-    }
-
-    function renderItems(containerId, data) {
-        const div = document.getElementById(containerId);
-        div.innerHTML = "";
-        if (!data) return;
-        
-        // Separamos por coma si hay varios elementos
-        data.split(',').forEach(ruta => {
-            const urlLimpia = ruta.trim();
-            if(urlLimpia !== "") {
-                const img = document.createElement('img');
-                img.src = urlLimpia; // Se usa la ruta exacta: assets/items/... o link directo
-                img.onerror = () => { img.style.display = 'none'; };
-                div.appendChild(img);
-            }
-        });
-    }
-    init();
-</script>
+    </script>
 </body>
 </html>
