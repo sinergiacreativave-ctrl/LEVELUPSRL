@@ -26,14 +26,14 @@
 </div>
 
 <script>
-    // 1. TU ENLACE CSV (Asegúrate de que termina en output=csv)
+    // 1. PEGA TU ENLACE CSV AQUÍ (Asegúrate que termina en output=csv)
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv"; 
     
     // 2. RUTA DE TUS IMÁGENES
     const ASSETS_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/assets/";
 
-    // 3. LISTA DE TUS IMÁGENES (Para que el código sepa buscarlas)
-    const misImagenes = [
+    // 3. TUS IMÁGENES DEFINIDAS
+    const imagenesDisponibles = [
         "1 Moneda.png", "2 Pocion.png", "3 Tiempo extra.png", 
         "4 Proteccion de vida.png", "5 Ayuda.png", 
         "1 Bronce.png", "2 Plata.png", "3 Oro.png"
@@ -42,18 +42,16 @@
     function renderAssets(containerId, dataString) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
-        if (!dataString) return;
+        if (!dataString || dataString === "0") return;
         
         const items = dataString.split(',');
         items.forEach(item => {
             const nombreLimpio = item.trim();
-            // Buscamos si el nombre existe en nuestra lista
-            const imgEncontrada = misImagenes.find(img => img.includes(nombreLimpio));
+            const imgEncontrada = imagenesDisponibles.find(img => img.includes(nombreLimpio));
             
             if (imgEncontrada) {
                 const img = document.createElement('img');
                 img.src = ASSETS_URL + imgEncontrada;
-                img.title = imgEncontrada;
                 container.appendChild(img);
             }
         });
@@ -67,16 +65,20 @@
             const res = await fetch(CSV_URL);
             const text = await res.text();
             const rows = text.split('\n').map(r => r.split(','));
-            const headers = rows[0].map(h => h.trim().toUpperCase());
+            
+            // Normalizar encabezados para encontrar las columnas sin importar tildes o mayúsculas
+            const headers = rows[0].map(h => h.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
             
             const idxId = headers.indexOf('ID');
             const idxTag = headers.indexOf('GAMER TAG');
             const idxScore = headers.indexOf('PUNTAJE TOTAL');
-            const idxMochila = headers.indexOf('INVENTARIO ÍTEMS');
+            const idxMochila = headers.indexOf('INVENTARIO ITEMS');
             const idxStickers = headers.indexOf('STICKERS PREMIO');
 
             for(let i = 1; i < rows.length; i++) {
-                if(rows[i][idxId] && rows[i][idxId].replace('#','').trim() === myId) {
+                const rowId = rows[i][idxId]?.replace('#','').trim();
+                
+                if (rowId === myId) {
                     document.getElementById('name').textContent = rows[i][idxTag];
                     document.getElementById('score').textContent = rows[i][idxScore];
                     
@@ -90,7 +92,7 @@
             }
             document.getElementById('status').textContent = "Jugador no encontrado.";
         } catch(e) {
-            document.getElementById('status').textContent = "Error de conexión: " + e.message;
+            document.getElementById('status').textContent = "Error: " + e.message;
         }
     }
     init();
