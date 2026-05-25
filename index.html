@@ -14,7 +14,7 @@
 
 <div class="container">
     <h1>Level Up!</h1>
-    <div id="status">Cargando perfil...</div>
+    <div id="loader">Cargando...</div>
     <div id="profile" style="display:none;">
         <h2 id="name"></h2>
         <p>Puntos: <span id="score"></span></p>
@@ -26,36 +26,11 @@
 </div>
 
 <script>
-    // 1. PEGA TU ENLACE CSV AQUÍ (Asegúrate que termina en output=csv)
+    // 1. PEGA TU ENLACE CSV AQUÍ
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv"; 
     
-    // 2. RUTA DE TUS IMÁGENES
-    const ASSETS_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/assets/";
-
-    // 3. TUS IMÁGENES DEFINIDAS
-    const imagenesDisponibles = [
-        "1 Moneda.png", "2 Pocion.png", "3 Tiempo extra.png", 
-        "4 Proteccion de vida.png", "5 Ayuda.png", 
-        "1 Bronce.png", "2 Plata.png", "3 Oro.png"
-    ];
-
-    function renderAssets(containerId, dataString) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
-        if (!dataString || dataString === "0") return;
-        
-        const items = dataString.split(',');
-        items.forEach(item => {
-            const nombreLimpio = item.trim();
-            const imgEncontrada = imagenesDisponibles.find(img => img.includes(nombreLimpio));
-            
-            if (imgEncontrada) {
-                const img = document.createElement('img');
-                img.src = ASSETS_URL + imgEncontrada;
-                container.appendChild(img);
-            }
-        });
-    }
+    // 2. LA RUTA ES LA RAÍZ DEL REPOSITORIO (SIN CARPETAS)
+    const BASE_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/";
 
     async function init() {
         const params = new URLSearchParams(window.location.search);
@@ -65,36 +40,47 @@
             const res = await fetch(CSV_URL);
             const text = await res.text();
             const rows = text.split('\n').map(r => r.split(','));
-            
-            // Normalizar encabezados para encontrar las columnas sin importar tildes o mayúsculas
-            const headers = rows[0].map(h => h.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+            const headers = rows[0].map(h => h.trim().toUpperCase());
             
             const idxId = headers.indexOf('ID');
             const idxTag = headers.indexOf('GAMER TAG');
-            const idxScore = headers.indexOf('PUNTAJE TOTAL');
+            const idxScore = headers.indexOf('PUNTUACION TOTAL'); // Ajustado a tu archivo
             const idxMochila = headers.indexOf('INVENTARIO ITEMS');
             const idxStickers = headers.indexOf('STICKERS PREMIO');
 
             for(let i = 1; i < rows.length; i++) {
-                const rowId = rows[i][idxId]?.replace('#','').trim();
-                
-                if (rowId === myId) {
+                if(rows[i][idxId] && rows[i][idxId].replace('#','').trim() === myId) {
                     document.getElementById('name').textContent = rows[i][idxTag];
-                    document.getElementById('score').textContent = rows[i][idxScore];
+                    document.getElementById('score').textContent = rows[i][idxScore] || "0";
                     
-                    renderAssets('mochila-grid', rows[i][idxMochila]);
-                    renderAssets('stickers-grid', rows[i][idxStickers]);
+                    renderGrid('mochila-grid', rows[i][idxMochila]);
+                    renderGrid('stickers-grid', rows[i][idxStickers]);
                     
                     document.getElementById('profile').style.display = 'block';
-                    document.getElementById('status').style.display = 'none';
+                    document.getElementById('loader').style.display = 'none';
                     return;
                 }
             }
-            document.getElementById('status').textContent = "Jugador no encontrado.";
-        } catch(e) {
-            document.getElementById('status').textContent = "Error: " + e.message;
-        }
+            document.getElementById('loader').textContent = "Jugador no encontrado.";
+        } catch(e) { console.error(e); }
     }
+
+    function renderGrid(id, data) {
+        const div = document.getElementById(id);
+        if (!data || data.trim() === "") return;
+        
+        data.split(',').forEach(item => {
+            const nombre = item.trim();
+            if (nombre === "") return;
+            
+            const img = document.createElement('img');
+            // Busca directamente en la raíz + nombre del archivo + .png
+            img.src = BASE_URL + nombre + ".png"; 
+            img.onerror = () => { img.style.display = 'none'; console.log("No encontré: " + img.src); };
+            div.appendChild(img);
+        });
+    }
+
     init();
 </script>
 </body>
