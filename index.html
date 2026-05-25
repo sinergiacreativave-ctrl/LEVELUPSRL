@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - Panel de Avatares</title>
+    <style>
+        body { 
+            font-family: 'Courier New', Courier, monospace; 
+            background-color: #1a1a1a; 
+            color: #fff; 
+            padding: 20px; 
+        }
+        h1 { text-align: center; color: #ffeb3b; text-shadow: 2px 2px #000; }
+        .contenedor-avatares { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            justify-content: center; 
+            margin-top: 30px; 
+        }
+        .tarjeta-avatar { 
+            border: 2px solid #fff; 
+            padding: 15px; 
+            background-color: #2a2a2a; 
+            border-radius: 8px; 
+            width: 250px; 
+            box-shadow: 3px 3px 0px #000;
+        }
+        .barra-energia { 
+            height: 15px; 
+            width: 100%; 
+            border: 1px solid #fff; 
+            margin-top: 5px; 
+            border-radius: 4px; 
+        }
+        .avatar-img {
+            width: 80px;
+            height: 80px;
+            display: block;
+            margin: 0 auto 10px auto;
+            border-radius: 50%;
+            border: 2px solid #ffeb3b;
+            background-color: #444;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 Panel de Jugadores: Level Up 🎮</h1>
+    <p style="text-align: center;">Base de datos síncrona en tiempo real con Google Sheets</p>
+
+    <div class="contenedor-avatares" id="listaAvatares"></div>
+
+    <script>
+      const urlSheets = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssX0YoQaQRs-YqS/pub?output=csv";
+
+      async function conectarBaseDatos() {
+        try {
+          const respuesta = await fetch(urlSheets);
+          const datosTexto = await respuesta.text();
+          const filas = datosTexto.split("\n").slice(1);
+          const contenedor = document.getElementById("listaAvatares");
+          contenedor.innerHTML = ""; 
+          
+          filas.forEach(fila => {
+            const columnas = fila.split(",");
+            if(columnas.length < 5 || columnas[1] === "" || columnas[1] === undefined) return; 
+
+            const avatarUrl = columnas[0].trim();   
+            const id = columnas[1].trim();          
+            const gamerTag = columnas[2].trim();    
+            const grado = columnas[3].trim();       
+            const habilidad = columnas[4].trim();   
+            const mundoActivo = columnas[5].trim(); 
+            const hpActual = columnas[7].trim();     
+            const colorEnergia = columnas[8] ? columnas[8].trim().toLowerCase() : 'gris'; 
+
+            const iconoPocion = "https://cdn-icons-png.flaticon.com/512/867/867926.png"; 
+
+            const coloresCSS = {
+                'azul': '#3498db',
+                'rojo': '#e74c3c',
+                'verde': '#2ecc71',
+                'amarillo': '#f1c40f',
+                'morado': '#9b59b6',
+                'naranja': '#e67e22',
+                'rosa': '#ff9ff3'
+            };
+            const colorFinal = coloresCSS[colorEnergia] || '#888888';
+            const imagenFinal = avatarUrl.startsWith("http") ? avatarUrl : "https://via.placeholder.com/80?text=?";
+
+            const htmlTarjeta = `
+                <div class="tarjeta-avatar">
+                    <img class="avatar-img" src="${imagenFinal}" alt="Avatar ${gamerTag}">
+                    <h3 style="text-align:center; margin:0 0 10px 0;">${id} - ${gamerTag}</h3>
+                    <p><strong>Grado:</strong> ${grado}</p>
+                    <p><strong>Habilidad:</strong> ${habilidad}</p>
+                    <p><strong>🗺️ Ubicación:</strong> ${mundoActivo}</p>
+                    <p><strong>❤️ HP (Vidas):</strong> ${hpActual} / 3</p>
+                    <div style="margin-top: 10px;">
+                        <strong>Energía Asignada:</strong> <span style="color:${colorFinal}; font-weight:bold;">${colorEnergia}</span>
+                        <div class="barra-energia" style="background-color: ${colorFinal};"></div>
+                    </div>
+                    <p style="margin-top:15px; font-size:12px; border-top: 1px dashed #555; padding-top:5px;">
+                        🎒 <strong>Inventario:</strong> <img src="${iconoPocion}" width="12"> Poción x1
+                    </p>
+                </div>
+            `;
+            contenedor.innerHTML += htmlTarjeta;
+          });
+        } catch (error) {
+          console.error("Error al conectar con el inventario de Google Sheets:", error);
+        }
+      }
+      window.onload = conectarBaseDatos;
+    </script>
+</body>
+</html>
