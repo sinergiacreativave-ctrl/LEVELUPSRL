@@ -6,81 +6,54 @@
     <style>
         body { background: #12121c; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
         .container { max-width: 500px; margin: auto; border: 4px solid #4e4e7d; padding: 20px; background: #1a1a2e; }
-        .grid-assets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; min-height: 50px; }
-        .grid-assets img { width: 50px; height: 50px; image-rendering: pixelated; border: 1px solid #4e4e7d; background: #000; }
+        #loader img { width: 100px; }
+        .grid-assets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
+        .grid-assets img { width: 50px; height: 50px; border: 1px solid #4e4e7d; background: #000; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Level Up!</h1>
-    <div id="loader">Cargando...</div>
+    <div id="status">Cargando...</div>
     <div id="profile" style="display:none;">
         <h2 id="name"></h2>
         <p>Puntos: <span id="score"></span></p>
-        <p>Mochila:</p>
         <div id="mochila-grid" class="grid-assets"></div>
-        <p>Stickers:</p>
-        <div id="stickers-grid" class="grid-assets"></div>
     </div>
 </div>
 
 <script>
-    // 1. PEGA TU ENLACE CSV AQUÍ
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv"; 
-    
-    // 2. LA RUTA ES LA RAÍZ DEL REPOSITORIO (SIN CARPETAS)
-    const BASE_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/";
 
     async function init() {
         const params = new URLSearchParams(window.location.search);
-        const myId = params.get('id');
+        let myId = params.get('id').replace('#', '').trim(); // Elimina '#' y espacios
         
         try {
             const res = await fetch(CSV_URL);
             const text = await res.text();
             const rows = text.split('\n').map(r => r.split(','));
-            const headers = rows[0].map(h => h.trim().toUpperCase());
             
-            const idxId = headers.indexOf('ID');
-            const idxTag = headers.indexOf('GAMER TAG');
-            const idxScore = headers.indexOf('PUNTUACION TOTAL'); // Ajustado a tu archivo
-            const idxMochila = headers.indexOf('INVENTARIO ITEMS');
-            const idxStickers = headers.indexOf('STICKERS PREMIO');
-
+            // BUSCA LAS COLUMNAS POR POSICIÓN (MÁS SEGURO)
+            // ID es columna 1, Gamer Tag es 2, Puntaje es 11, Mochila es 9
+            let found = false;
             for(let i = 1; i < rows.length; i++) {
-                if(rows[i][idxId] && rows[i][idxId].replace('#','').trim() === myId) {
-                    document.getElementById('name').textContent = rows[i][idxTag];
-                    document.getElementById('score').textContent = rows[i][idxScore] || "0";
-                    
-                    renderGrid('mochila-grid', rows[i][idxMochila]);
-                    renderGrid('stickers-grid', rows[i][idxStickers]);
+                let rowId = rows[i][1]?.replace('#', '').trim(); // Columna ID
+                
+                if (rowId === myId) {
+                    document.getElementById('name').textContent = rows[i][2]; // Gamer Tag
+                    document.getElementById('score').textContent = rows[i][11]; // Puntaje
                     
                     document.getElementById('profile').style.display = 'block';
-                    document.getElementById('loader').style.display = 'none';
-                    return;
+                    document.getElementById('status').style.display = 'none';
+                    found = true;
+                    break;
                 }
             }
-            document.getElementById('loader').textContent = "Jugador no encontrado.";
-        } catch(e) { console.error(e); }
+            if(!found) document.getElementById('status').textContent = "ID #" + myId + " no encontrado en la base de datos.";
+        } catch(e) { document.getElementById('status').textContent = "Error: " + e.message; }
     }
-
-    function renderGrid(id, data) {
-        const div = document.getElementById(id);
-        if (!data || data.trim() === "") return;
-        
-        data.split(',').forEach(item => {
-            const nombre = item.trim();
-            if (nombre === "") return;
-            
-            const img = document.createElement('img');
-            // Busca directamente en la raíz + nombre del archivo + .png
-            img.src = BASE_URL + nombre + ".png"; 
-            img.onerror = () => { img.style.display = 'none'; console.log("No encontré: " + img.src); };
-            div.appendChild(img);
-        });
-    }
-
     init();
 </script>
 </body>
