@@ -15,7 +15,7 @@
 
 <div class="container">
     <h1>Level Up!</h1>
-    <div id="loader">Cargando datos...</div>
+    <div id="loader">Cargando perfil...</div>
     <div id="profile" style="display:none;">
         <img id="avatar" class="avatar" src="" alt="Avatar">
         <h2 id="name"></h2>
@@ -28,41 +28,57 @@
 </div>
 
 <script>
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv"; 
+    // Tu enlace de Google Sheets publicado como CSV
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv";
+    
+    // Usamos esta proxy para evitar el bloqueo del navegador (CORS)
+    const PROXY = "https://api.allorigins.win/get?url=" + encodeURIComponent(CSV_URL);
 
     async function init() {
         const params = new URLSearchParams(window.location.search);
-        let targetId = params.get('id');
+        const targetId = params.get('id')?.replace('#', '').trim();
         
         try {
-            const res = await fetch(CSV_URL);
-            const text = await res.text();
-            const rows = text.split('\n').map(r => r.split(','));
-            
+            const response = await fetch(PROXY);
+            const json = await response.json();
+            const rows = json.contents.split('\n').map(r => r.split(','));
+
+            let encontrado = false;
             for(let i = 1; i < rows.length; i++) {
-                if (rows[i][1]?.trim() === targetId || rows[i][1]?.trim() === "#" + targetId) {
-                    document.getElementById('avatar').src = rows[i][0];
+                if (rows[i][1]?.trim() === targetId) {
+                    // Columna A (0): Avatar, Columna C (2): Nombre, Columna L (11): Puntos
+                    document.getElementById('avatar').src = rows[i][0].trim();
                     document.getElementById('name').textContent = rows[i][2];
                     document.getElementById('score').textContent = rows[i][11];
-                    renderGrid('mochila-grid', rows[i][9]);
-                    renderGrid('stickers-grid', rows[i][10]);
+                    
+                    // Columna J (9): Items, Columna K (10): Stickers
+                    renderItems('mochila-grid', rows[i][9]);
+                    renderItems('stickers-grid', rows[i][10]);
+                    
                     document.getElementById('profile').style.display = 'block';
                     document.getElementById('loader').style.display = 'none';
-                    return;
+                    encontrado = true;
+                    break;
                 }
             }
-        } catch(e) { console.error(e); }
+            if(!encontrado) document.getElementById('loader').textContent = "Jugador no encontrado.";
+        } catch(e) { 
+            console.error(e);
+            document.getElementById('loader').textContent = "Error de conexión. Intenta de nuevo."; 
+        }
     }
 
-    function renderGrid(id, data) {
-        const div = document.getElementById(id);
+    function renderItems(containerId, data) {
+        const div = document.getElementById(containerId);
         div.innerHTML = "";
-        if (!data || data.trim() === "") return;
-        data.split(',').forEach(item => {
-            let ruta = item.trim();
-            if (ruta !== "") {
+        if (!data) return;
+        
+        // Separamos por coma si hay varios elementos
+        data.split(',').forEach(ruta => {
+            const urlLimpia = ruta.trim();
+            if(urlLimpia !== "") {
                 const img = document.createElement('img');
-                img.src = ruta;
+                img.src = urlLimpia; // Se usa la ruta exacta: assets/items/... o link directo
                 img.onerror = () => { img.style.display = 'none'; };
                 div.appendChild(img);
             }
