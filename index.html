@@ -29,7 +29,6 @@
 
 <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv"; 
-    const BASE_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/";
 
     async function init() {
         const params = new URLSearchParams(window.location.search);
@@ -45,10 +44,8 @@
                     document.getElementById('avatar').src = rows[i][0];
                     document.getElementById('name').textContent = rows[i][2];
                     document.getElementById('score').textContent = rows[i][11];
-                    
-                    renderGrid('mochila-grid', rows[i][9]); 
+                    renderGrid('mochila-grid', rows[i][9]);
                     renderGrid('stickers-grid', rows[i][10]);
-                    
                     document.getElementById('profile').style.display = 'block';
                     document.getElementById('loader').style.display = 'none';
                     return;
@@ -61,13 +58,11 @@
         const div = document.getElementById(id);
         div.innerHTML = "";
         if (!data || data.trim() === "") return;
-        
         data.split(',').forEach(item => {
-            const rutaLimpia = item.trim();
-            if (rutaLimpia !== "") {
+            let ruta = item.trim();
+            if (ruta !== "") {
                 const img = document.createElement('img');
-                // AQUÍ ESTÁ EL CAMBIO: Ya no duplicamos la ruta
-                img.src = BASE_URL + rutaLimpia;
+                img.src = ruta;
                 img.onerror = () => { img.style.display = 'none'; };
                 div.appendChild(img);
             }
