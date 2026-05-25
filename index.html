@@ -6,7 +6,6 @@
     <style>
         body { background: #12121c; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
         .container { max-width: 500px; margin: auto; border: 4px solid #4e4e7d; padding: 20px; background: #1a1a2e; }
-        #loader img { width: 100px; }
         .grid-assets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
         .grid-assets img { width: 50px; height: 50px; border: 1px solid #4e4e7d; background: #000; }
     </style>
@@ -15,7 +14,7 @@
 
 <div class="container">
     <h1>Level Up!</h1>
-    <div id="status">Cargando...</div>
+    <div id="status">Buscando jugador...</div>
     <div id="profile" style="display:none;">
         <h2 id="name"></h2>
         <p>Puntos: <span id="score"></span></p>
@@ -24,26 +23,28 @@
 </div>
 
 <script>
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv"; 
-
+    const CSV_URL = "TU_ENLACE_CSV_AQUI"; 
+    
     async function init() {
         const params = new URLSearchParams(window.location.search);
-        let myId = params.get('id').replace('#', '').trim(); // Elimina '#' y espacios
+        // Recibe el ID, limpia el '#' y espacios
+        let targetId = params.get('id').replace('#', '').trim();
         
         try {
             const res = await fetch(CSV_URL);
             const text = await res.text();
+            // Separamos por filas
             const rows = text.split('\n').map(r => r.split(','));
             
-            // BUSCA LAS COLUMNAS POR POSICIÓN (MÁS SEGURO)
-            // ID es columna 1, Gamer Tag es 2, Puntaje es 11, Mochila es 9
             let found = false;
+            // Empezamos en i=1 para saltar los títulos
             for(let i = 1; i < rows.length; i++) {
-                let rowId = rows[i][1]?.replace('#', '').trim(); // Columna ID
+                // COLUMNA A = Índice 0
+                let rowId = rows[i][0]?.replace('#', '').trim(); 
                 
-                if (rowId === myId) {
-                    document.getElementById('name').textContent = rows[i][2]; // Gamer Tag
-                    document.getElementById('score').textContent = rows[i][11]; // Puntaje
+                if (rowId === targetId) {
+                    document.getElementById('name').textContent = rows[i][2]; // Gamer Tag (Columna C)
+                    document.getElementById('score').textContent = rows[i][11]; // Puntaje (Columna L)
                     
                     document.getElementById('profile').style.display = 'block';
                     document.getElementById('status').style.display = 'none';
@@ -51,7 +52,7 @@
                     break;
                 }
             }
-            if(!found) document.getElementById('status').textContent = "ID #" + myId + " no encontrado en la base de datos.";
+            if(!found) document.getElementById('status').textContent = "ID #" + targetId + " no existe en la columna A.";
         } catch(e) { document.getElementById('status').textContent = "Error: " + e.message; }
     }
     init();
