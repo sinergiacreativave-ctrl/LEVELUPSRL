@@ -54,31 +54,40 @@
     <div class="contenedor-avatares" id="listaAvatares"></div>
 
     <script>
+      // Enlace directo a tu base de datos real en formato CSV (Separado por punto y coma)
       const urlSheets = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssX0YoQaQRs-YqS/pub?output=csv";
 
       async function conectarBaseDatos() {
         try {
           const respuesta = await fetch(urlSheets);
           const datosTexto = await respuesta.text();
-          const filas = datosTexto.split("\n").slice(1);
+          
+          // Separamos el texto por filas
+          const filas = datosTexto.split("\n").slice(1); // Omitimos la fila de títulos
           const contenedor = document.getElementById("listaAvatares");
-          contenedor.innerHTML = ""; 
+          contenedor.innerHTML = ""; // Limpiamos la pantalla antes de cargar
           
           filas.forEach(fila => {
-            const columnas = fila.split(",");
+            // CORRECCIÓN CLAVE: Separamos por punto y coma (;) debido a la configuración regional
+            const columnas = fila.split(";");
+            
+            // Validamos que la fila tenga datos reales y que el ID no esté vacío
             if(columnas.length < 5 || columnas[1] === "" || columnas[1] === undefined) return; 
 
-            const avatarUrl = columnas[0].trim();   
-            const id = columnas[1].trim();          
-            const gamerTag = columnas[2].trim();    
-            const grado = columnas[3].trim();       
-            const habilidad = columnas[4].trim();   
-            const mundoActivo = columnas[5].trim(); 
-            const hpActual = columnas[7].trim();     
-            const colorEnergia = columnas[8] ? columnas[8].trim().toLowerCase() : 'gris'; 
+            // Extracción de tus columnas reales de la hoja de cálculo:
+            const avatarUrl = columnas[0] ? columnas[0].trim() : "";   // Columna A (Enlace de la imagen)
+            const id = columnas[1] ? columnas[1].trim() : "";          // Columna B (#1, #2...)
+            const gamerTag = columnas[2] ? columnas[2].trim() : "";    // Columna C (Nombre de jugador)
+            const grado = columnas[3] ? columnas[3].trim() : "";       // Columna D
+            const habilidad = columnas[4] ? columnas[4].trim() : "";   // Columna E
+            const mundoActivo = columnas[5] ? columnas[5].trim() : ""; // Columna F
+            const hpActual = columnas[7] ? columnas[7].trim() : "3";     // Columna H (Vidas actuales)
+            const colorEnergia = columnas[8] ? columnas[8].trim().toLowerCase() : 'gris'; // Columna I
 
+            // Iconos temporales para los ítems que faltan por diseñar
             const iconoPocion = "https://cdn-icons-png.flaticon.com/512/867/867926.png"; 
 
+            // Paleta de colores CSS reales basados en la elección de tus niños
             const coloresCSS = {
                 'azul': '#3498db',
                 'rojo': '#e74c3c',
@@ -89,8 +98,11 @@
                 'rosa': '#ff9ff3'
             };
             const colorFinal = coloresCSS[colorEnergia] || '#888888';
+
+            // Si la columna A no tiene un enlace válido, usamos una imagen misteriosa por defecto
             const imagenFinal = avatarUrl.startsWith("http") ? avatarUrl : "https://via.placeholder.com/80?text=?";
 
+            // Construcción visual de la tarjeta del alumno
             const htmlTarjeta = `
                 <div class="tarjeta-avatar">
                     <img class="avatar-img" src="${imagenFinal}" alt="Avatar ${gamerTag}">
@@ -110,10 +122,13 @@
             `;
             contenedor.innerHTML += htmlTarjeta;
           });
+          
         } catch (error) {
           console.error("Error al conectar con el inventario de Google Sheets:", error);
         }
       }
+
+      // Iniciar la carga automática al abrir la web
       window.onload = conectarBaseDatos;
     </script>
 </body>
