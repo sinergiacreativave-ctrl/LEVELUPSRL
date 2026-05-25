@@ -2,298 +2,85 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEVEL UP - Perfil de Jugador</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>LEVEL UP - Perfil</title>
     <style>
-        :root {
-            --bg-color: #12121c;
-            --panel-color: #1a1a2e;
-            --border-color: #4e4e7d;
-            --text-color: #ffffff;
-            --accent-color: #00ffcc;
-            --alert-color: #ff4a4a;
-        }
-
-        body {
-            font-family: 'Press Start 2P', monospace;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-size: 12px;
-            line-height: 1.6;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--panel-color);
-            border: 4px solid var(--border-color);
-            padding: 20px;
-            box-shadow: 0px 0px 15px rgba(0, 255, 204, 0.2);
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 18px;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            text-shadow: 2px 2px #000;
-        }
-
-        .player-card {
-            border: 2px dashed var(--border-color);
-            padding: 15px;
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.2);
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-            border-bottom: 2px solid rgba(78, 78, 125, 0.3);
-            padding-bottom: 5px;
-        }
-
-        .label { color: #8a8ab3; }
-        .val { color: var(--text-color); }
-        .score { color: #ffcc00; }
-        .penalty { color: var(--alert-color); }
-
-        .section-title {
-            font-size: 10px;
-            color: var(--accent-color);
-            text-align: left;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .grid-assets {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            background: rgba(0,0,0,0.3);
-            border: 2px solid var(--border-color);
-            padding: 10px;
-            min-height: 60px;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .grid-assets img {
-            width: 45px;
-            height: 45px;
-            object-fit: contain;
-            image-rendering: pixelated;
-            filter: drop-shadow(2px 2px 0px #000);
-        }
-
-        .error-msg {
-            color: var(--alert-color);
-            font-size: 10px;
-            margin-top: 20px;
-        }
-
-        .loading {
-            color: var(--accent-color);
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+        body { background: #12121c; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; border: 4px solid #4e4e7d; padding: 20px; background: #1a1a2e; }
+        .grid-assets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
+        .grid-assets img { width: 50px; height: 50px; image-rendering: pixelated; border: 1px solid #4e4e7d; }
+        #debug { color: #ffcc00; font-size: 10px; margin-top: 20px; text-align: left; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Level Up!</h1>
-    
-    <div id="loading" class="loading">Cargando datos del servidor...</div>
-    <div id="error" class="error-msg" style="display: none;"></div>
-
-    <div id="profile" style="display: none;">
-        <div class="player-card">
-            <div class="info-row">
-                <span class="label">ID:</span>
-                <span class="val" id="player-id">-</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Gamer Tag:</span>
-                <span class="val" id="player-tag" style="color: #00ffcc;">-</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Grado:</span>
-                <span class="val" id="player-grade">-</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Puntos:</span>
-                <span class="val score" id="player-score">0</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Faltas:</span>
-                <span class="val penalty" id="player-penalties">0</span>
-            </div>
-        </div>
-
-        <div class="section-title">🎒 Mi Mochila (Ítems)</div>
+    <div id="status">Cargando...</div>
+    <div id="profile" style="display:none;">
+        <h2 id="name"></h2>
+        <p>Puntos: <span id="score"></span></p>
+        <p>Mochila:</p>
         <div id="mochila-grid" class="grid-assets"></div>
-
-        <div class="section-title">🏅 Stickers de Premio</div>
-        <div id="premios-grid" class="grid-assets"></div>
     </div>
+    <div id="debug"></div>
 </div>
 
 <script>
-    // =========================================================================
-    // CONFIGURACIÓN DE ENLACES (¡Cambia estos dos valores con tus datos reales!)
-    // =========================================================================
-    
-    // 1. Pega aquí el enlace largo .csv que te dio Google Sheets al publicar en la web
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv";
-    
-    // 2. Ruta base de tus imágenes en GitHub (Cambia TU_USUARIO y TU_REPOSITORIO)
-    const IMAGE_BASE_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/assets/";
+    // 1. PEGA AQUÍ TU ENLACE CSV (asegúrate que termine en output=csv)
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv";
+    // 2. LA RUTA A TUS IMÁGENES
+    const ASSETS_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/assets/";
 
-    // =========================================================================
-    // CÓDIGO DEL MOTOR DEL JUEGO
-    // =========================================================================
-
-    // Obtener el ID desde el enlace de la web (?id=7)
-    function getPlayerIdFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        let id = params.get('id');
-        if (!id) return null;
-        return id.replace('#', '').trim(); // Limpia el '#' por si viene en el QR
-    }
-
-    // Dibujar las imágenes en la mochila y los premios
     function renderAssets(containerId, dataString) {
         const container = document.getElementById(containerId);
-        container.innerHTML = ''; 
+        container.innerHTML = '';
+        if (!dataString) return;
         
-        if (!dataString || dataString.trim() === "" || dataString === "0") {
-            container.innerHTML = '<span style="color:#4e4e7d; font-size:9px;">Vacío</span>';
-            return;
-        }
-
         const items = dataString.split(',');
         items.forEach(item => {
-            const itemName = item.trim();
-            if (itemName !== "") {
-                const img = document.createElement('img');
-                img.src = itemName.endsWith('.png') ? IMAGE_BASE_URL + itemName : IMAGE_BASE_URL + itemName + '.png';
-                img.alt = itemName;
-                img.title = itemName;
-                img.onerror = () => { img.style.display = 'none'; }; // Oculta si la imagen no se encuentra
-                container.appendChild(img);
-            }
+            const name = item.trim();
+            if (name === "") return;
+            
+            const img = document.createElement('img');
+            // Asegura que termine en .png
+            const fileName = name.endsWith('.png') ? name : name + ".png";
+            img.src = ASSETS_URL + fileName;
+            img.onerror = () => { img.style.display = 'none'; console.warn("No se encontró: " + fileName); };
+            container.appendChild(img);
         });
     }
 
-    // Cargar y procesar la base de datos de Google Sheets
-    async function loadPlayerData() {
-        const targetId = getPlayerIdFromURL();
-        if (!targetId) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').textContent = "ERROR: No se especificó ningún ID de jugador en el código QR.";
-            document.getElementById('error').style.display = 'block';
-            return;
-        }
-
+    async function init() {
+        const params = new URLSearchParams(window.location.search);
+        const myId = params.get('id');
+        
         try {
-            const response = await fetch(SHEET_CSV_URL);
-            const data = await response.text();
+            const res = await fetch(CSV_URL);
+            const text = await res.text();
+            const rows = text.split('\n').map(r => r.split(','));
+            const headers = rows[0].map(h => h.trim().toUpperCase());
             
-            // Función inteligente para separar CSV respetando comas dentro de comillas
-            const parseCSV = (text) => {
-                let lines = text.split('\n');
-                return lines.map(line => {
-                    let result = [];
-                    let current = '';
-                    let inQuotes = false;
-                    for (let i = 0; i < line.length; i++) {
-                        let char = line[i];
-                        if (char === '"') {
-                            inQuotes = !inQuotes;
-                        } else if (char === ',' && !inQuotes) {
-                            result.push(current.trim());
-                            current = '';
-                        } else {
-                            current += char;
-                        }
-                    }
-                    result.push(current.trim());
-                    return result;
-                });
-            };
+            const idxId = headers.indexOf('ID');
+            const idxTag = headers.indexOf('GAMER TAG');
+            const idxScore = headers.indexOf('PUNTAJE TOTAL');
+            const idxMochila = headers.indexOf('INVENTARIO ÍTEMS');
 
-            const rows = parseCSV(data);
-            const headers = rows[0];
-            
-            // Localizar las columnas dinámicamente según el nombre de sus encabezados
-            const idxId = headers.findIndex(h => h.toLowerCase() === 'id');
-            const idxTag = headers.findIndex(h => h.toLowerCase() === 'gamer tag');
-            const idxGrade = headers.findIndex(h => h.toLowerCase() === 'grado');
-            const idxMochila = headers.findIndex(h => h.toLowerCase() === 'inventario ítems');
-            const idxPremios = headers.findIndex(h => h.toLowerCase() === 'stickers premio');
-            const idxScore = headers.findIndex(h => h.toLowerCase() === 'puntaje total');
-            const idxPenalties = headers.findIndex(h => h.toLowerCase() === 'penalizaciones');
-
-            let playerFound = false;
-
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                if (idxId === -1 || !row[idxId]) continue;
-
-                // Limpiar el ID de la fila (#7 -> 7)
-                const rowId = row[idxId].replace('#', '').trim();
-
-                if (rowId === targetId) {
-                    playerFound = true;
-                    
-                    // Cargar textos en la interfaz
-                    document.getElementById('player-id').textContent = `#${rowId}`;
-                    document.getElementById('player-tag').textContent = row[idxTag] || "Sin Tag";
-                    document.getElementById('player-grade').textContent = row[idxGrade] || "-";
-                    document.getElementById('player-score').textContent = row[idxScore] || "0";
-                    document.getElementById('player-penalties').textContent = row[idxPenalties] || "0";
-
-                    // Procesar las imágenes correspondientes
-                    renderAssets('mochila-grid', row[idxMochila]); 
-                    renderAssets('premios-grid', row[idxPremios]);  
-
-                    break;
+            for(let i = 1; i < rows.length; i++) {
+                if(rows[i][idxId] && rows[i][idxId].replace('#','').trim() === myId) {
+                    document.getElementById('name').textContent = rows[i][idxTag];
+                    document.getElementById('score').textContent = rows[i][idxScore];
+                    renderAssets('mochila-grid', rows[i][idxMochila]);
+                    document.getElementById('profile').style.display = 'block';
+                    document.getElementById('status').style.display = 'none';
+                    return;
                 }
             }
-
-            document.getElementById('loading').style.display = 'none';
-            if (playerFound) {
-                document.getElementById('profile').style.display = 'block';
-            } else {
-                document.getElementById('error').textContent = `JUGADOR NO ENCONTRADO: El ID #${targetId} no coincide en la base de datos pública.`;
-                document.getElementById('error').style.display = 'block';
-            }
-
-        } catch (err) {
-            console.error(err);
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').textContent = "ERROR: No se pudo conectar con la base de datos de Google Sheets.";
-            document.getElementById('error').style.display = 'block';
+            document.getElementById('status').textContent = "Jugador no encontrado.";
+        } catch(e) {
+            document.getElementById('debug').textContent = "Error: " + e.message;
         }
     }
-
-    window.onload = loadPlayerData;
+    init();
 </script>
-
 </body>
 </html>
