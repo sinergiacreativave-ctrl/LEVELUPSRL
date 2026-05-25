@@ -3,135 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level Up - Panel de Avatares</title>
+    <title>Level Up - Perfil de Jugador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Courier New', Courier, monospace; 
-            background-color: #1a1a1a; 
-            color: #fff; 
-            padding: 20px; 
+        :root {
+            --bg-dark: #0a0a0c;
+            --card-bg: #151518;
+            --accent-yellow: #ffeb3b;
+            --text-main: #e0e0e0;
+            --border-color: #2d2d32;
         }
-        h1 { text-align: center; color: #ffeb3b; text-shadow: 2px 2px #000; }
-        .contenedor-avatares { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 20px; 
-            justify-content: center; 
-            margin-top: 30px; 
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        .tarjeta-avatar { 
-            border: 2px solid #fff; 
-            padding: 15px; 
-            background-color: #2a2a2a; 
-            border-radius: 8px; 
-            width: 250px; 
-            box-shadow: 3px 3px 0px #000;
+
+        /* PANTALLA DE CARGA (SPLASH SCREEN) */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.6s ease;
         }
-        .barra-energia { 
-            height: 15px; 
-            width: 100%; 
-            border: 1px solid #fff; 
-            margin-top: 5px; 
-            border-radius: 4px; 
+
+        .loader-logo {
+            width: 150px;
+            margin-bottom: 25px;
+            animation: pulse 1.8s infinite ease-in-out;
         }
-        .avatar-img {
-            width: 80px;
-            height: 80px;
+
+        .loading-bar {
+            width: 180px;
+            height: 4px;
+            background: #1e1e22;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            width: 0%;
+            height: 100%;
+            background: var(--accent-yellow);
+            animation: loadingMove 1.5s infinite linear;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        @keyframes loadingMove {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .main-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            display: none; 
+        }
+
+        .player-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .header-logo {
             display: block;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 20px;
+            width: 110px;
+        }
+
+        .avatar-frame {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 15px;
+            border: 2px solid var(--accent-yellow);
             border-radius: 50%;
-            border: 2px solid #ffeb3b;
-            background-color: #444;
+            padding: 4px;
+            background: #111;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
             object-fit: cover;
+        }
+
+        .player-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            color: var(--accent-yellow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .player-id {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* DATOS DEL ALUMNO */
+        .info-box {
+            text-align: left;
+            background: #0e0e10;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #1c1c20;
+            margin-bottom: 15px;
+        }
+
+        .stat-row {
+            margin-bottom: 8px;
+            font-size: 15px;
+            border-bottom: 1px dashed #1c1c20;
+            padding-bottom: 5px;
+        }
+        .stat-row:last-child { margin-bottom: 0; border: none; padding-bottom: 0; }
+
+        .stat-label { color: #666; font-weight: bold; }
+        .stat-value { float: right; color: #fff; }
+
+        /* SECCIÓN DE SALUD HP CON TU ICONO */
+        .hp-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .hp-icons-container {
+            display: flex;
+            gap: 5px;
+        }
+        .hp-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        /* ENERGÍA */
+        .energy-container { margin-top: 15px; text-align: left; }
+        .bar-outer {
+            width: 100%;
+            height: 10px;
+            background: #1a1a1e;
+            border-radius: 5px;
+            margin-top: 6px;
+            border: 1px solid #222;
+        }
+        .bar-inner { height: 100%; border-radius: 4px; transition: width 1s ease; }
+
+        /* SECCIONES DE INVENTARIO Y PREMIOS */
+        .inventory-section {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            text-align: left;
+        }
+
+        .section-title {
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .grid-items {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .item-slot {
+            aspect-ratio: 1;
+            background: #09090b;
+            border: 1px solid #1c1c20;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+        }
+
+        .item-icon { width: 100%; height: 100%; object-fit: contain; }
+
+        .system-msg {
+            text-align: center;
+            padding: 30px;
+            color: var(--accent-yellow);
+            border: 1px dashed #333;
+            background: var(--card-bg);
+            border-radius: 8px;
         }
     </style>
 </head>
 <body>
 
-    <h1>🎮 Panel de Jugadores: Level Up 🎮</h1>
-    <p style="text-align: center;">Base de datos síncrona en tiempo real con Google Sheets</p>
+    <div id="loading-screen">
+        <img src="TU_ENLACE_DE_LOGO_AQUÍ" id="loader-logo-img" class="loader-logo" alt="Cargando...">
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
 
-    <div class="contenedor-avatares" id="listaAvatares"></div>
+    <div class="main-container" id="mainView">
+        <div class="player-card" id="cardContent"></div>
+    </div>
 
     <script>
-      const urlSheets = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssX0YoQaQRs-YqS/pub?output=csv";
-
-      async function conectarBaseDatos() {
-        try {
-          const respuesta = await fetch(urlSheets);
-          const datosTexto = await respuesta.text();
-          
-          const filas = datosTexto.split("\n").slice(1); 
-          const contenedor = document.getElementById("listaAvatares");
-          contenedor.innerHTML = ""; 
-          
-          filas.forEach(fila => {
-            // DETECTOR AUTOMÁTICO: Si la fila tiene punto y coma, separa por punto y coma. Si no, por coma.
-            let columnas = [];
-            if (fila.includes(";")) {
-                columnas = fila.split(";");
-            } else {
-                columnas = fila.split(",");
-            }
+        const urlSheets = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssX0YoQaQRs-YqS/pub?output=csv";
+        
+        // ==========================================
+        // PASO 5: PEGA AQUÍ TUS ENLACES DIRECTOS
+        // ==========================================
+        const MIS_ICONOS = {
+            logo: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/logo.png?raw=true",
+            vida: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/vida.png?raw=true",
             
-            // Si la fila está muy vacía o el ID no existe, saltar
-            if(columnas.length < 3 || !columnas[1]) return; 
+            // Tus 5 ítems del juego
+            item1: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/2%20Pocion.png?raw=true",
+            item2: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/3%20Tiempo%20extra.png?raw=true",
+            item3: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/4%20Proteccion%20de%20vida.png?raw=true",
+            item4: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/5%20Ayuda.png?raw=true",
+            
+            // Tus stickers de premio (puedes añadir más si quieres)
+            sticker1: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/6.jpg?raw=true",
+            sticker2: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/5.jpg?raw=true",
+            sticker3: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/4.jpg?raw=true",
+            sticker4: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/3.jpg?raw=true",
+            sticker5: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/2.jpg?raw=true",
+            sticker6: "https://github.com/sinergiacreativave-ctrl/LEVELUPSRL/blob/main/1.jpg?raw=true"
+        };
 
-            const avatarUrl = columnas[0] ? columnas[0].trim() : "";   
-            const id = columnas[1] ? columnas[1].trim() : "";          
-            const gamerTag = columnas[2] ? columnas[2].trim() : "";    
-            const grado = columnas[3] ? columnas[3].trim() : "";       
-            const habilidad = columnas[4] ? columnas[4].trim() : "";   
-            const mundoActivo = columnas[5] ? columnas[5].trim() : ""; 
-            const hpActual = columnas[7] ? columnas[7].trim() : "3";     
-            const colorEnergia = columnas[8] ? columnas[8].trim().toLowerCase() : 'gris'; 
+        // Asignamos el logo de inmediato a la pantalla de carga
+        document.getElementById("loader-logo-img").src = MIS_ICONOS.logo;
 
-            const iconoPocion = "https://cdn-icons-png.flaticon.com/512/867/867926.png"; 
+        function obtenerID() {
+            return new URLSearchParams(window.location.search).get('id');
+        }
 
-            const coloresCSS = {
-                'azul': '#3498db',
-                'rojo': '#e74c3c',
-                'verde': '#2ecc71',
-                'amarillo': '#f1c40f',
-                'morado': '#9b59b6',
-                'naranja': '#e67e22',
-                'rosa': '#ff9ff3'
-            };
-            const colorFinal = coloresCSS[colorEnergia] || '#888888';
-            const imagenFinal = avatarUrl.startsWith("http") ? avatarUrl : "https://via.placeholder.com/80?text=?";
+        async function procesarSistema() {
+            const idBuscado = obtenerID();
+            const card = document.getElementById("cardContent");
 
-            const htmlTarjeta = `
-                <div class="tarjeta-avatar">
-                    <img class="avatar-img" src="${imagenFinal}" alt="Avatar ${gamerTag}">
-                    <h3 style="text-align:center; margin:0 0 10px 0;">${id} - ${gamerTag}</h3>
-                    <p><strong>Grado:</strong> ${grado}</p>
-                    <p><strong>Habilidad:</strong> ${habilidad}</p>
-                    <p><strong>🗺️ Ubicación:</strong> ${mundoActivo}</p>
-                    <p><strong>❤️ HP (Vidas):</strong> ${hpActual} / 3</p>
-                    <div style="margin-top: 10px;">
-                        <strong>Energía Asignada:</strong> <span style="color:${colorFinal}; font-weight:bold;">${colorEnergia}</span>
-                        <div class="barra-energia" style="background-color: ${colorFinal};"></div>
+            if (!idBuscado) {
+                renderError("SISTEMA CONTROLADO<br><br>POR FAVOR ESCANEA EL CÓDIGO QR PARA INGRESAR");
+                return;
+            }
+
+            try {
+                const res = await fetch(urlSheets);
+                const text = await res.text();
+                const filas = text.split("\n").slice(1);
+                
+                let p = null;
+                filas.forEach(fila => {
+                    let cols = fila.includes(";") ? fila.split(";") : fila.split(",");
+                    if (cols.length < 5) return;
+                    
+                    const idLimpio = cols[1].replace("#","").trim();
+                    if (idLimpio === idBuscado.trim()) {
+                        p = {
+                            avatar: cols[0].trim(),
+                            id: idLimpio,
+                            name: cols[2].trim(),
+                            grade: cols[3].trim(),
+                            skill: cols[4].trim(),
+                            world: cols[5].trim(),
+                            hp: parseInt(cols[7].trim()) || 3,
+                            color: cols[8].trim().toLowerCase()
+                        };
+                    }
+                });
+
+                if (p) {
+                    renderPlayer(p);
+                } else {
+                    renderError("CÓDIGO JUGADOR #" + idBuscado + "<br>NO ENCONTRADO EN LA BASE DE DATOS");
+                }
+            } catch (e) {
+                renderError("ERROR CRÍTICO DE CONEXIÓN CON EL SERVIDOR");
+            } finally {
+                // Transición fluida de la pantalla de carga
+                setTimeout(() => {
+                    const ls = document.getElementById("loading-screen");
+                    ls.style.opacity = "0";
+                    setTimeout(() => {
+                        ls.style.display = "none";
+                        document.getElementById("mainView").style.display = "block";
+                    }, 600);
+                }, 1300);
+            }
+        }
+
+        function renderPlayer(p) {
+            const colores = { azul: '#3498db', rojo: '#e74c3c', verde: '#2ecc71', amarillo: '#f1c40f', morado: '#9b59b6', naranja: '#e67e22', rosa: '#ff9ff3' };
+            const colorBarra = colores[p.color] || '#888';
+            const imgAvatar = p.avatar.startsWith("http") ? p.avatar : "https://via.placeholder.com/130?text=AVATAR";
+
+            // Creación dinámica de los iconos de vida (HP) según las vidas del Sheets
+            let htmlVidas = "";
+            for (let i = 0; i < 3; i++) {
+                // Si el niño tiene menos vidas, el icono se vuelve más transparente (efecto daño)
+                let opacidad = i < p.hp ? "opacity: 1;" : "opacity: 0.2; filter: grayscale(1);";
+                htmlVidas += `<img src="${MIS_ICONOS.vida}" class="hp-icon" style="${opacidad}">`;
+            }
+
+            document.getElementById("cardContent").innerHTML = `
+                <img src="${MIS_ICONOS.logo}" class="header-logo">
+                
+                <div class="avatar-frame">
+                    <img src="${imgAvatar}" class="avatar-img">
+                </div>
+                
+                <h1 class="player-name">${p.name}</h1>
+                <p class="player-id">ID JUGADOR: ${p.id}</p>
+                
+                <div class="info-box">
+                    <div class="stat-row"><span class="stat-label">Grado:</span> <span class="stat-value">${p.grade}</span></div>
+                    <div class="stat-row"><span class="stat-label">Habilidad:</span> <span class="stat-value">${p.skill}</span></div>
+                    <div class="stat-row"><span class="stat-label">Ubicación:</span> <span class="stat-value">${p.world}</span></div>
+                    
+                    <div class="hp-section">
+                        <span class="stat-label">Salud HP:</span>
+                        <div class="hp-icons-container">${htmlVidas}</div>
                     </div>
-                    <p style="margin-top:15px; font-size:12px; border-top: 1px dashed #555; padding-top:5px;">
-                        🎒 <strong>Inventario:</strong> <img src="${iconoPocion}" width="12"> Poción x1
-                    </p>
+                </div>
+                
+                <div class="energy-container">
+                    <span class="stat-label">ENERGÍA: ${p.color.toUpperCase()}</span>
+                    <div class="bar-outer">
+                        <div class="bar-inner" style="width: 100%; background: ${colorBarra}; box-shadow: 0 0 8px ${colorBarra}bb;"></div>
+                    </div>
+                </div>
+
+                <div class="inventory-section">
+                    <span class="section-title">Inventario de Ítems</span>
+                    <div class="grid-items">
+                        <div class="item-slot"><img src="${MIS_ICONOS.item1}" class="item-icon" title="Ítem 1"></div>
+                        <div class="item-slot"><img src="${MIS_ICONOS.item2}" class="item-icon" title="Ítem 2"></div>
+                        <div class="item-slot"><img src="${MIS_ICONOS.item3}" class="item-icon" title="Ítem 3"></div>
+                        <div class="item-slot"><img src="${MIS_ICONOS.item4}" class="item-icon" title="Ítem 4"></div>
+                        <div class="item-slot"><img src="${MIS_ICONOS.item5}" class="item-icon" title="Ítem 5"></div>
+                    </div>
+                </div>
+
+                <div class="inventory-section">
+                    <span class="section-title">Stickers de Premio Logrados</span>
+                    <div class="grid-items">
+                        <div class="item-slot"><img src="${MIS_ICONOS.sticker1}" class="item-icon" title="Premio 1"></div>
+                        <div class="item-slot"><img src="${MIS_ICONOS.sticker2}" class="item-icon" title="Premio 2"></div>
+                        <div class="item-slot"></div>
+                        <div class="item-slot"></div>
+                        <div class="item-slot"></div>
+                    </div>
                 </div>
             `;
-            contenedor.innerHTML += htmlTarjeta;
-          });
-          
-          // Si después de revisar todo no se pintó nada, dejamos un mensaje de aviso en pantalla
-          if (contenedor.innerHTML === "") {
-              contenedor.innerHTML = "<p style='color:#ffeb3b;'>La conexión se hizo, pero las celdas de los alumnos parecen estar vacías en la Pestaña 1. ¡Revisa que tengan ID y Gamer Tag puestos!</p>";
-          }
-          
-        } catch (error) {
-          console.error("Error al conectar con el inventario de Google Sheets:", error);
-          document.getElementById("listaAvatares").innerHTML = "<p style='color:red;'>Error de conexión con la base de datos.</p>";
         }
-      }
 
-      window.onload = conectarBaseDatos;
+        function renderError(msg) {
+            document.getElementById("cardContent").innerHTML = `<div class="system-msg">${msg}</div>`;
+            document.getElementById("loading-screen").style.display = "none";
+            document.getElementById("mainView").style.display = "block";
+        }
+
+        window.onload = procesarSistema;
     </script>
 </body>
 </html>
