@@ -6,7 +6,8 @@
     <style>
         body { background: #12121c; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
         .container { max-width: 500px; margin: auto; border: 4px solid #4e4e7d; padding: 20px; background: #1a1a2e; }
-        .grid-assets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #4e4e7d; margin-bottom: 10px; }
+        .grid-assets { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 10px; min-height: 50px; }
         .grid-assets img { width: 50px; height: 50px; border: 1px solid #4e4e7d; background: #000; }
     </style>
 </head>
@@ -14,46 +15,73 @@
 
 <div class="container">
     <h1>Level Up!</h1>
-    <div id="status">Buscando jugador...</div>
+    <div id="loader">Cargando perfil...</div>
     <div id="profile" style="display:none;">
+        <img id="avatar" class="avatar" src="" alt="Avatar">
         <h2 id="name"></h2>
         <p>Puntos: <span id="score"></span></p>
+        <p>Inventario:</p>
         <div id="mochila-grid" class="grid-assets"></div>
+        <p>Stickers:</p>
+        <div id="stickers-grid" class="grid-assets"></div>
     </div>
 </div>
 
 <script>
+    // PEGA AQUÍ TU ENLACE CSV (El que termina en output=csv)
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv"; 
-    
+    // ESTA ES LA DIRECCIÓN DE TU REPOSITORIO (SIN CARPETAS)
+    const BASE_URL = "https://raw.githubusercontent.com/sinergiacreativave-ctrl/LEVELUPSRL/main/";
+
     async function init() {
         const params = new URLSearchParams(window.location.search);
-        // Recibe el ID, limpia el '#' y espacios
-        let targetId = params.get('id').replace('#', '').trim();
+        let targetId = params.get('id');
         
         try {
             const res = await fetch(CSV_URL);
             const text = await res.text();
-            // Separamos por filas
             const rows = text.split('\n').map(r => r.split(','));
             
             let found = false;
-            // Empezamos en i=1 para saltar los títulos
             for(let i = 1; i < rows.length; i++) {
-                // COLUMNA A = Índice 0
-                let rowId = rows[i][0]?.replace('#', '').trim(); 
-                
-                if (rowId === targetId) {
-                    document.getElementById('name').textContent = rows[i][2]; // Gamer Tag (Columna C)
-                    document.getElementById('score').textContent = rows[i][11]; // Puntaje (Columna L)
+                // Columna B (índice 1) es el ID
+                if (rows[i][1]?.trim() === targetId || rows[i][1]?.trim() === "#" + targetId) {
+                    // Columna A (Avatar)
+                    document.getElementById('avatar').src = rows[i][0];
+                    // Columna C (Tag)
+                    document.getElementById('name').textContent = rows[i][2];
+                    // Columna L (Puntos)
+                    document.getElementById('score').textContent = rows[i][11];
+                    
+                    // Columna J (Items) y K (Stickers)
+                    renderGrid('mochila-grid', rows[i][9]);
+                    renderGrid('stickers-grid', rows[i][10]);
                     
                     document.getElementById('profile').style.display = 'block';
-                    document.getElementById('status').style.display = 'none';
+                    document.getElementById('loader').style.display = 'none';
                     found = true;
                     break;
                 }
             }
-            if(!found) document.getElementById('status').textContent = "ID #" + targetId + " no existe en la columna A.";
-        } catch(e) { document.getElementById('status').textContent = "Error: " + e.message; }
+            if(!found) document.getElementById('loader').textContent = "Jugador no encontrado.";
+        } catch(e) { document.getElementById('loader').textContent = "Error al conectar con la base de datos."; }
+    }
+
+    function renderGrid(id, data) {
+        const div = document.getElementById(id);
+        div.innerHTML = "";
+        // Si no hay nada en la celda, no intentamos cargar nada
+        if (!data || data.trim() === "") return;
+        
+        data.split(',').forEach(item => {
+            const nombre = item.trim();
+            if (nombre !== "") {
+                const img = document.createElement('img');
+                // Buscamos directamente en la raíz del repositorio
+                img.src = BASE_URL + nombre; 
+                div.appendChild(img);
+            }
+        });
     }
     init();
 </script>
