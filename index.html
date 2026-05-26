@@ -8,11 +8,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --bg-dark: #12042b;       
-            --panel-bg: #240c4d;      
+            --bg-dark: #09021a;       
+            --panel-bg: #0d0426;      
             --neon-cyan: #00ffff;     
             --neon-pink: #ff007f;     
             --neon-yellow: #fffb00;   
+            --neon-green: #39ff14;
             --text-light: #ffffff;
         }
 
@@ -25,45 +26,57 @@
         body {
             background-color: var(--bg-dark);
             background-image: 
-                linear-gradient(rgba(18, 4, 43, 0.3) 50%, rgba(0, 0, 0, 0.4) 50%),
-                linear-gradient(90deg, rgba(255, 0, 127, 0.05), rgba(0, 255, 255, 0.05));
+                linear-gradient(rgba(9, 2, 26, 0.5) 50%, rgba(0, 0, 0, 0.7) 50%),
+                linear-gradient(90deg, rgba(255, 0, 127, 0.03), rgba(0, 255, 255, 0.03));
             background-size: 100% 4px, 40px 40px; 
             color: var(--text-light);
             font-family: 'Press Start 2P', monospace;
             text-align: center;
-            padding: 10px 6px;
+            padding: 12px 8px;
             font-size: 9px;
-            line-height: 1.5;
+            line-height: 1.4;
             overflow-x: hidden;
         }
 
-        /* Contenedor fluido y 100% responsivo para pantallas móviles */
         .container {
             width: 100%;
             max-width: 340px;
             margin: 0 auto;
             background: var(--panel-bg);
-            border: 4px solid var(--neon-cyan);
-            padding: 12px;
-            box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
+            border: 3px solid var(--neon-cyan);
+            padding: 14px;
+            box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.4), inset 0px 0px 15px rgba(0, 255, 255, 0.1);
+            border-radius: 4px;
         }
 
-        /* LOGO REDUCIDO (50% de ancho máximo) */
+        /* LOGO ESTILIZADO AL 50% */
         .brand-logo {
             max-width: 50%; 
             height: auto;
-            margin: 0 auto 12px auto;
+            margin: 0 auto 14px auto;
             display: block;
-            filter: drop-shadow(0px 0px 6px var(--neon-pink));
+            filter: drop-shadow(0px 0px 8px var(--neon-pink));
+        }
+
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--neon-cyan);
+            padding: 8px;
+            margin-bottom: 12px;
+            text-align: left;
+            box-shadow: 0px 0px 8px rgba(0, 255, 255, 0.2);
         }
 
         .avatar-frame {
-            width: 110px;
-            height: 110px;
-            margin: 0 auto 10px auto;
-            border: 3px solid var(--neon-pink);
+            width: 75px;
+            height: 75px;
+            border: 2px solid var(--neon-pink);
             background-color: #000;
             box-shadow: 0px 0px 8px var(--neon-pink);
+            margin-right: 10px;
+            flex-shrink: 0;
         }
 
         .avatar-frame img {
@@ -72,12 +85,22 @@
             object-fit: cover;
         }
 
+        .player-header-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .gamertag-label {
+            color: #a393eb;
+            font-size: 7px;
+            margin-bottom: 2px;
+        }
+
         .gamertag {
             color: var(--neon-yellow);
-            font-size: 12px;
+            font-size: 13px;
             text-shadow: 2px 2px 0px #000;
-            margin: 4px 0;
-            letter-spacing: 0.5px;
+            margin-bottom: 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -85,28 +108,27 @@
 
         .player-id {
             font-size: 8px;
-            color: #a393eb;
-            margin-bottom: 8px;
+            color: var(--neon-cyan);
         }
 
-        /* Cuadro de descripción debajo del Gamer Tag */
         .character-desc {
-            font-size: 8px;
+            font-size: 7px;
             color: #bfa6ff;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px;
             border-left: 3px solid var(--neon-pink);
-            text-align: center;
-            word-wrap: break-word;
-            margin: 10px 0 14px 0;
+            text-align: left;
+            margin-bottom: 12px;
+            line-height: 1.6;
         }
 
         .stats-grid {
-            border: 3px solid var(--neon-yellow);
-            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--neon-yellow);
+            background: rgba(0, 0, 0, 0.7);
             padding: 10px;
             margin-bottom: 14px;
             text-align: left;
+            box-shadow: inset 0px 0px 8px rgba(255, 251, 0, 0.1);
         }
 
         .stat-item {
@@ -114,7 +136,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 8px;
-            border-bottom: 2px dashed #441880;
+            border-bottom: 1px dashed #3d1475;
             padding-bottom: 6px;
         }
 
@@ -125,7 +147,8 @@
         }
 
         .stat-label {
-            color: var(--neon-cyan);
+            color: #a393eb;
+            font-size: 8px;
         }
 
         .xp-counter {
@@ -140,68 +163,106 @@
         }
 
         .live-icon {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             object-fit: contain;
         }
 
-        .section-title {
-            color: var(--neon-pink);
+        .penalty-text {
             font-size: 8px;
-            margin: 14px 0 8px 0;
-            text-align: left;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: var(--neon-cyan);
         }
 
-        /* Cuadrículas ultra-responsivas de 3 columnas fijas (3 y 3) */
+        .section-title {
+            color: #ffffff;
+            font-size: 9px;
+            margin: 16px 0 10px 0;
+            text-align: left;
+            letter-spacing: 0.5px;
+            text-shadow: 0px 0px 5px var(--neon-pink);
+        }
+
+        /* CUADRÍCULA DE ITEMS Y PREMIOS */
         .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 14px;
             width: 100%;
         }
 
-        /* Mantiene la cuadrícula perfecta incluso si falta una imagen */
+        .slot-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ITEMS DE ESTACIÓN Y MEDALLAS GRANDES */
         .slot {
-            background: #110226;
-            border: 2px solid #441880;
+            background: #050112;
+            border: 2px solid #25104a;
             aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 6px;
             position: relative;
             width: 100%;
-            overflow: hidden; 
-            font-size: 0;      
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
-        .slot.active {
-            border-color: var(--neon-cyan);
-            box-shadow: 0px 0px 8px var(--neon-cyan);
+        /* Colores de marcos individuales según la referencia */
+        #slot-pocion { border-color: #551d7a; }
+        #slot-tiempo { border-color: #1d5b7a; }
+        #slot-proteccion { border-color: #1d7a31; }
+        #slot-ayuda { border-color: #7a1d52; }
+
+        #slot-pocion.active { border-color: var(--neon-pink); box-shadow: 0px 0px 8px var(--neon-pink); }
+        #slot-tiempo.active { border-color: var(--neon-cyan); box-shadow: 0px 0px 8px var(--neon-cyan); }
+        #slot-proteccion.active { border-color: var(--neon-green); box-shadow: 0px 0px 8px var(--neon-green); }
+        #slot-ayuda.active { border-color: #ff00ff; box-shadow: 0px 0px 8px #ff00ff; }
+
+        /* Estilo activo general para medallas de premio */
+        .slot-medal.active {
+            border-color: var(--neon-yellow);
+            box-shadow: 0px 0px 8px var(--neon-yellow);
         }
 
+        /* Control de tamaño de las imágenes internas (Agrandadas al máximo seguro) */
         .slot img {
-            max-width: 100%;
-            max-height: 100%;
+            width: 80%;
+            height: 80%;
             object-fit: contain;
             display: block;
-            opacity: 0.15; 
+            opacity: 0.12; 
+            filter: grayscale(100%);
         }
 
-        .slot.active img {
+        .slot.active img, .slot-medal.active img {
             opacity: 1;    
-            filter: drop-shadow(0px 0px 3px var(--neon-cyan));
+            filter: grayscale(0%) drop-shadow(0px 0px 4px rgba(255,255,255,0.4));
         }
 
-        .penalty-text {
-            font-size: 9px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 150px;
+        /* Candado nativo para casillas bloqueadas */
+        .slot.locked::before {
+            content: "🔒";
+            font-size: 14px;
+            opacity: 0.3;
+            position: absolute;
+        }
+
+        .slot-name {
+            font-size: 6px;
+            color: #8e7cc3;
+            margin-top: 5px;
+            text-transform: uppercase;
+            text-align: center;
+            min-height: 14px;
+            line-height: 1.2;
+        }
+
+        .slot.active + .slot-name, .slot-medal.active + .slot-name {
+            color: #ffffff;
         }
 
         .system-msg {
@@ -218,19 +279,23 @@
     <div class="container" id="game-card" style="display: none;">
         <img id="game-logo" class="brand-logo" src="" alt="LOGO">
         
-        <div class="avatar-frame">
-            <img id="avatar" src="" alt="Avatar">
+        <div class="avatar-container">
+            <div class="avatar-frame">
+                <img id="avatar" src="" alt="Avatar">
+            </div>
+            <div class="player-header-info">
+                <div class="gamertag-label">GAMER TAG:</div>
+                <div id="gamertag" class="gamertag">JUGADOR</div>
+                <div class="player-id">ID: <span id="player-id-val">#00</span></div>
+            </div>
         </div>
-
-        <div id="gamertag" class="gamertag">JUGADOR</div>
-        <div class="player-id">ID: <span id="player-id-val">000</span></div>
 
         <div id="character-desc" class="character-desc"></div>
 
         <div class="stats-grid">
             <div class="stat-item">
                 <span class="stat-label">SCORE XP:</span>
-                <span id="xp-points" class="xp-counter">0</span>
+                <span id="xp-points" class="xp-counter">00000</span>
             </div>
             <div class="stat-item">
                 <span class="stat-label">VIDAS HP:</span>
@@ -244,41 +309,57 @@
 
         <div class="section-title">ITEMS DE ESTACIÓN</div>
         <div class="grid-slots-3x3">
-            <div class="slot" id="slot-pocion" title="Poción de Vida">
-                <img id="img-pocion" src="" alt="Poción">
+            <div class="slot-wrapper">
+                <div class="slot" id="slot-pocion"><img id="img-pocion" src="" alt=""></div>
+                <div class="slot-name">Poción de Vida</div>
             </div>
-            <div class="slot" id="slot-tiempo" title="Tiempo Extra">
-                <img id="img-tiempo" src="" alt="Tiempo Extra">
+            <div class="slot-wrapper">
+                <div class="slot" id="slot-tiempo"><img id="img-tiempo" src="" alt=""></div>
+                <div class="slot-name">Tiempo Extra</div>
             </div>
-            <div class="slot" id="slot-proteccion" title="Protección de Vida">
-                <img id="img-proteccion" src="" alt="Protección">
+            <div class="slot-wrapper">
+                <div class="slot" id="slot-proteccion"><img id="img-proteccion" src="" alt=""></div>
+                <div class="slot-name">Protección de Vida</div>
             </div>
-            <div class="slot" id="slot-ayuda" title="Ayuda de NPC">
-                <img id="img-ayuda" src="" alt="Ayuda">
+            <div class="slot-wrapper">
+                <div class="slot" id="slot-ayuda"><img id="img-ayuda" src="" alt=""></div>
+                <div class="slot-name">Ayuda de NPC</div>
             </div>
-            <div class="slot" title="Vacío"></div>
-            <div class="slot" title="Vacío"></div>
+            <div class="slot-wrapper">
+                <div class="slot locked"></div>
+                <div class="slot-name">Bloqueado</div>
+            </div>
+            <div class="slot-wrapper">
+                <div class="slot locked"></div>
+                <div class="slot-name">Bloqueado</div>
+            </div>
         </div>
 
         <div class="section-title">STICKERS DE PREMIO</div>
         <div class="grid-slots-3x3">
-            <div class="slot" id="stk-grafia" title="Sticker Grafía">
-                <img id="img-stk-grafia" src="" alt="Grafía">
+            <div class="slot-wrapper">
+                <div class="slot slot-medal" id="stk-grafia"><img id="img-stk-grafia" src="" alt=""></div>
+                <div class="slot-name">Grafía</div>
             </div>
-            <div class="slot" id="stk-matriz" title="Sticker Matriz">
-                <img id="img-stk-matriz" src="" alt="Matriz">
+            <div class="slot-wrapper">
+                <div class="slot slot-medal" id="stk-matriz"><img id="img-stk-matriz" src="" alt=""></div>
+                <div class="slot-name">Matriz</div>
             </div>
-            <div class="slot" id="stk-simetria" title="Sticker Simetría">
-                <img id="img-stk-simetria" src="" alt="Simetría">
+            <div class="slot-wrapper">
+                <div class="slot slot-medal" id="stk-simetria"><img id="img-stk-simetria" src="" alt=""></div>
+                <div class="slot-name">Simetría</div>
             </div>
-            <div class="slot" id="stk-ritmo" title="Sticker Ritmo">
-                <img id="img-stk-ritmo" src="" alt="Ritmo">
+            <div class="slot-wrapper">
+                <div class="slot slot-medal" id="stk-ritmo"><img id="img-stk-ritmo" src="" alt=""></div>
+                <div class="slot-name">Ritmo</div>
             </div>
-            <div class="slot" id="stk-color" title="Sticker Color">
-                <img id="img-stk-color" src="" alt="Color">
+            <div class="slot-wrapper">
+                <div class="slot slot-medal" id="stk-color"><img id="img-stk-color" src="" alt=""></div>
+                <div class="slot-name">Color</div>
             </div>
-            <div class="slot" id="stk-prisma" title="Sticker Prisma">
-                <img id="img-stk-prisma" src="" alt="Prisma">
+            <div class="slot-wrapper">
+                <div class="slot slot-medal" id="stk-prisma"><img id="img-stk-prisma" src="" alt=""></div>
+                <div class="slot-name">Prisma</div>
             </div>
         </div>
     </div>
@@ -292,7 +373,7 @@
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
 
-        // RUTAS CORREGIDAS: Apuntando directamente a la raíz de tu repositorio GitHub
+        // Rutas directas a la raíz de tu repositorio
         const ICONO_POCION = '2 Pocion.png';
         const ICONO_TIEMPO = '3 Tiempo extra.png';
         const ICONO_PROTECCION = '4 Protección de vida.png';
@@ -305,7 +386,7 @@
         const STK_COLOR = 'medalla_color.png';
         const STK_PRISMA = 'medalla_prisma.png';
 
-        // Asignación de imágenes
+        // Enlace seguro de fuentes de imagen
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
         document.getElementById('img-tiempo').src = ICONO_TIEMPO;
@@ -342,7 +423,7 @@
         } else {
             fetch(EXCEL_URL)
                 .then(res => {
-                    if(!res.ok) throw new Error("Error de red");
+                    if(!res.ok) throw new Error("Error de servidor");
                     return res.arrayBuffer();
                 })
                 .then(buffer => {
@@ -360,14 +441,14 @@
 
                     if(!basePlayer) {
                         document.getElementById('loading-msg').style.display = 'none';
-                        document.getElementById('error-msg').innerText = "JUGADOR NO ENCONTRADO EN BASE DATOS";
+                        document.getElementById('error-msg').innerText = "JUGADOR NO REGISTRADO";
                         document.getElementById('error-msg').style.display = 'block';
                         return;
                     }
 
                     let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
                     let avatarUrl = basePlayer['Avatar URL'] || '';
-                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
+                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO CONECTADO DE MANERA EXITOSA.';
                     
                     let xpAcumulada = parseInt(buscarColumna(basePlayer, ['Puntaje Total', 'XP'])) || 0;
                     let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
@@ -376,7 +457,7 @@
                     let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
                     let stickersX = limpiarString(basePlayer['Stickers Premio']);
 
-                    // Procesar Formulario de Google
+                    // Procesado de respuestas complementarias del Formulario de Google
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
                     if(formSheetName) {
                         const formWorksheet = workbook.Sheets[formSheetName];
@@ -387,7 +468,7 @@
                             let targetId = limpiarString(playerId).replace('#', '');
 
                             if(formPlayerId === targetId) {
-                                let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', '  Puntos a SUMAR  ', 'Puntos'])) || 0;
+                                let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', 'Puntos'])) || 0;
                                 xpAcumulada += puntosSumar;
 
                                 let itemGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a GANAR?', '¿Qué Ítem va a GANAR? ']));
@@ -415,28 +496,28 @@
                         });
                     }
 
-                    // Renderizado Final
+                    // Renderizado del Tablero Central
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
                     document.getElementById('player-id-val').innerText = String(basePlayer['ID']).toUpperCase();
                     document.getElementById('gamertag').innerText = String(gamertag).toUpperCase();
                     document.getElementById('avatar').src = avatarUrl || 'https://via.placeholder.com/110/000000/ffffff?text=ARCADE';
-                    document.getElementById('xp-points').innerText = xpAcumulada;
-                    document.getElementById('character-desc').innerText = descripcion;
+                    document.getElementById('xp-points').innerText = String(xpAcumulada).padStart(5, '0');
+                    document.getElementById('character-desc').innerText = descripcion.toUpperCase();
                     
                     if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
                         document.getElementById('penalty-status').innerText = penalizacionActual;
-                        document.getElementById('penalty-status').style.color = "#ff3333";
+                        document.getElementById('penalty-status').style.color = var(--neon-pink);
                     } else {
                         document.getElementById('penalty-status').innerText = "NINGUNA";
-                        document.getElementById('penalty-status').style.color = "#00ffff";
+                        document.getElementById('penalty-status').style.color = var(--neon-cyan);
                     }
 
                     const livesDisplay = document.getElementById('lives-display');
                     livesDisplay.innerHTML = '';
                     if(hpAcumulada <= 0) {
-                        livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:8px;">GAME OVER</span>';
+                        livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:7px;">GAME OVER</span>';
                     } else {
                         for(let i = 0; i < Math.min(hpAcumulada, 6); i++) {
                             const img = document.createElement('img');
@@ -446,17 +527,15 @@
                         }
                     }
 
-                    // Validación del Inventario Inteligente (Busca raíces de palabras)
-                    if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
-                    if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                    
-                    // Activación flexible para la protección
-                    if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo')) {
+                    // Escaneo Inteligente Flexibilizado de Inventario
+                    if(inventarioX.includes('pocion') || inventarioX.includes('item 2')) document.getElementById('slot-pocion').classList.add('active');
+                    if(inventarioX.includes('tiempo') || inventarioX.includes('item 3')) document.getElementById('slot-tiempo').classList.add('active');
+                    if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo') || inventarioX.includes('item 4')) {
                         document.getElementById('slot-proteccion').classList.add('active');
                     }
-                    if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
+                    if(inventarioX.includes('ayuda') || inventarioX.includes('npc') || inventarioX.includes('item 5')) document.getElementById('slot-ayuda').classList.add('active');
 
-                    // Validación de Medallas
+                    // Escaneo y encendido de Stickers
                     if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
                     if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
                     if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
@@ -468,7 +547,7 @@
                 .catch(err => {
                     console.error(err);
                     document.getElementById('loading-msg').style.display = 'none';
-                    document.getElementById('error-msg').innerText = "ERROR AL INTERCONECTAR HOJA DE EXCEL";
+                    document.getElementById('error-msg').innerText = "ERROR AL ENLAZAR NÚCLEO EXCEL";
                     document.getElementById('error-msg').style.display = 'block';
                 });
         }
