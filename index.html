@@ -18,6 +18,8 @@
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
@@ -29,18 +31,17 @@
             color: var(--text-light);
             font-family: 'Press Start 2P', monospace;
             text-align: center;
-            margin: 0;
-            padding: 8px;
+            padding: 10px 6px;
             font-size: 9px;
             line-height: 1.5;
             overflow-x: hidden;
         }
 
-        /* Contenedor optimizado para pantallas móviles angostas */
+        /* Contenedor responsivo adaptado a pantallas de celulares */
         .container {
             width: 100%;
             max-width: 340px;
-            margin: 5px auto;
+            margin: 0 auto;
             background: var(--panel-bg);
             border: 4px solid var(--neon-cyan);
             padding: 12px;
@@ -48,9 +49,9 @@
         }
 
         .brand-logo {
-            max-width: 80%;
+            max-width: 85%;
             height: auto;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 12px auto;
             display: block;
             filter: drop-shadow(0px 0px 6px var(--neon-pink));
         }
@@ -72,7 +73,7 @@
 
         .gamertag {
             color: var(--neon-yellow);
-            font-size: 13px;
+            font-size: 12px;
             text-shadow: 2px 2px 0px #000;
             margin: 4px 0;
             letter-spacing: 0.5px;
@@ -84,14 +85,26 @@
         .player-id {
             font-size: 8px;
             color: #a393eb;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+        }
+
+        /* Cuadro de descripción ubicado debajo del Gamer Tag */
+        .character-desc {
+            font-size: 8px;
+            color: #bfa6ff;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px;
+            border-left: 3px solid var(--neon-pink);
+            text-align: center;
+            word-wrap: break-word;
+            margin: 10px 0 14px 0;
         }
 
         .stats-grid {
             border: 3px solid var(--neon-yellow);
             background: rgba(0, 0, 0, 0.6);
             padding: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             text-align: left;
         }
 
@@ -140,23 +153,25 @@
             letter-spacing: 0.5px;
         }
 
-        /* Cuadrículas simétricas de 3 columnas (Distribución 3 y 3 para un máximo de 6) */
+        /* Cuadrículas ultra-responsivas en formato 3x3 */
         .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin-bottom: 12px;
+            width: 100%;
         }
 
         .slot {
             background: #110226;
             border: 2px solid #441880;
-            aspect-ratio: 1;
+            aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 6px;
             position: relative;
+            width: 100%;
         }
 
         .slot.active {
@@ -165,14 +180,15 @@
         }
 
         .slot img {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
-            opacity: 0.15; /* Opacidad baja si no se tiene el ítem */
+            display: block;
+            opacity: 0.15; /* Apagado por defecto */
         }
 
         .slot.active img {
-            opacity: 1;    /* Totalmente iluminado al ganarlo */
+            opacity: 1;    /* Encendido cuando el jugador lo posee */
             filter: drop-shadow(0px 0px 3px var(--neon-cyan));
         }
 
@@ -181,22 +197,11 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 160px;
-        }
-
-        .character-desc {
-            font-size: 8px;
-            color: #bfa6ff;
-            background: rgba(0,0,0,0.5);
-            padding: 8px;
-            border-left: 3px solid var(--neon-pink);
-            text-align: left;
-            word-wrap: break-word;
-            margin-top: 12px;
+            max-width: 150px;
         }
 
         .system-msg {
-            margin-top: 80px;
+            margin-top: 100px;
             font-size: 10px;
             color: var(--neon-pink);
             text-shadow: 2px 2px 0px #000;
@@ -215,6 +220,8 @@
 
         <div id="gamertag" class="gamertag">JUGADOR</div>
         <div class="player-id">ID: <span id="player-id-val">000</span></div>
+
+        <div id="character-desc" class="character-desc"></div>
 
         <div class="stats-grid">
             <div class="stat-item">
@@ -245,8 +252,8 @@
             <div class="slot" id="slot-ayuda" title="Ayuda de NPC">
                 <img id="img-ayuda" src="" alt="Ayuda">
             </div>
-            <div class="slot" title="Espacio Bloqueado Vacio"></div>
-            <div class="slot" title="Espacio Bloqueado Vacio"></div>
+            <div class="slot" title="Vacío"></div>
+            <div class="slot" title="Vacío"></div>
         </div>
 
         <div class="section-title">STICKERS DE PREMIO</div>
@@ -270,8 +277,6 @@
                 <img id="img-stk-prisma" src="" alt="Prisma">
             </div>
         </div>
-
-        <div id="character-desc" class="character-desc"></div>
     </div>
 
     <div id="loading-msg" class="system-msg">CONECTANDO AL SERVIDOR ARCADE...</div>
@@ -282,12 +287,14 @@
         
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
+
+        // Nombres de archivos vinculados de manera idéntica a la raíz de tu GitHub
         const ICONO_POCION = '2 Pocion.png';
         const ICONO_TIEMPO = '3 Tiempo extra.png';
         const ICONO_PROTECCION = '4 Protección de vida.png';
         const ICONO_AYUDA = '5 Ayuda.png';
 
-        // Rutas de tus 6 stickers según la configuración de tu repositorio
+        // Rutas asignadas para tus medallas de stickers
         const STK_GRAFIA = 'assets/stickers/medalla_grafia.png';
         const STK_MATRIZ = 'assets/stickers/medalla_matriz.png';
         const STK_SIMETRIA = 'assets/stickers/medalla_simetria.png';
@@ -295,7 +302,7 @@
         const STK_COLOR = 'assets/stickers/medalla_color.png';
         const STK_PRISMA = 'assets/stickers/medalla_prisma.png';
 
-        // Precarga de elementos visuales
+        // Conexión de elementos al DOM
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
         document.getElementById('img-tiempo').src = ICONO_TIEMPO;
@@ -312,12 +319,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         const playerId = urlParams.get('id');
 
-        // Limpiador tolerante a mayúsculas, espacios y acentos
         function limpiarString(str) {
             return String(str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
         }
 
-        // Buscador inteligente de llaves de columnas por si tienen espacios extras
         function buscarColumna(objeto, sugerencias) {
             for (let sug of sugerencias) {
                 let limpiaSug = limpiarString(sug);
@@ -340,7 +345,6 @@
                 .then(buffer => {
                     const workbook = XLSX.read(buffer, { type: 'array' });
                     
-                    // 1. OBTENER LECTURA BASE DE DATOS PRINCIPAL
                     const dbSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('base')) || workbook.SheetNames[0];
                     const dbWorksheet = workbook.Sheets[dbSheetName];
                     const dbData = XLSX.utils.sheet_to_json(dbWorksheet);
@@ -358,7 +362,6 @@
                         return;
                     }
 
-                    // Valores base cargados desde la fila inicial del estudiante
                     let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
                     let avatarUrl = basePlayer['Avatar URL'] || '';
                     let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
@@ -367,47 +370,40 @@
                     let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
                     let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
                     
-                    // Arrays para registrar posesión de objetos y stickers
                     let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
                     let stickersX = limpiarString(basePlayer['Stickers Premio']);
 
-                    // 2. PROCESAR TRANSACCIONES DEL FORMULARIO DE GOOGLE (RESPUESTAS 1)
+                    // Lectura del historial de respuestas (Formulario Google)
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
                     if(formSheetName) {
                         const formWorksheet = workbook.Sheets[formSheetName];
                         const formData = XLSX.utils.sheet_to_json(formWorksheet);
 
-                        // Filtrar y aplicar todas las acciones registradas por los profesores para este alumno
                         formData.forEach(itemForm => {
                             let formPlayerId = limpiarString(buscarColumna(itemForm, ['ID del Jugador', 'ID del Jugador ', 'ID']) || '').replace('#', '');
                             let targetId = limpiarString(playerId).replace('#', '');
 
                             if(formPlayerId === targetId) {
-                                // A. Sumar puntajes de misiones ganadas
                                 let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', '  Puntos a SUMAR  ', 'Puntos'])) || 0;
                                 xpAcumulada += puntosSumar;
 
-                                // B. Sumar Ítems ganados
                                 let itemGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a GANAR?', '¿Qué Ítem va a GANAR? ']));
                                 if(itemGanado && itemGanado !== 'ninguno') {
                                     inventarioX += " " + itemGanado;
                                 }
 
-                                // C. Descontar Ítems gastados
                                 let itemUsado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a USAR / GASTAR?', '¿Qué Ítem va a USAR / GASTAR? ']));
                                 if(itemUsado && itemUsado !== 'ninguno') {
                                     inventarioX = inventarioX.replace(itemUsado, '');
                                 }
 
-                                // D. Aplicar Daño o Penalizaciones de Vida (HP)
                                 let penalizacionForm = limpiarString(buscarColumna(itemForm, ['Penalizaciones a APLICAR', 'Penalizaciones a APLICAR ']));
                                 if(penalizacionForm && penalizacionForm !== 'ninguna' && penalizacionForm !== '0') {
                                     penalizacionActual = penalizacionForm.toUpperCase();
-                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1; // Reto fallido resta 1 vida
-                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2;  // Falta grave resta 2 vidas
+                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1;
+                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2;
                                 }
 
-                                // E. Sumar Stickers / Medallas obtenidas
                                 let stickerGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Sticker de Premio se ganó?', '¿Qué Sticker de Premio se ganó?  ']));
                                 if(stickerGanado && stickerGanado !== 'ninguno') {
                                     stickersX += " " + stickerGanado;
@@ -416,7 +412,7 @@
                         });
                     }
 
-                    // 3. RENDERIZAR INTERFAZ GRÁFICA FINAL ACTUALIZADA
+                    // Renderizado definitivo de la interfaz
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
@@ -426,7 +422,6 @@
                     document.getElementById('xp-points').innerText = xpAcumulada;
                     document.getElementById('character-desc').innerText = descripcion;
                     
-                    // Mostrar Alerta / Estado
                     if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
                         document.getElementById('penalty-status').innerText = penalizacionActual;
                         document.getElementById('penalty-status').style.color = "#ff3333";
@@ -435,13 +430,12 @@
                         document.getElementById('penalty-status').style.color = "#00ffff";
                     }
 
-                    // Renderizado de Corazones (Salud HP)
                     const livesDisplay = document.getElementById('lives-display');
                     livesDisplay.innerHTML = '';
                     if(hpAcumulada <= 0) {
                         livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:8px;">GAME OVER</span>';
                     } else {
-                        for(let i = 0; i < Math.min(hpAcumulada, 6); i++) { // Tope visual de 6 corazones
+                        for(let i = 0; i < Math.min(hpAcumulada, 6); i++) {
                             const img = document.createElement('img');
                             img.src = ICONO_VIDA;
                             img.className = 'live-icon';
@@ -449,14 +443,13 @@
                         }
                     }
 
-                    // Validación de ítems del inventario (Buscador tolerante mejorado)
+                    // Activación inteligente de ítems del inventario
                     if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
                     if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                    // Tolera tanto "proteccion" como "proteccion vida"
                     if(inventarioX.includes('proteccion')) document.getElementById('slot-proteccion').classList.add('active');
                     if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
 
-                    // Validación de encendido de las 6 medallas / stickers
+                    // Activación de stickers
                     if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
                     if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
                     if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
