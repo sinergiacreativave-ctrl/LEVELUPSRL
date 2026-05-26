@@ -204,14 +204,15 @@
         </div>
     </div>
 
-    <div id="levelup-screen" style="display: none;">
+    <div id="levelup-screen" style="display: none;" onclick="AUDIO_WIN.play()">
         <div class="lu-sparkles">✨ 👾 ✨</div>
         <h1 class="lu-title">LEVEL UP!</h1>
         <div class="lu-banner">
             ¡FELICITACIONES JUGADOR!<br>
             COMPLETASTE LOS 6 RETOS...<br><br>
             <span style="color:#fff; font-size:14px;">¡SUBISTE AL NIVEL 2!</span><br><br>
-            🚀 ¡Siguiente año desbloqueado!
+            🚀 ¡Siguiente año desbloqueado!<br><br>
+            <span style="color:var(--neon-cyan); font-size:8px; animation: flashEffect 1s infinite;">[ TOCA LA PANTALLA PARA RECLAMAR TU VICTORIA ]</span>
         </div>
         <div class="lu-sparkles">✨ 🕹️ ✨</div>
     </div>
@@ -326,14 +327,14 @@
                     let xpAcumulada = parseInt(basePlayer['XP (Puntaje Total)']) || 0;
                     let penalizacionesPuntos = parseInt(basePlayer['Puntos de Penalización']) || 0;
                     
-                    // Lectura Flexible de Columnas (busca la que contenga la palabra Salud HP o usa el valor directo)
                     let hpKey = Object.keys(basePlayer).find(k => k.includes('Salud HP'));
                     let hpAcumulada = hpKey ? parseInt(basePlayer[hpKey]) : 3;
 
                     let penalizacionActual = String(basePlayer['Alerta / Estado (Falta Grave)'] || 'NINGUNA');
                     
                     let keysBase = Object.keys(basePlayer);
-                    let keyEnergiaVal = keysBase.find(k => limpiarString(k).includes('energia') && (k.includes('60') || k.includes('formula')));
+                    // MODIFICADO: Búsqueda flexible de Energía a prueba de fallos
+                    let keyEnergiaVal = keysBase.find(k => limpiarString(k).includes('energia') && !limpiarString(k).includes('color'));
                     let keyEnergiaColor = keysBase.find(k => limpiarString(k).includes('color') && limpiarString(k).includes('energia'));
                     
                     let valorEnergia = keyEnergiaVal ? parseInt(basePlayer[keyEnergiaVal]) : 60;
@@ -360,8 +361,11 @@
                     if(tieneGrafia && tieneMatriz && tieneBiosfera && tieneCronicas && tieneTurbo && tienePrisma) {
                         document.getElementById('loading-msg').style.display = 'none';
                         document.getElementById('levelup-screen').style.display = 'flex';
-                        // Intenta reproducir el audio de victoria (el catch previene errores si el navegador bloquea el autoplay sin interacción)
+                        // Intenta reproducir el audio de victoria
                         AUDIO_WIN.play().catch(e => console.log("Audio autoplay bloqueado:", e));
+                        
+                        // AGREGADO: Forzar música al tocar pantalla por si el celular la bloqueó
+                        document.body.addEventListener('click', function() { AUDIO_WIN.play(); }, {once:true});
                         return; 
                     }
 
