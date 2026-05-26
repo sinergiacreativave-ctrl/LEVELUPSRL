@@ -49,7 +49,7 @@
             border-radius: 4px;
         }
 
-        /* LOGO ESTILIZADO AL 50% */
+        /* LOGO AL 50% */
         .brand-logo {
             max-width: 50%; 
             height: auto;
@@ -182,7 +182,7 @@
             text-shadow: 0px 0px 5px var(--neon-pink);
         }
 
-        /* CUADRÍCULA DE ITEMS Y PREMIOS */
+        /* CUADRÍCULAS DE ITEMS Y PREMIOS */
         .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -197,7 +197,7 @@
             align-items: center;
         }
 
-        /* ITEMS DE ESTACIÓN Y MEDALLAS GRANDES */
+        /* TAMAÑO AGRANDADO PARA VISUALIZACIÓN EN CELULARES */
         .slot {
             background: #050112;
             border: 2px solid #25104a;
@@ -211,30 +211,30 @@
             transition: all 0.3s ease;
         }
 
-        /* Colores de marcos individuales según la referencia */
+        /* Colores de marcos individuales apagados */
         #slot-pocion { border-color: #551d7a; }
         #slot-tiempo { border-color: #1d5b7a; }
         #slot-proteccion { border-color: #1d7a31; }
         #slot-ayuda { border-color: #7a1d52; }
 
+        /* Colores encendidos en Neón */
         #slot-pocion.active { border-color: var(--neon-pink); box-shadow: 0px 0px 8px var(--neon-pink); }
         #slot-tiempo.active { border-color: var(--neon-cyan); box-shadow: 0px 0px 8px var(--neon-cyan); }
         #slot-proteccion.active { border-color: var(--neon-green); box-shadow: 0px 0px 8px var(--neon-green); }
         #slot-ayuda.active { border-color: #ff00ff; box-shadow: 0px 0px 8px #ff00ff; }
 
-        /* Estilo activo general para medallas de premio */
         .slot-medal.active {
             border-color: var(--neon-yellow);
             box-shadow: 0px 0px 8px var(--neon-yellow);
         }
 
-        /* Control de tamaño de las imágenes internas (Agrandadas al máximo seguro) */
+        /* Imágenes internas maximizadas */
         .slot img {
-            width: 80%;
-            height: 80%;
+            width: 85%;
+            height: 85%;
             object-fit: contain;
             display: block;
-            opacity: 0.12; 
+            opacity: 0.15; 
             filter: grayscale(100%);
         }
 
@@ -243,7 +243,6 @@
             filter: grayscale(0%) drop-shadow(0px 0px 4px rgba(255,255,255,0.4));
         }
 
-        /* Candado nativo para casillas bloqueadas */
         .slot.locked::before {
             content: "🔒";
             font-size: 14px;
@@ -373,7 +372,6 @@
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
 
-        // Rutas directas a la raíz de tu repositorio
         const ICONO_POCION = '2 Pocion.png';
         const ICONO_TIEMPO = '3 Tiempo extra.png';
         const ICONO_PROTECCION = '4 Protección de vida.png';
@@ -386,7 +384,6 @@
         const STK_COLOR = 'medalla_color.png';
         const STK_PRISMA = 'medalla_prisma.png';
 
-        // Enlace seguro de fuentes de imagen
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
         document.getElementById('img-tiempo').src = ICONO_TIEMPO;
@@ -457,7 +454,6 @@
                     let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
                     let stickersX = limpiarString(basePlayer['Stickers Premio']);
 
-                    // Procesado de respuestas complementarias del Formulario de Google
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
                     if(formSheetName) {
                         const formWorksheet = workbook.Sheets[formSheetName];
@@ -496,7 +492,6 @@
                         });
                     }
 
-                    // Renderizado del Tablero Central
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
@@ -508,10 +503,10 @@
                     
                     if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
                         document.getElementById('penalty-status').innerText = penalizacionActual;
-                        document.getElementById('penalty-status').style.color = var(--neon-pink);
+                        document.getElementById('penalty-status').style.color = '#ff007f';
                     } else {
                         document.getElementById('penalty-status').innerText = "NINGUNA";
-                        document.getElementById('penalty-status').style.color = var(--neon-cyan);
+                        document.getElementById('penalty-status').style.color = '#00ffff';
                     }
 
                     const livesDisplay = document.getElementById('lives-display');
@@ -527,7 +522,6 @@
                         }
                     }
 
-                    // Escaneo Inteligente Flexibilizado de Inventario
                     if(inventarioX.includes('pocion') || inventarioX.includes('item 2')) document.getElementById('slot-pocion').classList.add('active');
                     if(inventarioX.includes('tiempo') || inventarioX.includes('item 3')) document.getElementById('slot-tiempo').classList.add('active');
                     if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo') || inventarioX.includes('item 4')) {
@@ -535,7 +529,6 @@
                     }
                     if(inventarioX.includes('ayuda') || inventarioX.includes('npc') || inventarioX.includes('item 5')) document.getElementById('slot-ayuda').classList.add('active');
 
-                    // Escaneo y encendido de Stickers
                     if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
                     if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
                     if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
