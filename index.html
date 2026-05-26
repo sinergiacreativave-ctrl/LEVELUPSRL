@@ -48,9 +48,9 @@
             box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
         }
 
-        /* TAMAÑO DEL LOGO CORREGIDO (Más compacto y elegante) */
+        /* TAMAÑO DEL LOGO CORREGIDO (Reducido a 35% para mayor elegancia) */
         .brand-logo {
-            max-width: 50%; 
+            max-width: 35%; 
             height: auto;
             margin: 0 auto 12px auto;
             display: block;
@@ -365,16 +365,17 @@
                         return;
                     }
 
-                    let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
-                    let avatarUrl = basePlayer['Avatar URL'] || '';
-                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
+                    // CORRECCIÓN AQUÍ: Ahora usan buscarColumna para evitar fallos por espacios en Excel
+                    let gamertag = buscarColumna(basePlayer, ['Gamer Tag', 'Gamertag', 'Jugador']) || basePlayer['ID'] || playerId;
+                    let avatarUrl = buscarColumna(basePlayer, ['Avatar URL', 'Avatar', 'Imagen']) || '';
+                    let descripcion = buscarColumna(basePlayer, ['Descripción Personaje', 'Descripcion', 'Descripción']) || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
                     
                     let xpAcumulada = parseInt(buscarColumna(basePlayer, ['Puntaje Total', 'XP'])) || 0;
                     let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
                     let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
                     
-                    let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
-                    let stickersX = limpiarString(basePlayer['Stickers Premio']);
+                    let inventarioX = limpiarString(basePlayer['Inventario Ítems'] || buscarColumna(basePlayer, ['Inventario Ítems', 'Inventario']));
+                    let stickersX = limpiarString(basePlayer['Stickers Premio'] || buscarColumna(basePlayer, ['Stickers Premio', 'Stickers']));
 
                     // Procesar Formulario de Google
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
