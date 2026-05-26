@@ -36,10 +36,10 @@
             overflow-x: hidden;
         }
 
-        /* Contenedor adaptado 100% a pantallas móviles */
+        /* Contenedor optimizado para pantallas móviles angostas */
         .container {
             width: 100%;
-            max-width: 360px;
+            max-width: 340px;
             margin: 5px auto;
             background: var(--panel-bg);
             border: 4px solid var(--neon-cyan);
@@ -134,23 +134,17 @@
         .section-title {
             color: var(--neon-pink);
             font-size: 8px;
-            margin: 12px 0 6px 0;
+            margin: 14px 0 8px 0;
             text-align: left;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .grid-slots {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-
-        .stickers-grid {
+        /* Cuadrículas simétricas de 3 columnas (Distribución 3 y 3 para un máximo de 6) */
+        .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 8px;
             margin-bottom: 12px;
         }
 
@@ -161,7 +155,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px;
+            padding: 6px;
             position: relative;
         }
 
@@ -174,11 +168,11 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            opacity: 0.15; 
+            opacity: 0.15; /* Opacidad baja si no se tiene el ítem */
         }
 
         .slot.active img {
-            opacity: 1;    
+            opacity: 1;    /* Totalmente iluminado al ganarlo */
             filter: drop-shadow(0px 0px 3px var(--neon-cyan));
         }
 
@@ -198,6 +192,7 @@
             border-left: 3px solid var(--neon-pink);
             text-align: left;
             word-wrap: break-word;
+            margin-top: 12px;
         }
 
         .system-msg {
@@ -237,7 +232,7 @@
         </div>
 
         <div class="section-title">ITEMS DE ESTACIÓN</div>
-        <div class="grid-slots">
+        <div class="grid-slots-3x3">
             <div class="slot" id="slot-pocion" title="Poción de Vida">
                 <img id="img-pocion" src="" alt="Poción">
             </div>
@@ -250,10 +245,12 @@
             <div class="slot" id="slot-ayuda" title="Ayuda de NPC">
                 <img id="img-ayuda" src="" alt="Ayuda">
             </div>
+            <div class="slot" title="Espacio Bloqueado Vacio"></div>
+            <div class="slot" title="Espacio Bloqueado Vacio"></div>
         </div>
 
         <div class="section-title">STICKERS DE PREMIO</div>
-        <div class="stickers-grid">
+        <div class="grid-slots-3x3">
             <div class="slot" id="stk-grafia" title="Sticker Grafía">
                 <img id="img-stk-grafia" src="" alt="Grafía">
             </div>
@@ -290,13 +287,13 @@
         const ICONO_PROTECCION = '4 Protección de vida.png';
         const ICONO_AYUDA = '5 Ayuda.png';
 
-        // Rutas directas basadas en tus nuevos archivos cargados en la raíz
-        const STK_GRAFIA = 'premio1.png';
-        const STK_MATRIZ = 'premio2.png';
-        const STK_SIMETRIA = 'premio3.png';
-        const STK_RITMO = 'premio4.png';
-        const STK_COLOR = 'premio5.png';
-        const STK_PRISMA = 'premio6.png';
+        // Rutas de tus 6 stickers según la configuración de tu repositorio
+        const STK_GRAFIA = 'assets/stickers/medalla_grafia.png';
+        const STK_MATRIZ = 'assets/stickers/medalla_matriz.png';
+        const STK_SIMETRIA = 'assets/stickers/medalla_simetria.png';
+        const STK_RITMO = 'assets/stickers/medalla_ritmo.png';
+        const STK_COLOR = 'assets/stickers/medalla_color.png';
+        const STK_PRISMA = 'assets/stickers/medalla_prisma.png';
 
         // Precarga de elementos visuales
         document.getElementById('game-logo').src = LOGO_URL;
@@ -315,10 +312,12 @@
         const urlParams = new URLSearchParams(window.location.search);
         const playerId = urlParams.get('id');
 
+        // Limpiador tolerante a mayúsculas, espacios y acentos
         function limpiarString(str) {
             return String(str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
         }
 
+        // Buscador inteligente de llaves de columnas por si tienen espacios extras
         function buscarColumna(objeto, sugerencias) {
             for (let sug of sugerencias) {
                 let limpiaSug = limpiarString(sug);
@@ -341,6 +340,7 @@
                 .then(buffer => {
                     const workbook = XLSX.read(buffer, { type: 'array' });
                     
+                    // 1. OBTENER LECTURA BASE DE DATOS PRINCIPAL
                     const dbSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('base')) || workbook.SheetNames[0];
                     const dbWorksheet = workbook.Sheets[dbSheetName];
                     const dbData = XLSX.utils.sheet_to_json(dbWorksheet);
@@ -358,6 +358,7 @@
                         return;
                     }
 
+                    // Valores base cargados desde la fila inicial del estudiante
                     let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
                     let avatarUrl = basePlayer['Avatar URL'] || '';
                     let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
@@ -366,40 +367,47 @@
                     let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
                     let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
                     
+                    // Arrays para registrar posesión de objetos y stickers
                     let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
                     let stickersX = limpiarString(basePlayer['Stickers Premio']);
 
-                    // PROCESAR TRANSACCIONES DEL FORMULARIO DE GOOGLE
+                    // 2. PROCESAR TRANSACCIONES DEL FORMULARIO DE GOOGLE (RESPUESTAS 1)
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
                     if(formSheetName) {
                         const formWorksheet = workbook.Sheets[formSheetName];
                         const formData = XLSX.utils.sheet_to_json(formWorksheet);
 
+                        // Filtrar y aplicar todas las acciones registradas por los profesores para este alumno
                         formData.forEach(itemForm => {
                             let formPlayerId = limpiarString(buscarColumna(itemForm, ['ID del Jugador', 'ID del Jugador ', 'ID']) || '').replace('#', '');
                             let targetId = limpiarString(playerId).replace('#', '');
 
                             if(formPlayerId === targetId) {
+                                // A. Sumar puntajes de misiones ganadas
                                 let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', '  Puntos a SUMAR  ', 'Puntos'])) || 0;
                                 xpAcumulada += puntosSumar;
 
+                                // B. Sumar Ítems ganados
                                 let itemGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a GANAR?', '¿Qué Ítem va a GANAR? ']));
                                 if(itemGanado && itemGanado !== 'ninguno') {
                                     inventarioX += " " + itemGanado;
                                 }
 
+                                // C. Descontar Ítems gastados
                                 let itemUsado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a USAR / GASTAR?', '¿Qué Ítem va a USAR / GASTAR? ']));
                                 if(itemUsado && itemUsado !== 'ninguno') {
                                     inventarioX = inventarioX.replace(itemUsado, '');
                                 }
 
+                                // D. Aplicar Daño o Penalizaciones de Vida (HP)
                                 let penalizacionForm = limpiarString(buscarColumna(itemForm, ['Penalizaciones a APLICAR', 'Penalizaciones a APLICAR ']));
                                 if(penalizacionForm && penalizacionForm !== 'ninguna' && penalizacionForm !== '0') {
                                     penalizacionActual = penalizacionForm.toUpperCase();
-                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1;
-                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2; 
+                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1; // Reto fallido resta 1 vida
+                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2;  // Falta grave resta 2 vidas
                                 }
 
+                                // E. Sumar Stickers / Medallas obtenidas
                                 let stickerGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Sticker de Premio se ganó?', '¿Qué Sticker de Premio se ganó?  ']));
                                 if(stickerGanado && stickerGanado !== 'ninguno') {
                                     stickersX += " " + stickerGanado;
@@ -408,6 +416,7 @@
                         });
                     }
 
+                    // 3. RENDERIZAR INTERFAZ GRÁFICA FINAL ACTUALIZADA
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
@@ -417,6 +426,7 @@
                     document.getElementById('xp-points').innerText = xpAcumulada;
                     document.getElementById('character-desc').innerText = descripcion;
                     
+                    // Mostrar Alerta / Estado
                     if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
                         document.getElementById('penalty-status').innerText = penalizacionActual;
                         document.getElementById('penalty-status').style.color = "#ff3333";
@@ -425,12 +435,13 @@
                         document.getElementById('penalty-status').style.color = "#00ffff";
                     }
 
+                    // Renderizado de Corazones (Salud HP)
                     const livesDisplay = document.getElementById('lives-display');
                     livesDisplay.innerHTML = '';
                     if(hpAcumulada <= 0) {
                         livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:8px;">GAME OVER</span>';
                     } else {
-                        for(let i = 0; i < Math.min(hpAcumulada, 6); i++) { 
+                        for(let i = 0; i < Math.min(hpAcumulada, 6); i++) { // Tope visual de 6 corazones
                             const img = document.createElement('img');
                             img.src = ICONO_VIDA;
                             img.className = 'live-icon';
@@ -438,19 +449,20 @@
                         }
                     }
 
-                    // Validación tolerante para ítems del inventario (incluyendo variaciones de protección)
+                    // Validación de ítems del inventario (Buscador tolerante mejorado)
                     if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
                     if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                    if(inventarioX.includes('protec') || inventarioX.includes('escudo')) document.getElementById('slot-proteccion').classList.add('active');
+                    // Tolera tanto "proteccion" como "proteccion vida"
+                    if(inventarioX.includes('proteccion')) document.getElementById('slot-proteccion').classList.add('active');
                     if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
 
-                    // Encendido automático de medallas por número o nombre de mundo
-                    if(stickersX.includes('grafia') || stickersX.includes('premio1') || stickersX.includes('1')) document.getElementById('stk-grafia').classList.add('active');
-                    if(stickersX.includes('matriz') || stickersX.includes('premio2') || stickersX.includes('2')) document.getElementById('stk-matriz').classList.add('active');
-                    if(stickersX.includes('simetria') || stickersX.includes('premio3') || stickersX.includes('3')) document.getElementById('stk-simetria').classList.add('active');
-                    if(stickersX.includes('ritmo') || stickersX.includes('premio4') || stickersX.includes('4')) document.getElementById('stk-ritmo').classList.add('active');
-                    if(stickersX.includes('color') || stickersX.includes('premio5') || stickersX.includes('5')) document.getElementById('stk-color').classList.add('active');
-                    if(stickersX.includes('prisma') || stickersX.includes('premio6') || stickersX.includes('6')) document.getElementById('stk-prisma').classList.add('active');
+                    // Validación de encendido de las 6 medallas / stickers
+                    if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
+                    if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
+                    if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
+                    if(stickersX.includes('ritmo')) document.getElementById('stk-ritmo').classList.add('active');
+                    if(stickersX.includes('color')) document.getElementById('stk-color').classList.add('active');
+                    if(stickersX.includes('prisma')) document.getElementById('stk-prisma').classList.add('active');
 
                 })
                 .catch(err => {
