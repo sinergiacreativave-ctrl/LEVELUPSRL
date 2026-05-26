@@ -509,7 +509,6 @@
             }
         }
 
-        // Búsqueda inteligente de color neón (Flexible a tildes y nombres de columnas)
         function obtenerHexColor(nombreColor) {
             let c = limpiarString(nombreColor);
             if (c.includes('azul')) return '#00ffff';      
@@ -532,12 +531,10 @@
                 })
                 .then(buffer => {
                     const workbook = XLSX.read(buffer, { type: 'array' });
-                    // Busca directamente la pestaña por su nombre exacto
                     const dbSheetName = workbook.SheetNames.find(n => n.trim() === 'Base Datos') || workbook.SheetNames[0];
                     const dbWorksheet = workbook.Sheets[dbSheetName];
                     const dbData = XLSX.utils.sheet_to_json(dbWorksheet);
                     
-                    // Mapeo por ID de celda (Columna B)
                     const basePlayer = dbData.find(row => {
                         let idCelda = limpiarString(row['ID'] || '').replace('#', '');
                         let idBuscado = limpiarString(playerId).replace('#', '');
@@ -551,7 +548,7 @@
                         return;
                     }
 
-                    // Lectura dinámica por columnas exactas
+                    // PROCESAMIENTO EXCLUSIVO DE LA FILA MAESTRA DE BASE DATOS
                     let gamertag = basePlayer['Gamer Tag'] || playerId;
                     let avatarUrl = basePlayer['Avatar URL'] || '';
                     let grado = basePlayer['Grado'] || '1';
@@ -562,7 +559,6 @@
                     let penalizacionesPuntos = parseInt(basePlayer['Puntos de Penalización']) || 0;
                     let penalizacionActual = String(basePlayer['Alerta / Estado (Falta Grave)'] || 'NINGUNA');
                     
-                    // Extraer dinámicamente el valor de energía y el color esquivando las tildes del Excel
                     let keysBase = Object.keys(basePlayer);
                     let keyEnergiaVal = keysBase.find(k => limpiarString(k).includes('energia') && (k.includes('60') || k.includes('formula')));
                     let keyEnergiaColor = keysBase.find(k => limpiarString(k).includes('color') && limpiarString(k).includes('energia'));
@@ -576,48 +572,10 @@
                     let inventarioX = limpiarString(colInventario);
                     let stickersX = limpiarString(colStickers);
 
-                    // PROCESAR RESPUESTAS ADICIONALES DEL FORMULARIO EN TIEMPO REAL
-                    const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
-                    if(formSheetName) {
-                        const formWorksheet = workbook.Sheets[formSheetName];
-                        const formData = XLSX.utils.sheet_to_json(formWorksheet);
-
-                        formData.forEach(itemForm => {
-                            let keys = Object.keys(itemForm);
-                            let formPlayerIdKey = keys.find(k => limpiarString(k).includes('id del jugador') || limpiarString(k) === 'id');
-                            let formPlayerId = formPlayerIdKey ? limpiarString(itemForm[formPlayerIdKey]).replace('#', '') : '';
-                            let targetId = limpiarString(playerId).replace('#', '');
-
-                            if(formPlayerId === targetId) {
-                                let xpKey = keys.find(k => k.includes('SUMAR') || k.includes('Puntos'));
-                                if(xpKey) xpAcumulada += parseInt(itemForm[xpKey]) || 0;
-
-                                let itemGanadoKey = keys.find(k => k.includes('GANAR'));
-                                let itemGanado = itemGanadoKey ? limpiarString(itemForm[itemGanadoKey]) : '';
-                                if(itemGanado && itemGanado !== 'ninguno') inventarioX += " " + itemGanado;
-
-                                let itemUsadoKey = keys.find(k => k.includes('GASTAR') || k.includes('USAR'));
-                                let itemUsado = itemUsadoKey ? limpiarString(itemForm[itemUsadoKey]) : '';
-                                if(itemUsado && itemUsado !== 'ninguno') inventarioX = inventarioX.replace(itemUsado, '');
-
-                                let penaltyKey = keys.find(k => k.includes('Penalizaciones'));
-                                let penalizacionForm = penaltyKey ? limpiarString(itemForm[penaltyKey]) : '';
-                                if(penalizacionForm && penalizacionForm !== 'ninguna' && penalizacionForm !== '0') {
-                                    penalizacionActual = penalizacionForm.toUpperCase();
-                                }
-
-                                let stickerKey = keys.find(k => k.includes('Sticker') || k.includes('Premio'));
-                                let stickerGanado = stickerKey ? limpiarString(itemForm[stickerKey]) : '';
-                                if(stickerGanado && stickerGanado !== 'ninguno') stickersX += " " + stickerGanado;
-                            }
-                        });
-                    }
-
-                    // APLICAR COLOR DETECTADO DEL EXCEL (AHORA SÍ TOMARÁ EL AZUL)
+                    // APLICAR DISEÑO VISUAL
                     let hexColorFinal = obtenerHexColor(colorElegidoText);
                     document.documentElement.style.setProperty('--battery-color', hexColorFinal);
 
-                    // VERIFICACIÓN LOGRO COMPLETO (6 STICKERS) -> ACTIVAR LEVEL UP
                     let tieneGrafia = stickersX.includes('grafia') || stickersX.includes('premio1');
                     let tieneMatriz = stickersX.includes('matriz') || stickersX.includes('premio2');
                     let tieneBiosfera = stickersX.includes('biosfera') || stickersX.includes('premio3');
@@ -631,7 +589,6 @@
                         return; 
                     }
 
-                    // IMPRIMIR DATOS EN PANTALLA HACIENDO EL DESPLIEGUE
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
@@ -642,15 +599,15 @@
                     document.getElementById('xp-points').innerText = xpAcumulada;
                     document.getElementById('character-desc').innerText = descripcion;
                     
-                    // Lógica de inactividad automática por 100 puntos de penalización
+                    // Alertas de penalización automáticas directas de la Base Datos
                     const avatarContainer = document.getElementById('avatar-container');
-                    if (penalizacionesPuntos >= 100 || penalizacionActual.includes("FALTA GRAVE")) {
+                    if (penalizacionesPuntos >= 100 || penalizacionActual.toUpperCase().includes("FALTA GRAVE")) {
                         avatarContainer.classList.add('inactive');
                         document.getElementById('penalty-status').innerText = "GAME OVER";
                         document.getElementById('penalty-status').style.color = "#ff007f";
                         document.getElementById('penalty-status').style.animation = "flashEffect 0.5s infinite alternate";
                     } else if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
-                        document.getElementById('penalty-status').innerText = penalizacionActual;
+                        document.getElementById('penalty-status').innerText = penalizacionActual.toUpperCase();
                         document.getElementById('penalty-status').style.color = "#ff3333";
                         avatarContainer.classList.remove('inactive');
                     } else {
@@ -659,7 +616,7 @@
                         avatarContainer.classList.remove('inactive');
                     }
 
-                    // Renderizado de Barra de Batería (Escala 1 a 60)
+                    // Energía (Batería 1 al 60)
                     valorEnergia = isNaN(valorEnergia) ? 60 : Math.max(0, Math.min(valorEnergia, 60));
                     let porcentajeBateria = (valorEnergia / 60) * 100;
                     document.getElementById('battery-bar').style.width = porcentajeBateria + '%';
@@ -679,7 +636,7 @@
                         }
                     }
 
-                    // Conteo de ítems del inventario
+                    // Activación de slots de Inventario
                     let cantTiempo = contarItems(inventarioX, 'tiempo') + contarItems(inventarioX, 'item2');
                     let cantPocion = contarItems(inventarioX, 'pocion') + contarItems(inventarioX, 'item1');
                     let cantProteccion = contarItems(inventarioX, 'proteccion') + contarItems(inventarioX, 'escudo') + contarItems(inventarioX, 'item3');
