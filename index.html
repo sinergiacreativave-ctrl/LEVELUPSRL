@@ -8,64 +8,209 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --bg-dark: #09021a;       
-            --panel-bg: #0d0426;      
+            --bg-dark: #12042b;       
+            --panel-bg: #240c4d;      
             --neon-cyan: #00ffff;     
             --neon-pink: #ff007f;     
             --neon-yellow: #fffb00;   
-            --neon-green: #39ff14;
             --text-light: #ffffff;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background-color: var(--bg-dark);
-            background-image: linear-gradient(rgba(9, 2, 26, 0.5) 50%, rgba(0, 0, 0, 0.7) 50%), linear-gradient(90deg, rgba(255, 0, 127, 0.03), rgba(0, 255, 255, 0.03));
+            background-image: 
+                linear-gradient(rgba(18, 4, 43, 0.3) 50%, rgba(0, 0, 0, 0.4) 50%),
+                linear-gradient(90deg, rgba(255, 0, 127, 0.05), rgba(0, 255, 255, 0.05));
             background-size: 100% 4px, 40px 40px; 
             color: var(--text-light);
             font-family: 'Press Start 2P', monospace;
             text-align: center;
-            padding: 12px 8px;
+            padding: 10px 6px;
             font-size: 9px;
-            line-height: 1.4;
+            line-height: 1.5;
             overflow-x: hidden;
         }
 
-        .container { width: 100%; max-width: 340px; margin: 0 auto; background: var(--panel-bg); border: 3px solid var(--neon-cyan); padding: 14px; box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.4), inset 0px 0px 15px rgba(0, 255, 255, 0.1); border-radius: 4px; }
-        .brand-logo { max-width: 50%; height: auto; margin: 0 auto 14px auto; display: block; filter: drop-shadow(0px 0px 8px var(--neon-pink)); }
-        .avatar-container { display: flex; align-items: center; background: rgba(0, 0, 0, 0.4); border: 2px solid var(--neon-cyan); padding: 8px; margin-bottom: 12px; box-shadow: 0px 0px 8px rgba(0, 255, 255, 0.2); }
-        .avatar-frame { width: 75px; height: 75px; border: 2px solid var(--neon-pink); background-color: #000; box-shadow: 0px 0px 8px var(--neon-pink); margin-right: 10px; flex-shrink: 0; }
-        .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
-        .player-header-info { flex-grow: 1; overflow: hidden; text-align: left; }
-        .gamertag-label { color: #a393eb; font-size: 7px; margin-bottom: 2px; }
-        .gamertag { color: var(--neon-yellow); font-size: 13px; text-shadow: 2px 2px 0px #000; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .player-id { font-size: 8px; color: var(--neon-cyan); }
-        .character-desc { font-size: 7px; color: #bfa6ff; background: rgba(0, 0, 0, 0.5); padding: 6px; border-left: 3px solid var(--neon-pink); text-align: left; margin-bottom: 12px; line-height: 1.6; }
-        .stats-grid { border: 2px solid var(--neon-yellow); background: rgba(0, 0, 0, 0.7); padding: 10px; margin-bottom: 14px; text-align: left; }
-        .stat-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #3d1475; padding-bottom: 6px; }
-        .stat-item:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-        .stat-label { color: #a393eb; font-size: 8px; }
-        .xp-counter { color: var(--neon-yellow); font-size: 11px; }
-        .lives-container { display: flex; align-items: center; gap: 4px; }
-        .live-icon { width: 14px; height: 14px; object-fit: contain; }
-        .penalty-text { font-size: 8px; color: var(--neon-cyan); }
-        .section-title { color: #ffffff; font-size: 9px; margin: 16px 0 10px 0; text-align: left; letter-spacing: 0.5px; text-shadow: 0px 0px 5px var(--neon-pink); }
-        .grid-slots-3x3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; width: 100%; }
-        .slot-wrapper { display: flex; flex-direction: column; align-items: center; }
-        .slot { background: #050112; border: 2px solid #25104a; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; position: relative; width: 100%; border-radius: 4px; }
-        #slot-pocion { border-color: #551d7a; } #slot-tiempo { border-color: #1d5b7a; } #slot-proteccion { border-color: #1d7a31; } #slot-ayuda { border-color: #7a1d52; } .slot-medal { border-color: #25104a; }
-        #slot-pocion.active { border-color: var(--neon-pink); box-shadow: 0px 0px 10px var(--neon-pink); }
-        #slot-tiempo.active { border-color: var(--neon-cyan); box-shadow: 0px 0px 10px var(--neon-cyan); }
-        #slot-proteccion.active { border-color: var(--neon-green); box-shadow: 0px 0px 10px var(--neon-green); }
-        #slot-ayuda.active { border-color: #ff00ff; box-shadow: 0px 0px 10px #ff00ff; }
-        .slot-medal.active { border-color: var(--neon-yellow); box-shadow: 0px 0px 10px var(--neon-yellow); }
-        .slot img { width: 90%; height: 90%; object-fit: contain; display: block; opacity: 0.15; filter: grayscale(100%); }
-        .slot.active img, .slot-medal.active img { opacity: 1; filter: grayscale(0%) drop-shadow(0px 0px 5px rgba(255,255,255,0.6)); }
-        .slot.locked::before { content: "🔒"; font-size: 16px; opacity: 0.25; position: absolute; }
-        .slot-name { font-size: 6px; color: #8e7cc3; margin-top: 5px; text-transform: uppercase; text-align: center; min-height: 14px; line-height: 1.2; }
-        .slot.active + .slot-name, .slot-medal.active + .slot-name { color: #ffffff; }
-        .system-msg { margin-top: 100px; font-size: 10px; color: var(--neon-pink); text-shadow: 2px 2px 0px #000; padding: 15px; }
+        /* Contenedor fluido y 100% responsivo para pantallas móviles */
+        .container {
+            width: 100%;
+            max-width: 340px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            border: 4px solid var(--neon-cyan);
+            padding: 12px;
+            box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
+        }
+
+        /* TAMAÑO DEL LOGO CORREGIDO (Más compacto y elegante) */
+        .brand-logo {
+            max-width: 50%; 
+            height: auto;
+            margin: 0 auto 12px auto;
+            display: block;
+            filter: drop-shadow(0px 0px 6px var(--neon-pink));
+        }
+
+        .avatar-frame {
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 10px auto;
+            border: 3px solid var(--neon-pink);
+            background-color: #000;
+            box-shadow: 0px 0px 8px var(--neon-pink);
+        }
+
+        .avatar-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gamertag {
+            color: var(--neon-yellow);
+            font-size: 12px;
+            text-shadow: 2px 2px 0px #000;
+            margin: 4px 0;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-id {
+            font-size: 8px;
+            color: #a393eb;
+            margin-bottom: 8px;
+        }
+
+        /* Cuadro de descripción debajo del Gamer Tag */
+        .character-desc {
+            font-size: 8px;
+            color: #bfa6ff;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px;
+            border-left: 3px solid var(--neon-pink);
+            text-align: center;
+            word-wrap: break-word;
+            margin: 10px 0 14px 0;
+        }
+
+        .stats-grid {
+            border: 3px solid var(--neon-yellow);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 2px dashed #441880;
+            padding-bottom: 6px;
+        }
+
+        .stat-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .stat-label {
+            color: var(--neon-cyan);
+        }
+
+        .xp-counter {
+            color: var(--neon-yellow);
+            font-size: 11px;
+        }
+
+        .lives-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .live-icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .section-title {
+            color: var(--neon-pink);
+            font-size: 8px;
+            margin: 14px 0 8px 0;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Cuadrículas ultra-responsivas de 3 columnas fijas */
+        .grid-slots-3x3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        /* SLOT PROTEGIDO: font-size 0 y overflow evitan que textos rotos deformen el diseño */
+        .slot {
+            background: #110226;
+            border: 2px solid #441880;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            position: relative;
+            width: 100%;
+            overflow: hidden; 
+            font-size: 0;      
+        }
+
+        .slot.active {
+            border-color: var(--neon-cyan);
+            box-shadow: 0px 0px 8px var(--neon-cyan);
+        }
+
+        .slot img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            opacity: 0.15; 
+        }
+
+        .slot.active img {
+            opacity: 1;    
+            filter: drop-shadow(0px 0px 3px var(--neon-cyan));
+        }
+
+        .penalty-text {
+            font-size: 9px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .system-msg {
+            margin-top: 100px;
+            font-size: 10px;
+            color: var(--neon-pink);
+            text-shadow: 2px 2px 0px #000;
+            padding: 15px;
+        }
     </style>
 </head>
 <body>
@@ -73,41 +218,68 @@
     <div class="container" id="game-card" style="display: none;">
         <img id="game-logo" class="brand-logo" src="" alt="LOGO">
         
-        <div class="avatar-container">
-            <div class="avatar-frame"><img id="avatar" src="" alt="Avatar"></div>
-            <div class="player-header-info">
-                <div class="gamertag-label">GAMER TAG:</div>
-                <div id="gamertag" class="gamertag">JUGADOR</div>
-                <div class="player-id">ID: <span id="player-id-val">#00</span></div>
-            </div>
+        <div class="avatar-frame">
+            <img id="avatar" src="" alt="Avatar">
         </div>
+
+        <div id="gamertag" class="gamertag">JUGADOR</div>
+        <div class="player-id">ID: <span id="player-id-val">000</span></div>
 
         <div id="character-desc" class="character-desc"></div>
 
         <div class="stats-grid">
-            <div class="stat-item"><span class="stat-label">SCORE XP:</span><span id="xp-points" class="xp-counter">00000</span></div>
-            <div class="stat-item"><span class="stat-label">VIDAS HP:</span><div id="lives-display" class="lives-container"></div></div>
-            <div class="stat-item"><span class="stat-label">ALERTA:</span><span id="penalty-status" class="penalty-text">NINGUNA</span></div>
+            <div class="stat-item">
+                <span class="stat-label">SCORE XP:</span>
+                <span id="xp-points" class="xp-counter">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">VIDAS HP:</span>
+                <div id="lives-display" class="lives-container"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">ALERTA:</span>
+                <span id="penalty-status" class="penalty-text">NINGUNA</span>
+            </div>
         </div>
 
         <div class="section-title">ITEMS DE ESTACIÓN</div>
         <div class="grid-slots-3x3">
-            <div class="slot-wrapper"><div class="slot" id="slot-pocion"><img id="img-pocion" src="" alt=""></div><div class="slot-name">Poción de Vida</div></div>
-            <div class="slot-wrapper"><div class="slot" id="slot-tiempo"><img id="img-tiempo" src="" alt=""></div><div class="slot-name">Tiempo Extra</div></div>
-            <div class="slot-wrapper"><div class="slot" id="slot-proteccion"><img id="img-proteccion" src="" alt=""></div><div class="slot-name">Protección de Vida</div></div>
-            <div class="slot-wrapper"><div class="slot" id="slot-ayuda"><img id="img-ayuda" src="" alt=""></div><div class="slot-name">Ayuda de NPC</div></div>
-            <div class="slot-wrapper"><div class="slot locked"></div><div class="slot-name">Bloqueado</div></div>
-            <div class="slot-wrapper"><div class="slot locked"></div><div class="slot-name">Bloqueado</div></div>
+            <div class="slot" id="slot-pocion" title="Poción de Vida">
+                <img id="img-pocion" src="" alt="Poción">
+            </div>
+            <div class="slot" id="slot-tiempo" title="Tiempo Extra">
+                <img id="img-tiempo" src="" alt="Tiempo Extra">
+            </div>
+            <div class="slot" id="slot-proteccion" title="Protección de Vida">
+                <img id="img-proteccion" src="" alt="Protección">
+            </div>
+            <div class="slot" id="slot-ayuda" title="Ayuda de NPC">
+                <img id="img-ayuda" src="" alt="Ayuda">
+            </div>
+            <div class="slot" title="Vacío"></div>
+            <div class="slot" title="Vacío"></div>
         </div>
 
         <div class="section-title">STICKERS DE PREMIO</div>
         <div class="grid-slots-3x3">
-            <div class="slot-wrapper"><div class="slot slot-medal" id="stk-grafia"><img id="img-stk-grafia" src="" alt=""></div><div class="slot-name">Grafía</div></div>
-            <div class="slot-wrapper"><div class="slot slot-medal" id="stk-matriz"><img id="img-stk-matriz" src="" alt=""></div><div class="slot-name">Matriz</div></div>
-            <div class="slot-wrapper"><div class="slot slot-medal" id="stk-simetria"><img id="img-stk-simetria" src="" alt=""></div><div class="slot-name">Simetría</div></div>
-            <div class="slot-wrapper"><div class="slot slot-medal" id="stk-ritmo"><img id="img-stk-ritmo" src="" alt=""></div><div class="slot-name">Ritmo</div></div>
-            <div class="slot-wrapper"><div class="slot slot-medal" id="stk-color"><img id="img-stk-color" src="" alt=""></div><div class="slot-name">Color</div></div>
-            <div class="slot-wrapper"><div class="slot slot-medal" id="stk-prisma"><img id="img-stk-prisma" src="" alt=""></div><div class="slot-name">Prisma</div></div>
+            <div class="slot" id="stk-grafia" title="Sticker Grafía">
+                <img id="img-stk-grafia" src="" alt="Grafía">
+            </div>
+            <div class="slot" id="stk-matriz" title="Sticker Matriz">
+                <img id="img-stk-matriz" src="" alt="Matriz">
+            </div>
+            <div class="slot" id="stk-simetria" title="Sticker Simetría">
+                <img id="img-stk-simetria" src="" alt="Simetría">
+            </div>
+            <div class="slot" id="stk-ritmo" title="Sticker Ritmo">
+                <img id="img-stk-ritmo" src="" alt="Ritmo">
+            </div>
+            <div class="slot" id="stk-color" title="Sticker Color">
+                <img id="img-stk-color" src="" alt="Color">
+            </div>
+            <div class="slot" id="stk-prisma" title="Sticker Prisma">
+                <img id="img-stk-prisma" src="" alt="Prisma">
+            </div>
         </div>
     </div>
 
@@ -117,25 +289,29 @@
     <script>
         const EXCEL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=xlsx'; 
         
-        // CONFIGURACIÓN DE IMÁGENES
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
-        const ICONO_POCION = '2 Pocion.png';
-        const ICONO_TIEMPO = '3 Tiempo extra.png';
-        const ICONO_PROTECCION = '4 Protección de vida.png';
-        const ICONO_AYUDA = '5 Ayuda.png';
-        const STK_GRAFIA = 'medalla_grafia.png';
-        const STK_MATRIZ = 'medalla_matriz.png';
-        const STK_SIMETRIA = 'medalla_simetria.png';
-        const STK_RITMO = 'medalla_ritmo.png';
-        const STK_COLOR = 'medalla_color.png';
-        const STK_PRISMA = 'medalla_prisma.png';
 
+        // Configuración de rutas internas de tu repositorio
+        const ICONO_POCION = 'assets/items/pocion.png';
+        const ICONO_TIEMPO = 'assets/items/tiempo.png';
+        const ICONO_PROTECCION = 'assets/items/proteccion.png';
+        const ICONO_AYUDA = 'assets/items/ayuda.png';
+
+        const STK_GRAFIA = 'assets/stickers/medalla_grafia.png';
+        const STK_MATRIZ = 'assets/stickers/medalla_matriz.png';
+        const STK_SIMETRIA = 'assets/stickers/medalla_simetria.png';
+        const STK_RITMO = 'assets/stickers/medalla_ritmo.png';
+        const STK_COLOR = 'assets/stickers/medalla_color.png';
+        const STK_PRISMA = 'assets/stickers/medalla_prisma.png';
+
+        // Asignación de imágenes
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
         document.getElementById('img-tiempo').src = ICONO_TIEMPO;
         document.getElementById('img-proteccion').src = ICONO_PROTECCION;
         document.getElementById('img-ayuda').src = ICONO_AYUDA;
+        
         document.getElementById('img-stk-grafia').src = STK_GRAFIA;
         document.getElementById('img-stk-matriz').src = STK_MATRIZ;
         document.getElementById('img-stk-simetria').src = STK_SIMETRIA;
@@ -165,48 +341,104 @@
             document.getElementById('error-msg').style.display = 'block';
         } else {
             fetch(EXCEL_URL)
-                .then(res => res.arrayBuffer())
+                .then(res => {
+                    if(!res.ok) throw new Error("Error de red");
+                    return res.arrayBuffer();
+                })
                 .then(buffer => {
                     const workbook = XLSX.read(buffer, { type: 'array' });
-                    const dbSheetName = workbook.SheetNames[0]; 
-                    const dbData = XLSX.utils.sheet_to_json(workbook.Sheets[dbSheetName]);
+                    
+                    const dbSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('base')) || workbook.SheetNames[0];
+                    const dbWorksheet = workbook.Sheets[dbSheetName];
+                    const dbData = XLSX.utils.sheet_to_json(dbWorksheet);
                     
                     const basePlayer = dbData.find(row => {
-                        let idCelda = limpiarString(buscarColumna(row, ['ID', 'id']) || '').replace('#', '');
+                        let idCelda = limpiarString(row['ID'] || row['id'] || '').replace('#', '');
                         let idBuscado = limpiarString(playerId).replace('#', '');
                         return idCelda === idBuscado;
                     });
 
                     if(!basePlayer) {
                         document.getElementById('loading-msg').style.display = 'none';
-                        document.getElementById('error-msg').innerText = "JUGADOR '" + playerId + "' NO ENCONTRADO";
+                        document.getElementById('error-msg').innerText = "JUGADOR NO ENCONTRADO EN BASE DATOS";
                         document.getElementById('error-msg').style.display = 'block';
                         return;
                     }
 
+                    let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
+                    let avatarUrl = basePlayer['Avatar URL'] || '';
+                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
+                    
+                    let xpAcumulada = parseInt(buscarColumna(basePlayer, ['Puntaje Total', 'XP'])) || 0;
+                    let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
+                    let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
+                    
+                    let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
+                    let stickersX = limpiarString(basePlayer['Stickers Premio']);
+
+                    // Procesar Formulario de Google
+                    const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
+                    if(formSheetName) {
+                        const formWorksheet = workbook.Sheets[formSheetName];
+                        const formData = XLSX.utils.sheet_to_json(formWorksheet);
+
+                        formData.forEach(itemForm => {
+                            let formPlayerId = limpiarString(buscarColumna(itemForm, ['ID del Jugador', 'ID del Jugador ', 'ID']) || '').replace('#', '');
+                            let targetId = limpiarString(playerId).replace('#', '');
+
+                            if(formPlayerId === targetId) {
+                                let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', '  Puntos a SUMAR  ', 'Puntos'])) || 0;
+                                xpAcumulada += puntosSumar;
+
+                                let itemGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a GANAR?', '¿Qué Ítem va a GANAR? ']));
+                                if(itemGanado && itemGanado !== 'ninguno') {
+                                    inventarioX += " " + itemGanado;
+                                }
+
+                                let itemUsado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a USAR / GASTAR?', '¿Qué Ítem va a USAR / GASTAR? ']));
+                                if(itemUsado && itemUsado !== 'ninguno') {
+                                    inventarioX = inventarioX.replace(itemUsado, '');
+                                }
+
+                                let penalizacionForm = limpiarString(buscarColumna(itemForm, ['Penalizaciones a APLICAR', 'Penalizaciones a APLICAR ']));
+                                if(penalizacionForm && penalizacionForm !== 'ninguna' && penalizacionForm !== '0') {
+                                    penalizacionActual = penalizacionForm.toUpperCase();
+                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1;
+                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2;
+                                }
+
+                                let stickerGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Sticker de Premio se ganó?', '¿Qué Sticker de Premio se ganó?  ']));
+                                if(stickerGanado && stickerGanado !== 'ninguno') {
+                                    stickersX += " " + stickerGanado;
+                                }
+                            }
+                        });
+                    }
+
+                    // Renderizado Final
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
-                    // Carga de datos
-                    document.getElementById('player-id-val').innerText = String(buscarColumna(basePlayer, ['ID']) || playerId).toUpperCase();
-                    document.getElementById('gamertag').innerText = String(buscarColumna(basePlayer, ['Gamer Tag', 'Gamertag', 'Nombre']) || 'JUGADOR').toUpperCase();
-                    document.getElementById('avatar').src = buscarColumna(basePlayer, ['Avatar URL', 'Avatar']) || 'https://via.placeholder.com/110/000000/ffffff?text=ARCADE';
-                    document.getElementById('xp-points').innerText = String(buscarColumna(basePlayer, ['Puntaje Total', 'XP', 'Puntaje']) || '00000').padStart(5, '0');
-                    document.getElementById('character-desc').innerText = String(buscarColumna(basePlayer, ['Descripción Personaje', 'Descripción']) || 'SISTEMA OPERATIVO CONECTADO.').toUpperCase();
+                    document.getElementById('player-id-val').innerText = String(basePlayer['ID']).toUpperCase();
+                    document.getElementById('gamertag').innerText = String(gamertag).toUpperCase();
+                    document.getElementById('avatar').src = avatarUrl || 'https://via.placeholder.com/110/000000/ffffff?text=ARCADE';
+                    document.getElementById('xp-points').innerText = xpAcumulada;
+                    document.getElementById('character-desc').innerText = descripcion;
                     
-                    // Manejo de alertas y vidas
-                    let penalizacion = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
-                    const penaltyEl = document.getElementById('penalty-status');
-                    penaltyEl.innerText = penalizacion.toUpperCase();
-                    penaltyEl.style.color = (penalizacion.toLowerCase() !== 'ninguna') ? '#ff007f' : '#00ffff';
+                    if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
+                        document.getElementById('penalty-status').innerText = penalizacionActual;
+                        document.getElementById('penalty-status').style.color = "#ff3333";
+                    } else {
+                        document.getElementById('penalty-status').innerText = "NINGUNA";
+                        document.getElementById('penalty-status').style.color = "#00ffff";
+                    }
 
-                    let hp = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
                     const livesDisplay = document.getElementById('lives-display');
                     livesDisplay.innerHTML = '';
-                    if(hp <= 0) {
-                        livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:7px;">GAME OVER</span>';
+                    if(hpAcumulada <= 0) {
+                        livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:8px;">GAME OVER</span>';
                     } else {
-                        for(let i = 0; i < Math.min(hp, 6); i++) {
+                        for(let i = 0; i < Math.min(hpAcumulada, 6); i++) {
                             const img = document.createElement('img');
                             img.src = ICONO_VIDA;
                             img.className = 'live-icon';
@@ -214,26 +446,29 @@
                         }
                     }
 
-                    // Inventario y Stickers
-                    let inv = limpiarString(buscarColumna(basePlayer, ['Inventario Ítems', 'Inventario']));
-                    let stk = limpiarString(buscarColumna(basePlayer, ['Stickers Premio', 'Stickers']));
+                    // Validación Ultra Flexible del Inventario (Busca raíces)
+                    if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
+                    if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
+                    
+                    // Valida si tiene cualquier texto relacionado a protección o escudo sin importar el orden
+                    if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo')) {
+                        document.getElementById('slot-proteccion').classList.add('active');
+                    }
+                    if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
 
-                    if(inv.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
-                    if(inv.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                    if(inv.includes('proteccion') || inv.includes('escudo')) document.getElementById('slot-proteccion').classList.add('active');
-                    if(inv.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
+                    // Validación de Medallas
+                    if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
+                    if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
+                    if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
+                    if(stickersX.includes('ritmo')) document.getElementById('stk-ritmo').classList.add('active');
+                    if(stickersX.includes('color')) document.getElementById('stk-color').classList.add('active');
+                    if(stickersX.includes('prisma')) document.getElementById('stk-prisma').classList.add('active');
 
-                    if(stk.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
-                    if(stk.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
-                    if(stk.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
-                    if(stk.includes('ritmo')) document.getElementById('stk-ritmo').classList.add('active');
-                    if(stk.includes('color')) document.getElementById('stk-color').classList.add('active');
-                    if(stk.includes('prisma')) document.getElementById('stk-prisma').classList.add('active');
                 })
                 .catch(err => {
                     console.error(err);
                     document.getElementById('loading-msg').style.display = 'none';
-                    document.getElementById('error-msg').innerText = "ERROR AL CONECTAR: REVISA URL EXCEL";
+                    document.getElementById('error-msg').innerText = "ERROR AL INTERCONECTAR HOJA DE EXCEL";
                     document.getElementById('error-msg').style.display = 'block';
                 });
         }
