@@ -48,7 +48,7 @@
             box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
         }
 
-        /* TAMAÑO DEL LOGO CORREGIDO (Más compacto y elegante) */
+        /* LOGO REDUCIDO (50% de ancho máximo) */
         .brand-logo {
             max-width: 50%; 
             height: auto;
@@ -154,7 +154,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Cuadrículas ultra-responsivas de 3 columnas fijas */
+        /* Cuadrículas ultra-responsivas de 3 columnas fijas (3 y 3) */
         .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -163,7 +163,7 @@
             width: 100%;
         }
 
-        /* SLOT PROTEGIDO: font-size 0 y overflow evitan que textos rotos deformen el diseño */
+        /* Mantiene la cuadrícula perfecta incluso si falta una imagen */
         .slot {
             background: #110226;
             border: 2px solid #441880;
@@ -292,18 +292,18 @@
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
 
-        // Configuración de rutas internas de tu repositorio
-        const ICONO_POCION = 'assets/items/pocion.png';
-        const ICONO_TIEMPO = 'assets/items/tiempo.png';
-        const ICONO_PROTECCION = 'assets/items/proteccion.png';
-        const ICONO_AYUDA = 'assets/items/ayuda.png';
+        // RUTAS CORREGIDAS: Apuntando directamente a la raíz de tu repositorio GitHub
+        const ICONO_POCION = '2 Pocion.png';
+        const ICONO_TIEMPO = '3 Tiempo extra.png';
+        const ICONO_PROTECCION = '4 Protección de vida.png';
+        const ICONO_AYUDA = '5 Ayuda.png';
 
-        const STK_GRAFIA = 'assets/stickers/medalla_grafia.png';
-        const STK_MATRIZ = 'assets/stickers/medalla_matriz.png';
-        const STK_SIMETRIA = 'assets/stickers/medalla_simetria.png';
-        const STK_RITMO = 'assets/stickers/medalla_ritmo.png';
-        const STK_COLOR = 'assets/stickers/medalla_color.png';
-        const STK_PRISMA = 'assets/stickers/medalla_prisma.png';
+        const STK_GRAFIA = 'medalla_grafia.png';
+        const STK_MATRIZ = 'medalla_matriz.png';
+        const STK_SIMETRIA = 'medalla_simetria.png';
+        const STK_RITMO = 'medalla_ritmo.png';
+        const STK_COLOR = 'medalla_color.png';
+        const STK_PRISMA = 'medalla_prisma.png';
 
         // Asignación de imágenes
         document.getElementById('game-logo').src = LOGO_URL;
@@ -446,11 +446,11 @@
                         }
                     }
 
-                    // Validación Ultra Flexible del Inventario (Busca raíces)
+                    // Validación del Inventario Inteligente (Busca raíces de palabras)
                     if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
                     if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
                     
-                    // Valida si tiene cualquier texto relacionado a protección o escudo sin importar el orden
+                    // Activación flexible para la protección
                     if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo')) {
                         document.getElementById('slot-proteccion').classList.add('active');
                     }
