@@ -57,15 +57,55 @@
             filter: drop-shadow(0px 0px 6px var(--neon-pink));
         }
 
-        /* DISEÑO VERTICAL ORIGINAL RIGIDO */
+        /* DISEÑO DE PERSONAJE EN HORIZONTAL */
+        .player-profile-block {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px;
+            border: 2px dashed #441880;
+        }
+
+        .player-meta-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .gamertag {
+            color: var(--neon-yellow);
+            font-size: 11px;
+            text-shadow: 2px 2px 0px #000;
+            letter-spacing: 0.5px;
+            word-wrap: break-word;
+        }
+
+        .player-id-grade {
+            font-size: 7px;
+            color: #a393eb;
+        }
+
+        .character-desc {
+            font-size: 6.5px;
+            color: #bfa6ff;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        /* Avatar a la Derecha */
         .avatar-frame {
-            width: 110px;
-            height: 110px;
-            margin: 0 auto 10px auto;
+            width: 85px;
+            height: 85px;
             border: 4px solid var(--neon-pink);
             background-color: #000;
-            box-shadow: 0px 0px 10px var(--neon-pink);
+            box-shadow: 0px 0px 8px var(--neon-pink);
             position: relative;
+            flex-shrink: 0;
         }
 
         .avatar-frame img {
@@ -82,42 +122,15 @@
         .avatar-frame.inactive::after {
             content: "INACTIVO";
             position: absolute;
-            top: 45%;
+            top: 40%;
             left: 0;
             width: 100%;
             background: rgba(255, 0, 127, 0.9);
             color: #fff;
-            font-size: 8px;
+            font-size: 7px;
             text-align: center;
-            padding: 4px 0;
+            padding: 3px 0;
             box-shadow: 0 0 5px #fff;
-        }
-
-        .gamertag {
-            color: var(--neon-yellow);
-            font-size: 12px;
-            text-shadow: 2px 2px 0px #000;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .player-info-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            font-size: 7px;
-            color: #a393eb;
-            margin-bottom: 10px;
-        }
-
-        .character-desc {
-            font-size: 7px;
-            color: #bfa6ff;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 6px;
-            border: 2px dashed #441880;
-            margin-bottom: 12px;
-            word-wrap: break-word;
         }
 
         /* ESTADÍSTICAS */
@@ -348,18 +361,16 @@
     <div class="container" id="game-card" style="display: none;">
         <img id="game-logo" class="brand-logo" src="" alt="LOGO">
         
-        <div class="avatar-frame" id="avatar-container">
-            <img id="avatar" src="" alt="Avatar">
+        <div class="player-profile-block">
+            <div class="player-meta-info">
+                <div id="gamertag" class="gamertag">JUGADOR</div>
+                <div class="player-id-grade">ID: <span id="player-id-val">000</span> | NIVEL: <span id="player-grade-val">1</span></div>
+                <div id="character-desc" class="character-desc">Cargando datos...</div>
+            </div>
+            <div class="avatar-frame" id="avatar-container">
+                <img id="avatar" src="" alt="Avatar">
+            </div>
         </div>
-
-        <div id="gamertag" class="gamertag">JUGADOR</div>
-        
-        <div class="player-info-row">
-            <div>ID: <span id="player-id-val">000</span></div>
-            <div>NIVEL: <span id="player-grade-val">1</span></div>
-        </div>
-
-        <div id="character-desc" class="character-desc">Cargando datos...</div>
 
         <div class="stats-grid">
             <div class="stat-item">
@@ -498,7 +509,7 @@
             }
         }
 
-        // Conversor de colores escritos a códigos Hex Neón
+        // Búsqueda inteligente de color neón (Flexible a tildes y nombres de columnas)
         function obtenerHexColor(nombreColor) {
             let c = limpiarString(nombreColor);
             if (c.includes('azul')) return '#00ffff';      
@@ -521,7 +532,8 @@
                 })
                 .then(buffer => {
                     const workbook = XLSX.read(buffer, { type: 'array' });
-                    const dbSheetName = workbook.SheetNames[0]; 
+                    // Busca directamente la pestaña por su nombre exacto
+                    const dbSheetName = workbook.SheetNames.find(n => n.trim() === 'Base Datos') || workbook.SheetNames[0];
                     const dbWorksheet = workbook.Sheets[dbSheetName];
                     const dbData = XLSX.utils.sheet_to_json(dbWorksheet);
                     
@@ -539,7 +551,7 @@
                         return;
                     }
 
-                    // Lectura por columnas mapeadas exactas
+                    // Lectura dinámica por columnas exactas
                     let gamertag = basePlayer['Gamer Tag'] || playerId;
                     let avatarUrl = basePlayer['Avatar URL'] || '';
                     let grado = basePlayer['Grado'] || '1';
@@ -549,8 +561,14 @@
                     let hpAcumulada = parseInt(basePlayer['Salud HP (La fórmula de los corazones)']) || 3;
                     let penalizacionesPuntos = parseInt(basePlayer['Puntos de Penalización']) || 0;
                     let penalizacionActual = String(basePlayer['Alerta / Estado (Falta Grave)'] || 'NINGUNA');
-                    let valorEnergia = parseInt(basePlayer['Energía (La fórmula de los 60 puntos)']) || 60;
-                    let colorElegidoText = String(basePlayer['Color Energía (El que eligieron)'] || 'verde');
+                    
+                    // Extraer dinámicamente el valor de energía y el color esquivando las tildes del Excel
+                    let keysBase = Object.keys(basePlayer);
+                    let keyEnergiaVal = keysBase.find(k => limpiarString(k).includes('energia') && (k.includes('60') || k.includes('formula')));
+                    let keyEnergiaColor = keysBase.find(k => limpiarString(k).includes('color') && limpiarString(k).includes('energia'));
+                    
+                    let valorEnergia = keyEnergiaVal ? parseInt(basePlayer[keyEnergiaVal]) : 60;
+                    let colorElegidoText = keyEnergiaColor ? String(basePlayer[keyEnergiaColor]) : 'verde';
                     
                     let colInventario = basePlayer['Inventario Ítems'] || '';
                     let colStickers = basePlayer['Stickers Premio'] || '';
@@ -595,7 +613,7 @@
                         });
                     }
 
-                    // APLICAR PARÁMETRO DE COLOR EXCEL 
+                    // APLICAR COLOR DETECTADO DEL EXCEL (AHORA SÍ TOMARÁ EL AZUL)
                     let hexColorFinal = obtenerHexColor(colorElegidoText);
                     document.documentElement.style.setProperty('--battery-color', hexColorFinal);
 
@@ -613,7 +631,7 @@
                         return; 
                     }
 
-                    // IMPRIMIR DATOS EN PANTALLA VERTICAL
+                    // IMPRIMIR DATOS EN PANTALLA HACIENDO EL DESPLIEGUE
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
@@ -624,7 +642,7 @@
                     document.getElementById('xp-points').innerText = xpAcumulada;
                     document.getElementById('character-desc').innerText = descripcion;
                     
-                    // Lógica de inactividad automática por 100 puntos de penalización o celda
+                    // Lógica de inactividad automática por 100 puntos de penalización
                     const avatarContainer = document.getElementById('avatar-container');
                     if (penalizacionesPuntos >= 100 || penalizacionActual.includes("FALTA GRAVE")) {
                         avatarContainer.classList.add('inactive');
@@ -642,7 +660,7 @@
                     }
 
                     // Renderizado de Barra de Batería (Escala 1 a 60)
-                    valorEnergia = Math.max(0, Math.min(valorEnergia, 60));
+                    valorEnergia = isNaN(valorEnergia) ? 60 : Math.max(0, Math.min(valorEnergia, 60));
                     let porcentajeBateria = (valorEnergia / 60) * 100;
                     document.getElementById('battery-bar').style.width = porcentajeBateria + '%';
                     document.getElementById('battery-text-val').innerText = valorEnergia + '/60';
