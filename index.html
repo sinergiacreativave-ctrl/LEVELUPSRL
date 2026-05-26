@@ -37,7 +37,6 @@
             overflow-x: hidden;
         }
 
-        /* Contenedor fluido para pantallas móviles */
         .container {
             width: 100%;
             max-width: 340px;
@@ -48,7 +47,6 @@
             box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
         }
 
-        /* TAMAÑO DEL LOGO REDUCIDO AL 35% */
         .brand-logo {
             max-width: 35%; 
             height: auto;
@@ -144,6 +142,16 @@
             object-fit: contain;
         }
 
+        .energy-badge {
+            font-size: 8px;
+            padding: 2px 6px;
+            border: 1px solid #fff;
+            text-transform: uppercase;
+            font-weight: bold;
+            display: inline-block;
+            text-shadow: 1px 1px 0px #000;
+        }
+
         .section-title {
             color: var(--neon-pink);
             font-size: 8px;
@@ -230,6 +238,10 @@
                 <span id="xp-points" class="xp-counter">0</span>
             </div>
             <div class="stat-item">
+                <span class="stat-label">ENERGÍA:</span>
+                <span id="energy-display" class="energy-badge" style="background-color: #555;">-</span>
+            </div>
+            <div class="stat-item">
                 <span class="stat-label">VIDAS HP:</span>
                 <div id="lives-display" class="lives-container"></div>
             </div>
@@ -259,22 +271,22 @@
 
         <div class="section-title">STICKERS DE PREMIO</div>
         <div class="grid-slots-3x3">
-            <div class="slot" id="stk-grafia" title="Sticker Grafía">
+            <div class="slot" id="stk-grafia" title="Sticker Grafía (Mundo 1)">
                 <img id="img-stk-grafia" src="" alt="Grafía">
             </div>
-            <div class="slot" id="stk-matriz" title="Sticker Matriz">
+            <div class="slot" id="stk-matriz" title="Sticker Matriz (Mundo 2)">
                 <img id="img-stk-matriz" src="" alt="Matriz">
             </div>
-            <div class="slot" id="stk-simetria" title="Sticker Simetría">
-                <img id="img-stk-simetria" src="" alt="Simetría">
+            <div class="slot" id="stk-biosfera" title="Sticker Biósfera (Mundo 3)">
+                <img id="img-stk-biosfera" src="" alt="Biósfera">
             </div>
-            <div class="slot" id="stk-ritmo" title="Sticker Ritmo">
-                <img id="img-stk-ritmo" src="" alt="Ritmo">
+            <div class="slot" id="stk-cronicas" title="Sticker Crónicas (Mundo 4)">
+                <img id="img-stk-cronicas" src="" alt="Crónicas">
             </div>
-            <div class="slot" id="stk-color" title="Sticker Color">
-                <img id="img-stk-color" src="" alt="Color">
+            <div class="slot" id="stk-turbo" title="Sticker Turbo (Mundo 5)">
+                <img id="img-stk-turbo" src="" alt="Turbo">
             </div>
-            <div class="slot" id="stk-prisma" title="Sticker Prisma">
+            <div class="slot" id="stk-prisma" title="Sticker Prisma (Mundo 6)">
                 <img id="img-stk-prisma" src="" alt="Prisma">
             </div>
         </div>
@@ -286,20 +298,20 @@
     <script>
         const EXCEL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=xlsx'; 
         
-        const LOGO_URL = 'logo.png'; 
-        const ICONO_VIDA = 'vida.png';
+        const LOGO_URL = 'https://i.ibb.co/ZzWpn2rM/logo.png'; 
+        const ICONO_VIDA = 'https://i.ibb.co/s9p431JP/vida.png';
 
-        const ICONO_POCION = 'assets/items/pocion.png';
-        const ICONO_TIEMPO = 'assets/items/tiempo.png';
-        const ICONO_PROTECCION = 'assets/items/proteccion.png';
-        const ICONO_AYUDA = 'assets/items/ayuda.png';
+        const ICONO_POCION = 'https://i.ibb.co/TDndCgD7/2-Pocion.png';
+        const ICONO_TIEMPO = 'https://i.ibb.co/60jpfC7t/3-Tiempo.png';
+        const ICONO_PROTECCION = 'https://i.ibb.co/DfYJ9Bs1/4-Proteccion.png';
+        const ICONO_AYUDA = 'https://i.ibb.co/YBWmMTJw/5-Ayuda.png';
 
-        const STK_GRAFIA = 'assets/stickers/medalla_grafia.png';
-        const STK_MATRIZ = 'assets/stickers/medalla_matriz.png';
-        const STK_SIMETRIA = 'assets/stickers/medalla_simetria.png';
-        const STK_RITMO = 'assets/stickers/medalla_ritmo.png';
-        const STK_COLOR = 'assets/stickers/medalla_color.png';
-        const STK_PRISMA = 'assets/stickers/medalla_prisma.png';
+        const STK_GRAFIA = 'https://i.ibb.co/bj7wgdws/premio1.png';
+        const STK_MATRIZ = 'https://i.ibb.co/0yV2vjSs/premio2.png';
+        const STK_BIOSFERA = 'https://i.ibb.co/nsMjJZKH/premio3.png';
+        const STK_CRONICAS = 'https://i.ibb.co/VW2jRj2Z/premio4.png';
+        const STK_TURBO = 'https://i.ibb.co/SXF4PQ6y/premio5.png';
+        const STK_PRISMA = 'https://i.ibb.co/cXJ5SQ45/premio6.png';
 
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
@@ -309,9 +321,9 @@
         
         document.getElementById('img-stk-grafia').src = STK_GRAFIA;
         document.getElementById('img-stk-matriz').src = STK_MATRIZ;
-        document.getElementById('img-stk-simetria').src = STK_SIMETRIA;
-        document.getElementById('img-stk-ritmo').src = STK_RITMO;
-        document.getElementById('img-stk-color').src = STK_COLOR;
+        document.getElementById('img-stk-biosfera').src = STK_BIOSFERA;
+        document.getElementById('img-stk-cronicas').src = STK_CRONICAS;
+        document.getElementById('img-stk-turbo').src = STK_TURBO;
         document.getElementById('img-stk-prisma').src = STK_PRISMA;
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -328,6 +340,16 @@
                 if (llaveReal) return objeto[llaveReal];
             }
             return null;
+        }
+
+        function traducirColor(colorExcel) {
+            let col = limpiarString(colorExcel);
+            if(col.includes('azul')) return '#002699';
+            if(col.includes('rosa') || col.includes('magenta')) return '#ff007f';
+            if(col.includes('amarillo')) return '#e6b800';
+            if(col.includes('rojo')) return '#cc0000';
+            if(col.includes('verde')) return '#009933';
+            return '#555555';
         }
 
         if(!playerId) {
@@ -367,6 +389,7 @@
                     let xpAcumulada = parseInt(buscarColumna(basePlayer, ['Puntaje Total', 'XP'])) || 0;
                     let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
                     let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
+                    let colorEnergia = String(buscarColumna(basePlayer, ['Color Energía', 'Energía']) || 'GRIS');
                     
                     let colInventario = buscarColumna(basePlayer, ['Inventario Ítems', 'Inventario']) || '';
                     let colStickers = buscarColumna(basePlayer, ['Stickers Premio', 'Stickers']) || '';
@@ -374,7 +397,6 @@
                     let inventarioX = limpiarString(colInventario);
                     let stickersX = limpiarString(colStickers);
 
-                    // Procesar Formulario de Google
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
                     if(formSheetName) {
                         const formWorksheet = workbook.Sheets[formSheetName];
@@ -401,8 +423,8 @@
                                 let penalizacionForm = limpiarString(buscarColumna(itemForm, ['Penalizaciones a APLICAR', 'Penalizaciones a APLICAR ']));
                                 if(penalizacionForm && penalizacionForm !== 'ninguna' && penalizacionForm !== '0') {
                                     penalizacionActual = penalizacionForm.toUpperCase();
-                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1;
-                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2;
+                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1; 
+                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2;   
                                 }
 
                                 let stickerGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Sticker de Premio se ganó?', '¿Qué Sticker de Premio se ganó?  ']));
@@ -413,7 +435,6 @@
                         });
                     }
 
-                    // Renderizado Final
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
@@ -423,6 +444,10 @@
                     document.getElementById('xp-points').innerText = xpAcumulada;
                     document.getElementById('character-desc').innerText = descripcion;
                     
+                    const energyBadge = document.getElementById('energy-display');
+                    energyBadge.innerText = colorEnergia;
+                    energyBadge.style.backgroundColor = traducirColor(colorEnergia);
+
                     if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
                         document.getElementById('penalty-status').innerText = penalizacionActual;
                         document.getElementById('penalty-status').style.color = "#ff3333";
@@ -444,21 +469,26 @@
                         }
                     }
 
-                    // NORMALIZACIÓN ABSOLUTA ANTES DE ASIGNAR ACTIVACIÓN (Evita errores por tildes en el HTML)
-                    if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
-                    if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                    if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo')) {
+                    if(inventarioX.includes('pocion') || inventarioX.includes('2-pocion') || inventarioX.includes('item1')) {
+                        document.getElementById('slot-pocion').classList.add('active');
+                    }
+                    if(inventarioX.includes('tiempo') || inventarioX.includes('3-tiempo') || inventarioX.includes('item2')) {
+                        document.getElementById('slot-tiempo').classList.add('active');
+                    }
+                    if(inventarioX.includes('proteccion') || inventarioX.includes('4-proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo') || inventarioX.includes('item3')) {
                         document.getElementById('slot-proteccion').classList.add('active');
                     }
-                    if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
+                    if(inventarioX.includes('ayuda') || inventarioX.includes('5-ayuda') || inventarioX.includes('item4')) {
+                        document.getElementById('slot-ayuda').classList.add('active');
+                    }
 
-                    // Detección blindada de Stickers (coincide perfectamente con las respuestas del formulario)
-                    if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
-                    if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
-                    if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
-                    if(stickersX.includes('ritmo')) document.getElementById('stk-ritmo').classList.add('active');
-                    if(stickersX.includes('color')) document.getElementById('stk-color').classList.add('active');
-                    if(stickersX.includes('prisma')) document.getElementById('stk-prisma').classList.add('active');
+                    // Activación inteligente de Stickers usando nombres oficiales de tus mundos
+                    if(stickersX.includes('grafia') || stickersX.includes('premio1')) document.getElementById('stk-grafia').classList.add('active');
+                    if(stickersX.includes('matriz') || stickersX.includes('premio2')) document.getElementById('stk-matriz').classList.add('active');
+                    if(stickersX.includes('biosfera') || stickersX.includes('premio3')) document.getElementById('stk-biosfera').classList.add('active');
+                    if(stickersX.includes('cronicas') || stickersX.includes('premio4')) document.getElementById('stk-cronicas').classList.add('active');
+                    if(stickersX.includes('turbo') || stickersX.includes('premio5')) document.getElementById('stk-turbo').classList.add('active');
+                    if(stickersX.includes('prisma') || stickersX.includes('premio6')) document.getElementById('stk-prisma').classList.add('active');
 
                 })
                 .catch(err => {
