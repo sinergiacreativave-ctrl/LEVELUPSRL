@@ -365,17 +365,20 @@
                         return;
                     }
 
-                    // CORRECCIÓN AQUÍ: Ahora usan buscarColumna para evitar fallos por espacios en Excel
-                    let gamertag = buscarColumna(basePlayer, ['Gamer Tag', 'Gamertag', 'Jugador']) || basePlayer['ID'] || playerId;
-                    let avatarUrl = buscarColumna(basePlayer, ['Avatar URL', 'Avatar', 'Imagen']) || '';
-                    let descripcion = buscarColumna(basePlayer, ['Descripción Personaje', 'Descripcion', 'Descripción']) || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
+                    let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
+                    let avatarUrl = basePlayer['Avatar URL'] || '';
+                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
                     
                     let xpAcumulada = parseInt(buscarColumna(basePlayer, ['Puntaje Total', 'XP'])) || 0;
                     let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
                     let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
                     
-                    let inventarioX = limpiarString(basePlayer['Inventario Ítems'] || buscarColumna(basePlayer, ['Inventario Ítems', 'Inventario']));
-                    let stickersX = limpiarString(basePlayer['Stickers Premio'] || buscarColumna(basePlayer, ['Stickers Premio', 'Stickers']));
+                    // CORRECCIÓN AQUÍ: Asegurar un string vacío si la celda de la Base de Datos no tiene nada
+                    let colInventario = buscarColumna(basePlayer, ['Inventario Ítems', 'Inventario']) || '';
+                    let colStickers = buscarColumna(basePlayer, ['Stickers Premio', 'Stickers']) || '';
+                    
+                    let inventarioX = limpiarString(colInventario);
+                    let stickersX = limpiarString(colStickers);
 
                     // Procesar Formulario de Google
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
@@ -447,17 +450,15 @@
                         }
                     }
 
-                    // Validación Ultra Flexible del Inventario (Busca raíces)
+                    // CORRECCIÓN DE DETECCIÓN: Validación Ultra Flexible del Inventario
                     if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
                     if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                    
-                    // Valida si tiene cualquier texto relacionado a protección o escudo sin importar el orden
                     if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo')) {
                         document.getElementById('slot-proteccion').classList.add('active');
                     }
                     if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
 
-                    // Validación de Medallas
+                    // CORRECCIÓN DE DETECCIÓN: Validación de Medallas / Stickers
                     if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
                     if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
                     if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
