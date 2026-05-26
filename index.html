@@ -2,35 +2,46 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>LEVEL UP! - Sistema Final</title>
+    <title>LEVEL UP! - Perfil de Jugador</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; background-color: #050505; color: #fff; font-family: 'Press Start 2P', monospace; text-align: center; }
-        .screen { height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .card { border: 4px solid #fffb00; padding: 30px; width: 85%; max-width: 450px; background: rgba(0,0,0,0.85); box-shadow: 0 0 20px #fffb00; }
-        .avatar { width: 140px; height: 140px; border: 5px solid #00ffff; box-shadow: 0 0 15px #00ffff; margin-bottom: 20px; object-fit: cover; }
-        .neon-btn { padding: 20px; background: transparent; border: 3px solid #ff00ff; color: #ff00ff; cursor: pointer; box-shadow: 0 0 15px #ff00ff; font-family: inherit; }
+        body { margin: 0; background-color: #050505; color: #fff; font-family: 'Press Start 2P', monospace; }
+        
+        /* Contenedor Principal (Tu perfil completo) */
+        #main-ui { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .stats-card { border: 4px solid #fffb00; padding: 20px; width: 90%; max-width: 400px; margin-bottom: 20px; }
+        .avatar { width: 120px; border: 4px solid #ff00ff; margin-bottom: 10px; }
+        
+        /* Overlay de Victoria (Oculto por defecto) */
+        #victory-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; /* Oculto inicialmente */
+            flex-direction: column; justify-content: center; align-items: center; z-index: 100;
+        }
+        .victory-box { border: 4px solid #00ff00; padding: 30px; text-align: center; background: #111; }
+        .neon-btn { padding: 20px; background: transparent; border: 3px solid #00ffff; color: #00ffff; cursor: pointer; margin-top: 20px; font-family: inherit; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: JUEGO NORMAL -->
-    <div id="game-screen" class="screen" style="display: flex;">
-        <div class="card">
-            <h1 style="color:#00ffff; font-size:1.2em;">ESTADO ACTUAL</h1>
-            <p>ID: <span id="display-id-game"></span></p>
-            <p>Inventario: <span id="inv-count">0</span>/6</p>
+    <div id="main-ui">
+        <div class="stats-card">
+            <img id="avatar-img" class="avatar" src="">
+            <h2 id="gamer-name">CARGANDO...</h2>
+            <p>ID: <span id="gamer-id"></span></p>
+            <p>XP: <span id="xp-val"></span></p>
+            <p>Energía: <span id="energy-val"></span></p>
+            <p>Vidas: <span id="lives-val"></span></p>
+            <p>Stickers: <span id="sticker-count">0</span>/6</p>
         </div>
     </div>
 
-    <!-- PANTALLA 2: VICTORIA -->
-    <div id="victory-screen" class="screen">
-        <div class="card">
+    <div id="victory-overlay">
+        <div class="victory-box">
             <h1>¡FELICITACIONES!</h1>
-            <img id="avatar-img" class="avatar" src="">
-            <p id="congrats-text" style="color: #00ff00;"></p>
-            <button id="victory-btn" class="neon-btn">PRESIONA AQUÍ PARA CELEBRAR</button>
+            <p>¡HAS COMPLETADO LOS 6 RETOS!</p>
+            <button id="victory-btn" class="neon-btn">RECLAMAR VICTORIA</button>
         </div>
     </div>
 
@@ -51,31 +62,34 @@
                     const ws = wb.Sheets[wb.SheetNames[0]];
                     const data = XLSX.utils.sheet_to_json(ws);
                     
-                    // Buscamos coincidencia exacta con el encabezado "ID"
                     const player = data.find(p => String(p['ID']).toLowerCase() == playerId.toLowerCase());
                     
                     if(player) {
-                        const invTexto = player['Inventario Items'] || "";
-                        const items = invTexto.split(',').filter(i => i.trim() !== "");
-                        const count = items.length;
+                        // Llenar datos básicos
+                        document.getElementById('gamer-name').innerText = player['Gamer Tag'] || "JUGADOR";
+                        document.getElementById('gamer-id').innerText = playerId;
+                        document.getElementById('avatar-img').src = player['Avatar URL'] || '';
+                        document.getElementById('xp-val').innerText = player['XP (Puntaje Total)'] || "0";
+                        document.getElementById('energy-val').innerText = player['Energia'] || "0/60";
+                        document.getElementById('lives-val').innerText = player['Salud HP'] || "0";
+                        
+                        // Contar stickers
+                        const stickerTexto = player['Stickers Premio'] || "";
+                        const count = stickerTexto.toString().split(',').filter(i => i.trim() !== "").length;
+                        document.getElementById('sticker-count').innerText = count;
 
+                        // Si tiene 6, mostramos el overlay de victoria
                         if(count >= 6) {
-                            document.getElementById('game-screen').style.display = 'none';
-                            document.getElementById('victory-screen').style.display = 'flex';
-                            // Usamos el encabezado exacto "Avatar URL"
-                            document.getElementById('avatar-img').src = player['Avatar URL'] || '';
-                            document.getElementById('congrats-text').innerText = "¡SUBISTE AL NIVEL 2!";
-                        } else {
-                            document.getElementById('display-id-game').innerText = playerId;
-                            document.getElementById('inv-count').innerText = count;
+                            document.getElementById('victory-overlay').style.display = 'flex';
                         }
                     }
                 });
         };
 
+        // Al hacer clic en el botón de victoria, desbloqueamos audio
         document.getElementById('victory-btn').addEventListener('click', () => {
             audio.play();
-            alert("¡Nivel superado!");
+            alert("¡Nivel 2 Desbloqueado!");
         });
     </script>
 </body>
