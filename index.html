@@ -14,6 +14,7 @@
             --neon-pink: #ff007f;     
             --neon-yellow: #fffb00;   
             --text-light: #ffffff;
+            --battery-color: #00ff00; /* Dinámico por JS */
         }
 
         * {
@@ -45,23 +46,26 @@
             border: 4px solid var(--neon-cyan);
             padding: 12px;
             box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
+            position: relative;
         }
 
         .brand-logo {
-            max-width: 35%; 
+            max-width: 55%; 
             height: auto;
             margin: 0 auto 12px auto;
             display: block;
             filter: drop-shadow(0px 0px 6px var(--neon-pink));
         }
 
+        /* DISEÑO VERTICAL ORIGINAL RIGIDO */
         .avatar-frame {
             width: 110px;
             height: 110px;
             margin: 0 auto 10px auto;
-            border: 3px solid var(--neon-pink);
+            border: 4px solid var(--neon-pink);
             background-color: #000;
-            box-shadow: 0px 0px 8px var(--neon-pink);
+            box-shadow: 0px 0px 10px var(--neon-pink);
+            position: relative;
         }
 
         .avatar-frame img {
@@ -70,38 +74,57 @@
             object-fit: cover;
         }
 
+        /* Estado opaco por Falta Grave / 100 Puntos */
+        .avatar-frame.inactive img {
+            opacity: 0.20;
+        }
+        
+        .avatar-frame.inactive::after {
+            content: "INACTIVO";
+            position: absolute;
+            top: 45%;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 0, 127, 0.9);
+            color: #fff;
+            font-size: 8px;
+            text-align: center;
+            padding: 4px 0;
+            box-shadow: 0 0 5px #fff;
+        }
+
         .gamertag {
             color: var(--neon-yellow);
             font-size: 12px;
             text-shadow: 2px 2px 0px #000;
-            margin: 4px 0;
+            margin-bottom: 4px;
             letter-spacing: 0.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .player-id {
-            font-size: 8px;
+        .player-info-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            font-size: 7px;
             color: #a393eb;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .character-desc {
-            font-size: 8px;
+            font-size: 7px;
             color: #bfa6ff;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px;
-            border-left: 3px solid var(--neon-pink);
-            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 6px;
+            border: 2px dashed #441880;
+            margin-bottom: 12px;
             word-wrap: break-word;
-            margin: 10px 0 14px 0;
         }
 
+        /* ESTADÍSTICAS */
         .stats-grid {
             border: 3px solid var(--neon-yellow);
             background: rgba(0, 0, 0, 0.6);
-            padding: 10px;
+            padding: 8px;
             margin-bottom: 14px;
             text-align: left;
         }
@@ -127,7 +150,7 @@
 
         .xp-counter {
             color: var(--neon-yellow);
-            font-size: 11px;
+            font-size: 10px;
         }
 
         .lives-container {
@@ -137,19 +160,44 @@
         }
 
         .live-icon {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             object-fit: contain;
         }
 
-        .energy-badge {
-            font-size: 8px;
-            padding: 2px 6px;
-            border: 1px solid #fff;
-            text-transform: uppercase;
-            font-weight: bold;
-            display: inline-block;
-            text-shadow: 1px 1px 0px #000;
+        /* DISPOSITIVO DE BATERÍA */
+        .battery-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .battery-container {
+            width: 100px;
+            height: 14px;
+            border: 2px solid #fff;
+            padding: 1px;
+            display: flex;
+            background: #000;
+        }
+
+        .battery-cells {
+            height: 100%;
+            background: var(--battery-color);
+            box-shadow: 0px 0px 6px var(--battery-color);
+            width: 0%; 
+            transition: width 0.4s ease;
+        }
+
+        .battery-cap {
+            width: 3px;
+            height: 6px;
+            background: #fff;
+        }
+
+        .battery-text {
+            font-size: 7px;
+            color: #fff;
         }
 
         .section-title {
@@ -158,9 +206,9 @@
             margin: 14px 0 8px 0;
             text-align: left;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
+        /* GRILLA DE SLOTS */
         .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -178,9 +226,6 @@
             justify-content: center;
             padding: 6px;
             position: relative;
-            width: 100%;
-            overflow: hidden; 
-            font-size: 0;      
         }
 
         .slot.active {
@@ -192,21 +237,43 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            display: block;
-            opacity: 0.15; 
+            display: none; 
         }
 
         .slot.active img {
-            opacity: 1;    
-            filter: drop-shadow(0px 0px 3px var(--neon-cyan));
+            display: block;
+        }
+
+        /* Letra X Pixelada */
+        .slot-locked-x {
+            font-size: 14px;
+            color: rgba(255, 0, 127, 0.3);
+            font-weight: bold;
+        }
+
+        .slot.active .slot-locked-x {
+            display: none;
+        }
+
+        /* Multi-items contador */
+        .item-count-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            background: #000;
+            border: 1px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            font-size: 6px;
+            padding: 1px 3px;
+            display: none;
         }
 
         .penalty-text {
-            font-size: 9px;
+            font-size: 8px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 150px;
+            max-width: 130px;
         }
 
         .system-msg {
@@ -216,6 +283,64 @@
             text-shadow: 2px 2px 0px #000;
             padding: 15px;
         }
+
+        /* ANIMACIÓN FLASH PARA EL GAME OVER Y LEVEL UP */
+        @keyframes flashEffect {
+            0% { opacity: 1; filter: drop-shadow(0 0 4px #ff007f); }
+            100% { opacity: 0.3; filter: drop-shadow(0 0 0px #000); }
+        }
+
+        /* PANTALLA ESPECIAL DE SUBIDA DE NIVEL (ANIMACIÓN DE VICTORIA) */
+        #levelup-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #0b021a;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-shadow: inset 0 0 100px #ff007f;
+            animation: flashBg 1.5s infinite alternate;
+        }
+
+        @keyframes flashBg {
+            0% { box-shadow: inset 0 0 40px #ff007f; }
+            100% { box-shadow: inset 0 0 80px #00ffff; }
+        }
+
+        .lu-title {
+            color: var(--neon-yellow);
+            font-size: 24px;
+            text-shadow: 4px 4px 0px #ff007f, -2px -2px 0px #00ffff;
+            margin-bottom: 25px;
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        .lu-banner {
+            border: 4px dashed #fff;
+            padding: 15px;
+            background: #000;
+            font-size: 11px;
+            color: #00ff00;
+            line-height: 1.8;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        .lu-sparkles {
+            font-size: 25px;
+            margin: 15px 0;
+            color: var(--neon-cyan);
+        }
     </style>
 </head>
 <body>
@@ -223,14 +348,18 @@
     <div class="container" id="game-card" style="display: none;">
         <img id="game-logo" class="brand-logo" src="" alt="LOGO">
         
-        <div class="avatar-frame">
+        <div class="avatar-frame" id="avatar-container">
             <img id="avatar" src="" alt="Avatar">
         </div>
 
         <div id="gamertag" class="gamertag">JUGADOR</div>
-        <div class="player-id">ID: <span id="player-id-val">000</span></div>
+        
+        <div class="player-info-row">
+            <div>ID: <span id="player-id-val">000</span></div>
+            <div>NIVEL: <span id="player-grade-val">1</span></div>
+        </div>
 
-        <div id="character-desc" class="character-desc"></div>
+        <div id="character-desc" class="character-desc">Cargando datos...</div>
 
         <div class="stats-grid">
             <div class="stat-item">
@@ -239,7 +368,13 @@
             </div>
             <div class="stat-item">
                 <span class="stat-label">ENERGÍA:</span>
-                <span id="energy-display" class="energy-badge" style="background-color: #555;">-</span>
+                <div class="battery-wrapper">
+                    <div class="battery-container">
+                        <div id="battery-bar" class="battery-cells"></div>
+                    </div>
+                    <div class="battery-cap"></div>
+                    <span id="battery-text-val" class="battery-text">0/60</span>
+                </div>
             </div>
             <div class="stat-item">
                 <span class="stat-label">VIDAS HP:</span>
@@ -251,45 +386,53 @@
             </div>
         </div>
 
-        <div class="section-title">ITEMS DE ESTACIÓN</div>
+        <div class="section-title">ITEMS</div>
         <div class="grid-slots-3x3">
-            <div class="slot" id="slot-pocion" title="Poción de Vida">
+            <div class="slot" id="slot-tiempo" title="Tiempo Extra (-5 Energía)">
+                <span class="slot-locked-x">X</span>
+                <img id="img-tiempo" src="" alt="Tiempo">
+                <div id="badge-tiempo" class="item-count-badge">x1</div>
+            </div>
+            <div class="slot" id="slot-pocion" title="Poción de Vida (-10 Energía)">
+                <span class="slot-locked-x">X</span>
                 <img id="img-pocion" src="" alt="Poción">
+                <div id="badge-pocion" class="item-count-badge">x1</div>
             </div>
-            <div class="slot" id="slot-tiempo" title="Tiempo Extra">
-                <img id="img-tiempo" src="" alt="Tiempo Extra">
-            </div>
-            <div class="slot" id="slot-proteccion" title="Protección de Vida">
+            <div class="slot" id="slot-proteccion" title="Protección de Vida (-12 Energía)">
+                <span class="slot-locked-x">X</span>
                 <img id="img-proteccion" src="" alt="Protección">
+                <div id="badge-proteccion" class="item-count-badge">x1</div>
             </div>
-            <div class="slot" id="slot-ayuda" title="Ayuda de NPC">
+            <div class="slot" id="slot-ayuda" title="Ayuda de NPC (-5 Energía)">
+                <span class="slot-locked-x">X</span>
                 <img id="img-ayuda" src="" alt="Ayuda">
+                <div id="badge-ayuda" class="item-count-badge">x1</div>
             </div>
-            <div class="slot" title="Vacío"></div>
-            <div class="slot" title="Vacío"></div>
+            <div class="slot" title="Slot Vacío"><span class="slot-locked-x">X</span></div>
+            <div class="slot" title="Slot Vacío"><span class="slot-locked-x">X</span></div>
         </div>
 
         <div class="section-title">STICKERS DE PREMIO</div>
         <div class="grid-slots-3x3">
-            <div class="slot" id="stk-grafia" title="Sticker Grafía (Mundo 1)">
-                <img id="img-stk-grafia" src="" alt="Grafía">
-            </div>
-            <div class="slot" id="stk-matriz" title="Sticker Matriz (Mundo 2)">
-                <img id="img-stk-matriz" src="" alt="Matriz">
-            </div>
-            <div class="slot" id="stk-biosfera" title="Sticker Biósfera (Mundo 3)">
-                <img id="img-stk-biosfera" src="" alt="Biósfera">
-            </div>
-            <div class="slot" id="stk-cronicas" title="Sticker Crónicas (Mundo 4)">
-                <img id="img-stk-cronicas" src="" alt="Crónicas">
-            </div>
-            <div class="slot" id="stk-turbo" title="Sticker Turbo (Mundo 5)">
-                <img id="img-stk-turbo" src="" alt="Turbo">
-            </div>
-            <div class="slot" id="stk-prisma" title="Sticker Prisma (Mundo 6)">
-                <img id="img-stk-prisma" src="" alt="Prisma">
-            </div>
+            <div class="slot" id="stk-grafia" title="Sticker Grafía"><span class="slot-locked-x">X</span><img id="img-stk-grafia" src="" alt="Grafía"></div>
+            <div class="slot" id="stk-matriz" title="Sticker Matriz"><span class="slot-locked-x">X</span><img id="img-stk-matriz" src="" alt="Matriz"></div>
+            <div class="slot" id="stk-biosfera" title="Sticker Biósfera"><span class="slot-locked-x">X</span><img id="img-stk-biosfera" src="" alt="Biósfera"></div>
+            <div class="slot" id="stk-cronicas" title="Sticker Crónicas"><span class="slot-locked-x">X</span><img id="img-stk-cronicas" src="" alt="Crónicas"></div>
+            <div class="slot" id="stk-turbo" title="Sticker Turbo"><span class="slot-locked-x">X</span><img id="img-stk-turbo" src="" alt="Turbo"></div>
+            <div class="slot" id="stk-prisma" title="Sticker Prisma"><span class="slot-locked-x">X</span><img id="img-stk-prisma" src="" alt="Prisma"></div>
         </div>
+    </div>
+
+    <div id="levelup-screen" style="display: none;">
+        <div class="lu-sparkles">✨ 👾 ✨</div>
+        <h1 class="lu-title">LEVEL UP!</h1>
+        <div class="lu-banner">
+            ¡FELICITACIONES JUGADOR!<br>
+            COMPLETASTE LOS 6 RETOS...<br><br>
+            <span style="color:#fff; font-size:14px;">¡SUBISTE AL NIVEL 2!</span><br><br>
+            🚀 ¡Siguiente año desbloqueado!
+        </div>
+        <div class="lu-sparkles">✨ 🕹️ ✨</div>
     </div>
 
     <div id="loading-msg" class="system-msg">CONECTANDO AL SERVIDOR ARCADE...</div>
@@ -333,23 +476,37 @@
             return String(str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
         }
 
-        function buscarColumna(objeto, sugerencias) {
-            for (let sug of sugerencias) {
-                let limpiaSug = limpiarString(sug);
-                let llaveReal = Object.keys(objeto).find(k => limpiarString(k) === limpiaSug);
-                if (llaveReal) return objeto[llaveReal];
-            }
-            return null;
+        function contarItems(inventarioText, itemKeyword) {
+            let matches = inventarioText.match(new RegExp(itemKeyword, 'g'));
+            return matches ? matches.length : 0;
         }
 
-        function traducirColor(colorExcel) {
-            let col = limpiarString(colorExcel);
-            if(col.includes('azul')) return '#002699';
-            if(col.includes('rosa') || col.includes('magenta')) return '#ff007f';
-            if(col.includes('amarillo')) return '#e6b800';
-            if(col.includes('rojo')) return '#cc0000';
-            if(col.includes('verde')) return '#009933';
-            return '#555555';
+        function activarSlotMulti(slotId, imgId, badgeId, cantidad) {
+            const slot = document.getElementById(slotId);
+            const badge = document.getElementById(badgeId);
+            if (cantidad > 0) {
+                slot.classList.add('active');
+                if (cantidad > 1) {
+                    badge.innerText = 'x' + cantidad;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } else {
+                slot.classList.remove('active');
+                badge.style.display = 'none';
+            }
+        }
+
+        // Conversor de colores escritos a códigos Hex Neón
+        function obtenerHexColor(nombreColor) {
+            let c = limpiarString(nombreColor);
+            if (c.includes('azul')) return '#00ffff';      
+            if (c.includes('rosa') || c.includes('magenta') || c.includes('fucsia')) return '#ff007f'; 
+            if (c.includes('amarillo')) return '#fffb00';  
+            if (c.includes('rojo')) return '#ff3333';      
+            if (c.includes('verde')) return '#00ff00';     
+            return '#00ff00'; 
         }
 
         if(!playerId) {
@@ -364,13 +521,13 @@
                 })
                 .then(buffer => {
                     const workbook = XLSX.read(buffer, { type: 'array' });
-                    
-                    const dbSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('base')) || workbook.SheetNames[0];
+                    const dbSheetName = workbook.SheetNames[0]; 
                     const dbWorksheet = workbook.Sheets[dbSheetName];
                     const dbData = XLSX.utils.sheet_to_json(dbWorksheet);
                     
+                    // Mapeo por ID de celda (Columna B)
                     const basePlayer = dbData.find(row => {
-                        let idCelda = limpiarString(row['ID'] || row['id'] || '').replace('#', '');
+                        let idCelda = limpiarString(row['ID'] || '').replace('#', '');
                         let idBuscado = limpiarString(playerId).replace('#', '');
                         return idCelda === idBuscado;
                     });
@@ -382,84 +539,119 @@
                         return;
                     }
 
-                    let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
+                    // Lectura por columnas mapeadas exactas
+                    let gamertag = basePlayer['Gamer Tag'] || playerId;
                     let avatarUrl = basePlayer['Avatar URL'] || '';
-                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
+                    let grado = basePlayer['Grado'] || '1';
+                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO CONECTADO.';
                     
-                    let xpAcumulada = parseInt(buscarColumna(basePlayer, ['Puntaje Total', 'XP'])) || 0;
-                    let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
-                    let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
-                    let colorEnergia = String(buscarColumna(basePlayer, ['Color Energía', 'Energía']) || 'GRIS');
+                    let xpAcumulada = parseInt(basePlayer['XP (Puntaje Total)']) || 0;
+                    let hpAcumulada = parseInt(basePlayer['Salud HP (La fórmula de los corazones)']) || 3;
+                    let penalizacionesPuntos = parseInt(basePlayer['Puntos de Penalización']) || 0;
+                    let penalizacionActual = String(basePlayer['Alerta / Estado (Falta Grave)'] || 'NINGUNA');
+                    let valorEnergia = parseInt(basePlayer['Energía (La fórmula de los 60 puntos)']) || 60;
+                    let colorElegidoText = String(basePlayer['Color Energía (El que eligieron)'] || 'verde');
                     
-                    let colInventario = buscarColumna(basePlayer, ['Inventario Ítems', 'Inventario']) || '';
-                    let colStickers = buscarColumna(basePlayer, ['Stickers Premio', 'Stickers']) || '';
+                    let colInventario = basePlayer['Inventario Ítems'] || '';
+                    let colStickers = basePlayer['Stickers Premio'] || '';
                     
                     let inventarioX = limpiarString(colInventario);
                     let stickersX = limpiarString(colStickers);
 
+                    // PROCESAR RESPUESTAS ADICIONALES DEL FORMULARIO EN TIEMPO REAL
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
                     if(formSheetName) {
                         const formWorksheet = workbook.Sheets[formSheetName];
                         const formData = XLSX.utils.sheet_to_json(formWorksheet);
 
                         formData.forEach(itemForm => {
-                            let formPlayerId = limpiarString(buscarColumna(itemForm, ['ID del Jugador', 'ID del Jugador ', 'ID']) || '').replace('#', '');
+                            let keys = Object.keys(itemForm);
+                            let formPlayerIdKey = keys.find(k => limpiarString(k).includes('id del jugador') || limpiarString(k) === 'id');
+                            let formPlayerId = formPlayerIdKey ? limpiarString(itemForm[formPlayerIdKey]).replace('#', '') : '';
                             let targetId = limpiarString(playerId).replace('#', '');
 
                             if(formPlayerId === targetId) {
-                                let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', '  Puntos a SUMAR  ', 'Puntos'])) || 0;
-                                xpAcumulada += puntosSumar;
+                                let xpKey = keys.find(k => k.includes('SUMAR') || k.includes('Puntos'));
+                                if(xpKey) xpAcumulada += parseInt(itemForm[xpKey]) || 0;
 
-                                let itemGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a GANAR?', '¿Qué Ítem va a GANAR? ']));
-                                if(itemGanado && itemGanado !== 'ninguno') {
-                                    inventarioX += " " + itemGanado;
-                                }
+                                let itemGanadoKey = keys.find(k => k.includes('GANAR'));
+                                let itemGanado = itemGanadoKey ? limpiarString(itemForm[itemGanadoKey]) : '';
+                                if(itemGanado && itemGanado !== 'ninguno') inventarioX += " " + itemGanado;
 
-                                let itemUsado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a USAR / GASTAR?', '¿Qué Ítem va a USAR / GASTAR? ']));
-                                if(itemUsado && itemUsado !== 'ninguno') {
-                                    inventarioX = inventarioX.replace(itemUsado, '');
-                                }
+                                let itemUsadoKey = keys.find(k => k.includes('GASTAR') || k.includes('USAR'));
+                                let itemUsado = itemUsadoKey ? limpiarString(itemForm[itemUsadoKey]) : '';
+                                if(itemUsado && itemUsado !== 'ninguno') inventarioX = inventarioX.replace(itemUsado, '');
 
-                                let penalizacionForm = limpiarString(buscarColumna(itemForm, ['Penalizaciones a APLICAR', 'Penalizaciones a APLICAR ']));
+                                let penaltyKey = keys.find(k => k.includes('Penalizaciones'));
+                                let penalizacionForm = penaltyKey ? limpiarString(itemForm[penaltyKey]) : '';
                                 if(penalizacionForm && penalizacionForm !== 'ninguna' && penalizacionForm !== '0') {
                                     penalizacionActual = penalizacionForm.toUpperCase();
-                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1; 
-                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2;   
                                 }
 
-                                let stickerGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Sticker de Premio se ganó?', '¿Qué Sticker de Premio se ganó?  ']));
-                                if(stickerGanado && stickerGanado !== 'ninguno') {
-                                    stickersX += " " + stickerGanado;
-                                }
+                                let stickerKey = keys.find(k => k.includes('Sticker') || k.includes('Premio'));
+                                let stickerGanado = stickerKey ? limpiarString(itemForm[stickerKey]) : '';
+                                if(stickerGanado && stickerGanado !== 'ninguno') stickersX += " " + stickerGanado;
                             }
                         });
                     }
 
+                    // APLICAR PARÁMETRO DE COLOR EXCEL 
+                    let hexColorFinal = obtenerHexColor(colorElegidoText);
+                    document.documentElement.style.setProperty('--battery-color', hexColorFinal);
+
+                    // VERIFICACIÓN LOGRO COMPLETO (6 STICKERS) -> ACTIVAR LEVEL UP
+                    let tieneGrafia = stickersX.includes('grafia') || stickersX.includes('premio1');
+                    let tieneMatriz = stickersX.includes('matriz') || stickersX.includes('premio2');
+                    let tieneBiosfera = stickersX.includes('biosfera') || stickersX.includes('premio3');
+                    let tieneCronicas = stickersX.includes('cronicas') || stickersX.includes('premio4');
+                    let tieneTurbo = stickersX.includes('turbo') || stickersX.includes('premio5');
+                    let tienePrisma = stickersX.includes('prisma') || stickersX.includes('premio6');
+
+                    if(tieneGrafia && tieneMatriz && tieneBiosfera && tieneCronicas && tieneTurbo && tienePrisma) {
+                        document.getElementById('loading-msg').style.display = 'none';
+                        document.getElementById('levelup-screen').style.display = 'flex';
+                        return; 
+                    }
+
+                    // IMPRIMIR DATOS EN PANTALLA VERTICAL
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
                     document.getElementById('player-id-val').innerText = String(basePlayer['ID']).toUpperCase();
+                    document.getElementById('player-grade-val').innerText = String(grado).replace('°', '');
                     document.getElementById('gamertag').innerText = String(gamertag).toUpperCase();
                     document.getElementById('avatar').src = avatarUrl || 'https://via.placeholder.com/110/000000/ffffff?text=ARCADE';
                     document.getElementById('xp-points').innerText = xpAcumulada;
                     document.getElementById('character-desc').innerText = descripcion;
                     
-                    const energyBadge = document.getElementById('energy-display');
-                    energyBadge.innerText = colorEnergia;
-                    energyBadge.style.backgroundColor = traducirColor(colorEnergia);
-
-                    if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
+                    // Lógica de inactividad automática por 100 puntos de penalización o celda
+                    const avatarContainer = document.getElementById('avatar-container');
+                    if (penalizacionesPuntos >= 100 || penalizacionActual.includes("FALTA GRAVE")) {
+                        avatarContainer.classList.add('inactive');
+                        document.getElementById('penalty-status').innerText = "GAME OVER";
+                        document.getElementById('penalty-status').style.color = "#ff007f";
+                        document.getElementById('penalty-status').style.animation = "flashEffect 0.5s infinite alternate";
+                    } else if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
                         document.getElementById('penalty-status').innerText = penalizacionActual;
                         document.getElementById('penalty-status').style.color = "#ff3333";
+                        avatarContainer.classList.remove('inactive');
                     } else {
                         document.getElementById('penalty-status').innerText = "NINGUNA";
                         document.getElementById('penalty-status').style.color = "#00ffff";
+                        avatarContainer.classList.remove('inactive');
                     }
 
+                    // Renderizado de Barra de Batería (Escala 1 a 60)
+                    valorEnergia = Math.max(0, Math.min(valorEnergia, 60));
+                    let porcentajeBateria = (valorEnergia / 60) * 100;
+                    document.getElementById('battery-bar').style.width = porcentajeBateria + '%';
+                    document.getElementById('battery-text-val').innerText = valorEnergia + '/60';
+
+                    // Corazones de HP
                     const livesDisplay = document.getElementById('lives-display');
                     livesDisplay.innerHTML = '';
-                    if(hpAcumulada <= 0) {
-                        livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:8px;">GAME OVER</span>';
+                    if(hpAcumulada <= 0 || penalizacionesPuntos >= 100) {
+                        livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:7px;">GAME OVER</span>';
                     } else {
                         for(let i = 0; i < Math.min(hpAcumulada, 6); i++) {
                             const img = document.createElement('img');
@@ -469,26 +661,24 @@
                         }
                     }
 
-                    if(inventarioX.includes('pocion') || inventarioX.includes('2-pocion') || inventarioX.includes('item1')) {
-                        document.getElementById('slot-pocion').classList.add('active');
-                    }
-                    if(inventarioX.includes('tiempo') || inventarioX.includes('3-tiempo') || inventarioX.includes('item2')) {
-                        document.getElementById('slot-tiempo').classList.add('active');
-                    }
-                    if(inventarioX.includes('proteccion') || inventarioX.includes('4-proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo') || inventarioX.includes('item3')) {
-                        document.getElementById('slot-proteccion').classList.add('active');
-                    }
-                    if(inventarioX.includes('ayuda') || inventarioX.includes('5-ayuda') || inventarioX.includes('item4')) {
-                        document.getElementById('slot-ayuda').classList.add('active');
-                    }
+                    // Conteo de ítems del inventario
+                    let cantTiempo = contarItems(inventarioX, 'tiempo') + contarItems(inventarioX, 'item2');
+                    let cantPocion = contarItems(inventarioX, 'pocion') + contarItems(inventarioX, 'item1');
+                    let cantProteccion = contarItems(inventarioX, 'proteccion') + contarItems(inventarioX, 'escudo') + contarItems(inventarioX, 'item3');
+                    let cantAyuda = contarItems(inventarioX, 'ayuda') + contarItems(inventarioX, 'item4');
 
-                    // Activación inteligente de Stickers usando nombres oficiales de tus mundos
-                    if(stickersX.includes('grafia') || stickersX.includes('premio1')) document.getElementById('stk-grafia').classList.add('active');
-                    if(stickersX.includes('matriz') || stickersX.includes('premio2')) document.getElementById('stk-matriz').classList.add('active');
-                    if(stickersX.includes('biosfera') || stickersX.includes('premio3')) document.getElementById('stk-biosfera').classList.add('active');
-                    if(stickersX.includes('cronicas') || stickersX.includes('premio4')) document.getElementById('stk-cronicas').classList.add('active');
-                    if(stickersX.includes('turbo') || stickersX.includes('premio5')) document.getElementById('stk-turbo').classList.add('active');
-                    if(stickersX.includes('prisma') || stickersX.includes('premio6')) document.getElementById('stk-prisma').classList.add('active');
+                    activarSlotMulti('slot-tiempo', 'img-tiempo', 'badge-tiempo', cantTiempo);
+                    activarSlotMulti('slot-pocion', 'img-pocion', 'badge-pocion', cantPocion);
+                    activarSlotMulti('slot-proteccion', 'img-proteccion', 'badge-proteccion', cantProteccion);
+                    activarSlotMulti('slot-ayuda', 'img-ayuda', 'badge-ayuda', cantAyuda);
+
+                    // Iluminación de Stickers Mundiales
+                    if(tieneGrafia) document.getElementById('stk-grafia').classList.add('active');
+                    if(tieneMatriz) document.getElementById('stk-matriz').classList.add('active');
+                    if(tieneBiosfera) document.getElementById('stk-biosfera').classList.add('active');
+                    if(tieneCronicas) document.getElementById('stk-cronicas').classList.add('active');
+                    if(tieneTurbo) document.getElementById('stk-turbo').classList.add('active');
+                    if(tienePrisma) document.getElementById('stk-prisma').classList.add('active');
 
                 })
                 .catch(err => {
