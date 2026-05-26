@@ -37,6 +37,7 @@
             overflow-x: hidden;
         }
 
+        /* Contenedor fluido y 100% responsivo para pantallas móviles */
         .container {
             width: 100%;
             max-width: 340px;
@@ -47,8 +48,9 @@
             box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
         }
 
+        /* TAMAÑO DEL LOGO CORREGIDO (Más compacto y elegante) */
         .brand-logo {
-            max-width: 85%;
+            max-width: 50%; 
             height: auto;
             margin: 0 auto 12px auto;
             display: block;
@@ -87,7 +89,7 @@
             margin-bottom: 8px;
         }
 
-        /* Descripción debajo del ID */
+        /* Cuadro de descripción debajo del Gamer Tag */
         .character-desc {
             font-size: 8px;
             color: #bfa6ff;
@@ -152,7 +154,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Cuadrículas de 3x3 100% responsivas */
+        /* Cuadrículas ultra-responsivas de 3 columnas fijas */
         .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -161,6 +163,7 @@
             width: 100%;
         }
 
+        /* SLOT PROTEGIDO: font-size 0 y overflow evitan que textos rotos deformen el diseño */
         .slot {
             background: #110226;
             border: 2px solid #441880;
@@ -168,10 +171,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px;
+            padding: 6px;
             position: relative;
             width: 100%;
-            overflow: hidden; /* Seguro anti-desbordamiento para evitar que texto largo rompa la caja */
+            overflow: hidden; 
+            font-size: 0;      
         }
 
         .slot.active {
@@ -180,11 +184,11 @@
         }
 
         .slot img {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
             display: block;
-            opacity: 0.15;
+            opacity: 0.15; 
         }
 
         .slot.active img {
@@ -241,31 +245,31 @@
         <div class="section-title">ITEMS DE ESTACIÓN</div>
         <div class="grid-slots-3x3">
             <div class="slot" id="slot-pocion" title="Poción de Vida">
-                <img id="img-pocion" src="" alt="Pocion">
+                <img id="img-pocion" src="" alt="Poción">
             </div>
             <div class="slot" id="slot-tiempo" title="Tiempo Extra">
-                <img id="img-tiempo" src="" alt="Tiempo">
+                <img id="img-tiempo" src="" alt="Tiempo Extra">
             </div>
             <div class="slot" id="slot-proteccion" title="Protección de Vida">
-                <img id="img-proteccion" src="" alt="Proteccion">
+                <img id="img-proteccion" src="" alt="Protección">
             </div>
             <div class="slot" id="slot-ayuda" title="Ayuda de NPC">
                 <img id="img-ayuda" src="" alt="Ayuda">
             </div>
-            <div class="slot"></div>
-            <div class="slot"></div>
+            <div class="slot" title="Vacío"></div>
+            <div class="slot" title="Vacío"></div>
         </div>
 
         <div class="section-title">STICKERS DE PREMIO</div>
         <div class="grid-slots-3x3">
             <div class="slot" id="stk-grafia" title="Sticker Grafía">
-                <img id="img-stk-grafia" src="" alt="Grafia">
+                <img id="img-stk-grafia" src="" alt="Grafía">
             </div>
             <div class="slot" id="stk-matriz" title="Sticker Matriz">
                 <img id="img-stk-matriz" src="" alt="Matriz">
             </div>
             <div class="slot" id="stk-simetria" title="Sticker Simetría">
-                <img id="img-stk-simetria" src="" alt="Simetria">
+                <img id="img-stk-simetria" src="" alt="Simetría">
             </div>
             <div class="slot" id="stk-ritmo" title="Sticker Ritmo">
                 <img id="img-stk-ritmo" src="" alt="Ritmo">
@@ -285,24 +289,23 @@
     <script>
         const EXCEL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=xlsx'; 
         
-        // RUTAS DIRECTAS DE LA RAÍZ DE GITHUB
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
 
-        const ICONO_POCION = '2 Pocion.png';
-        const ICONO_TIEMPO = '3 Tiempo extra.png';
-        const ICONO_PROTECCION = '4 Protección de vida.png';
-        const ICONO_AYUDA = '5 Ayuda.png';
+        // Configuración de rutas internas de tu repositorio
+        const ICONO_POCION = 'assets/items/pocion.png';
+        const ICONO_TIEMPO = 'assets/items/tiempo.png';
+        const ICONO_PROTECCION = 'assets/items/proteccion.png';
+        const ICONO_AYUDA = 'assets/items/ayuda.png';
 
-        // TUS RUTAS EXACTAS DE LOS PREMIOS
-        const STK_GRAFIA = 'premio1.png';
-        const STK_MATRIZ = 'premio2.png';
-        const STK_SIMETRIA = 'premio3.png';
-        const STK_RITMO = 'premio4.png';
-        const STK_COLOR = 'premio5.png';
-        const STK_PRISMA = 'premio6.png';
+        const STK_GRAFIA = 'assets/stickers/medalla_grafia.png';
+        const STK_MATRIZ = 'assets/stickers/medalla_matriz.png';
+        const STK_SIMETRIA = 'assets/stickers/medalla_simetria.png';
+        const STK_RITMO = 'assets/stickers/medalla_ritmo.png';
+        const STK_COLOR = 'assets/stickers/medalla_color.png';
+        const STK_PRISMA = 'assets/stickers/medalla_prisma.png';
 
-        // Asignación de imágenes al cargar
+        // Asignación de imágenes
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
         document.getElementById('img-tiempo').src = ICONO_TIEMPO;
@@ -373,6 +376,7 @@
                     let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
                     let stickersX = limpiarString(basePlayer['Stickers Premio']);
 
+                    // Procesar Formulario de Google
                     const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
                     if(formSheetName) {
                         const formWorksheet = workbook.Sheets[formSheetName];
@@ -383,7 +387,7 @@
                             let targetId = limpiarString(playerId).replace('#', '');
 
                             if(formPlayerId === targetId) {
-                                let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', 'Puntos'])) || 0;
+                                let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', '  Puntos a SUMAR  ', 'Puntos'])) || 0;
                                 xpAcumulada += puntosSumar;
 
                                 let itemGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a GANAR?', '¿Qué Ítem va a GANAR? ']));
@@ -411,6 +415,7 @@
                         });
                     }
 
+                    // Renderizado Final
                     document.getElementById('loading-msg').style.display = 'none';
                     document.getElementById('game-card').style.display = 'block';
 
@@ -441,11 +446,17 @@
                         }
                     }
 
+                    // Validación Ultra Flexible del Inventario (Busca raíces)
                     if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
                     if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                    if(inventarioX.includes('proteccion')) document.getElementById('slot-proteccion').classList.add('active');
+                    
+                    // Valida si tiene cualquier texto relacionado a protección o escudo sin importar el orden
+                    if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo')) {
+                        document.getElementById('slot-proteccion').classList.add('active');
+                    }
                     if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
 
+                    // Validación de Medallas
                     if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
                     if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
                     if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
