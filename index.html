@@ -37,7 +37,7 @@
             overflow-x: hidden;
         }
 
-        /* Contenedor fluido y 100% responsivo para pantallas móviles */
+        /* Contenedor fluido para pantallas móviles */
         .container {
             width: 100%;
             max-width: 340px;
@@ -48,7 +48,7 @@
             box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
         }
 
-        /* TAMAÑO DEL LOGO CORREGIDO (Reducido a 35% para mayor elegancia) */
+        /* TAMAÑO DEL LOGO REDUCIDO AL 35% */
         .brand-logo {
             max-width: 35%; 
             height: auto;
@@ -89,7 +89,6 @@
             margin-bottom: 8px;
         }
 
-        /* Cuadro de descripción debajo del Gamer Tag */
         .character-desc {
             font-size: 8px;
             color: #bfa6ff;
@@ -154,7 +153,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Cuadrículas ultra-responsivas de 3 columnas fijas */
         .grid-slots-3x3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -163,7 +161,6 @@
             width: 100%;
         }
 
-        /* SLOT PROTEGIDO: font-size 0 y overflow evitan que textos rotos deformen el diseño */
         .slot {
             background: #110226;
             border: 2px solid #441880;
@@ -292,7 +289,6 @@
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
 
-        // Configuración de rutas internas de tu repositorio
         const ICONO_POCION = 'assets/items/pocion.png';
         const ICONO_TIEMPO = 'assets/items/tiempo.png';
         const ICONO_PROTECCION = 'assets/items/proteccion.png';
@@ -305,7 +301,6 @@
         const STK_COLOR = 'assets/stickers/medalla_color.png';
         const STK_PRISMA = 'assets/stickers/medalla_prisma.png';
 
-        // Asignación de imágenes
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
         document.getElementById('img-tiempo').src = ICONO_TIEMPO;
@@ -373,7 +368,6 @@
                     let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
                     let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
                     
-                    // CORRECCIÓN AQUÍ: Asegurar un string vacío si la celda de la Base de Datos no tiene nada
                     let colInventario = buscarColumna(basePlayer, ['Inventario Ítems', 'Inventario']) || '';
                     let colStickers = buscarColumna(basePlayer, ['Stickers Premio', 'Stickers']) || '';
                     
@@ -450,7 +444,7 @@
                         }
                     }
 
-                    // CORRECCIÓN DE DETECCIÓN: Validación Ultra Flexible del Inventario
+                    // NORMALIZACIÓN ABSOLUTA ANTES DE ASIGNAR ACTIVACIÓN (Evita errores por tildes en el HTML)
                     if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
                     if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
                     if(inventarioX.includes('proteccion') || inventarioX.includes('vida') || inventarioX.includes('escudo')) {
@@ -458,7 +452,7 @@
                     }
                     if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
 
-                    // CORRECCIÓN DE DETECCIÓN: Validación de Medallas / Stickers
+                    // Detección blindada de Stickers (coincide perfectamente con las respuestas del formulario)
                     if(stickersX.includes('grafia')) document.getElementById('stk-grafia').classList.add('active');
                     if(stickersX.includes('matriz')) document.getElementById('stk-matriz').classList.add('active');
                     if(stickersX.includes('simetria')) document.getElementById('stk-simetria').classList.add('active');
