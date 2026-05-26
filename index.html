@@ -92,7 +92,7 @@
         .lives-container { display: flex; align-items: center; gap: 4px; }
         .live-icon { width: 14px; height: 14px; object-fit: contain; }
 
-        /* DISPOSITIVO DE BATERÍA (ACTUALIZADO) */
+        /* DISPOSITIVO DE BATERÍA */
         .battery-wrapper { display: flex; align-items: center; gap: 4px; }
         .battery-container { 
             width: 100px; height: 14px; background: rgba(0,0,0,0.5); 
@@ -179,7 +179,7 @@
             </div>
             <div class="stat-item">
                 <span class="stat-label">ALERTA:</span>
-                <span id="penalty-status" class="penalty-text">NINGUNA</span>
+                <span id="penalty-status" class="penalty-text">0 PTS</span>
             </div>
         </div>
 
@@ -333,7 +333,6 @@
                     let penalizacionActual = String(basePlayer['Alerta / Estado (Falta Grave)'] || 'NINGUNA');
                     
                     let keysBase = Object.keys(basePlayer);
-                    // MODIFICADO: Búsqueda flexible de Energía a prueba de fallos
                     let keyEnergiaVal = keysBase.find(k => limpiarString(k).includes('energia') && !limpiarString(k).includes('color'));
                     let keyEnergiaColor = keysBase.find(k => limpiarString(k).includes('color') && limpiarString(k).includes('energia'));
                     
@@ -379,8 +378,9 @@
                     document.getElementById('xp-points').innerText = xpAcumulada;
                     document.getElementById('character-desc').innerText = descripcion;
                     
-                    // ALERTA VISUAL Y AUDIO GAME OVER
+                    // ALERTA VISUAL Y AUDIO GAME OVER (MODIFICADO PARA MOSTRAR PUNTOS DE PENALIZACIÓN EN ROJO)
                     const avatarContainer = document.getElementById('avatar-container');
+                    
                     if (hpAcumulada <= 0 || penalizacionesPuntos >= 100 || penalizacionActual.toUpperCase().includes("FALTA GRAVE")) {
                         avatarContainer.classList.add('inactive');
                         document.getElementById('penalty-status').innerText = "GAME OVER";
@@ -388,13 +388,17 @@
                         document.getElementById('penalty-status').style.animation = "flashEffect 0.5s infinite alternate";
                         // Reproduce audio Game Over
                         AUDIO_GO.play().catch(e => console.log("Audio autoplay bloqueado:", e));
-                    } else if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
-                        document.getElementById('penalty-status').innerText = penalizacionActual.toUpperCase();
-                        document.getElementById('penalty-status').style.color = "#ff3333";
+                    } else if (penalizacionesPuntos > 0) {
+                        // Muestra los puntos de penalización en rojo si tiene más de 0
+                        document.getElementById('penalty-status').innerText = penalizacionesPuntos + " PTS";
+                        document.getElementById('penalty-status').style.color = "#ff3333"; // Color rojo
+                        document.getElementById('penalty-status').style.animation = "none";
                         avatarContainer.classList.remove('inactive');
                     } else {
-                        document.getElementById('penalty-status').innerText = "NINGUNA";
-                        document.getElementById('penalty-status').style.color = "#00ffff";
+                        // Si no tiene puntos de penalización, muestra NINGUNA en cyan
+                        document.getElementById('penalty-status').innerText = "0 PTS";
+                        document.getElementById('penalty-status').style.color = "#00ffff"; // Color cyan original
+                        document.getElementById('penalty-status').style.animation = "none";
                         avatarContainer.classList.remove('inactive');
                     }
 
