@@ -121,7 +121,7 @@
         .penalty-text { font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
         .system-msg { margin-top: 100px; font-size: 10px; color: var(--neon-pink); text-shadow: 2px 2px 0px #000; padding: 15px; }
 
-        /* BOTÓN DE RECLAMAR VICTORIA (NUEVO) */
+        /* BOTÓN DE RECLAMAR VICTORIA */
         .btn-claim {
             width: 100%;
             margin-top: 15px;
@@ -134,7 +134,7 @@
             cursor: pointer;
             animation: pulseBtn 0.8s infinite alternate;
             box-shadow: 0 0 15px var(--neon-cyan);
-            display: none; /* Oculto por defecto */
+            display: none; 
         }
         @keyframes pulseBtn {
             0% { transform: scale(1); box-shadow: 0 0 10px var(--neon-cyan); }
@@ -147,7 +147,7 @@
             100% { opacity: 0.3; filter: drop-shadow(0 0 0px #000); }
         }
 
-        /* PANTALLA LEVEL UP (ACTUALIZADA) */
+        /* PANTALLA LEVEL UP */
         #levelup-screen { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
             background-color: #0b021a; z-index: 9999; display: flex; flex-direction: column; 
@@ -161,7 +161,6 @@
         .lu-banner { border: 4px dashed #fff; padding: 15px; background: #000; font-size: 9px; color: #00ff00; line-height: 1.8; box-shadow: 0 0 15px #00ff00; width: 100%; max-width: 320px;}
         .lu-sparkles { font-size: 25px; margin: 15px 0; color: var(--neon-cyan); }
         
-        /* Avatar en pantalla de victoria */
         .lu-avatar {
             width: 100px; height: 100px; 
             margin: 0 auto 15px auto;
@@ -231,14 +230,17 @@
             <div class="slot" id="stk-prisma" title="Sticker Prisma"><span class="slot-locked-x">X</span><img id="img-stk-prisma" src="" alt="Prisma"></div>
         </div>
 
+        <!-- Botón que aparece solo al tener los 6 stickers -->
         <button id="btn-claim-victory" class="btn-claim" onclick="mostrarPantallaVictoria()">🏆 RECLAMAR VICTORIA 🏆</button>
 
     </div>
 
+    <!-- PANTALLA EMERGENTE DE VICTORIA -->
     <div id="levelup-screen" style="display: none;">
         <div class="lu-sparkles">✨ 👾 ✨</div>
         <h1 class="lu-title">LEVEL UP!</h1>
         
+        <!-- Avatar del Jugador en la pantalla final -->
         <div class="avatar-frame lu-avatar">
             <img id="lu-avatar-img" src="" alt="Avatar Ganador">
         </div>
@@ -257,9 +259,9 @@
     <div id="error-msg" class="system-msg" style="display: none;">ERROR: DISCO DE JUEGO NO ENCONTRADO</div>
 
     <script>
-        // CONFIGURACIÓN AUDIOS
-        const AUDIO_GO = new Audio('https://actions.google.com/sounds/v1/video_games/game_over.ogg');
-        const AUDIO_WIN = new Audio('https://actions.google.com/sounds/v1/video_games/retro_arcade_level_up.ogg');
+        // CONFIGURACIÓN AUDIOS ACTUALIZADA
+        const AUDIO_GO = new Audio('https://files.catbox.moe/8off0f.mp3');
+        const AUDIO_WIN = new Audio('https://files.catbox.moe/1uii9y.mp3');
 
         // URL DE TU EXCEL
         const EXCEL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=xlsx'; 
@@ -318,12 +320,16 @@
             }
         }
 
+        // FUNCIÓN DE COLORES AMPLIADA
         function obtenerHexColor(nombreColor) {
             let c = limpiarString(nombreColor);
             if (c.includes('azul')) return '#00ffff';      
             if (c.includes('rosa') || c.includes('magenta') || c.includes('fucsia')) return '#ff007f'; 
             if (c.includes('amarillo')) return '#fffb00';  
-            if (c.includes('rojo')) return '#ff3333';      
+            if (c.includes('rojo')) return '#ff3333';
+            if (c.includes('naranja')) return '#ff8c00';
+            if (c.includes('morado') || c.includes('violeta')) return '#8a2be2';
+            if (c.includes('blanco')) return '#ffffff';
             if (c.includes('verde')) return '#00ff00';     
             return '#00ff00'; 
         }
@@ -374,12 +380,9 @@
 
                     let penalizacionActual = String(basePlayer['Alerta / Estado (Falta Grave)'] || 'NINGUNA');
                     
-                    let keysBase = Object.keys(basePlayer);
-                    let keyEnergiaVal = keysBase.find(k => limpiarString(k).includes('energia') && !limpiarString(k).includes('color'));
-                    let keyEnergiaColor = keysBase.find(k => limpiarString(k).includes('color') && limpiarString(k).includes('energia'));
-                    
-                    let valorEnergia = keyEnergiaVal ? parseInt(basePlayer[keyEnergiaVal]) : 60;
-                    let colorElegidoText = keyEnergiaColor ? String(basePlayer[keyEnergiaColor]) : 'verde';
+                    // LECTURA DIRECTA DE ENERGÍA Y COLOR
+                    let valorEnergia = parseInt(basePlayer['Energía']) || parseInt(basePlayer['Energia']) || 60;
+                    let colorElegidoText = String(basePlayer['Color Energía'] || 'verde');
                     
                     let colInventario = basePlayer['Inventario Ítems'] || '';
                     let colStickers = basePlayer['Stickers Premio'] || '';
@@ -469,7 +472,7 @@
                     if(tieneTurbo) document.getElementById('stk-turbo').classList.add('active');
                     if(tienePrisma) document.getElementById('stk-prisma').classList.add('active');
 
-                    // CONDICIÓN DE VICTORIA (MODIFICADA)
+                    // CONDICIÓN DE VICTORIA
                     if(tieneGrafia && tieneMatriz && tieneBiosfera && tieneCronicas && tieneTurbo && tienePrisma) {
                         // Muestra el botón para reclamar el premio
                         document.getElementById('btn-claim-victory').style.display = 'block';
