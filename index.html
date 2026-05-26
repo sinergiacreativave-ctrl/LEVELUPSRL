@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LEVEL UP! - Panel de Jugador</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -16,6 +16,10 @@
             --text-light: #ffffff;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background-color: var(--bg-dark);
             background-image: 
@@ -26,36 +30,38 @@
             font-family: 'Press Start 2P', monospace;
             text-align: center;
             margin: 0;
-            padding: 15px;
-            font-size: 11px;
-            line-height: 1.6;
+            padding: 8px;
+            font-size: 9px;
+            line-height: 1.5;
+            overflow-x: hidden;
         }
 
+        /* Contenedor adaptado 100% a pantallas móviles */
         .container {
-            max-width: 420px;
-            margin: 10px auto;
+            width: 100%;
+            max-width: 360px;
+            margin: 5px auto;
             background: var(--panel-bg);
-            border: 6px solid var(--neon-cyan);
-            padding: 20px;
-            box-shadow: 0px 0px 20px var(--neon-cyan), inset 0px 0px 15px rgba(0,255,255,0.3);
-            position: relative;
+            border: 4px solid var(--neon-cyan);
+            padding: 12px;
+            box-shadow: 0px 0px 15px var(--neon-cyan), inset 0px 0px 10px rgba(0,255,255,0.3);
         }
 
         .brand-logo {
-            max-width: 85%;
+            max-width: 80%;
             height: auto;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 10px auto;
             display: block;
-            filter: drop-shadow(0px 0px 8px var(--neon-pink));
+            filter: drop-shadow(0px 0px 6px var(--neon-pink));
         }
 
         .avatar-frame {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 15px auto;
-            border: 4px solid var(--neon-pink);
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 10px auto;
+            border: 3px solid var(--neon-pink);
             background-color: #000;
-            box-shadow: 0px 0px 10px var(--neon-pink);
+            box-shadow: 0px 0px 8px var(--neon-pink);
         }
 
         .avatar-frame img {
@@ -66,23 +72,26 @@
 
         .gamertag {
             color: var(--neon-yellow);
-            font-size: 16px;
-            text-shadow: 3px 3px 0px #000;
-            margin: 5px 0;
-            letter-spacing: 1px;
+            font-size: 13px;
+            text-shadow: 2px 2px 0px #000;
+            margin: 4px 0;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .player-id {
-            font-size: 9px;
+            font-size: 8px;
             color: #a393eb;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .stats-grid {
-            border: 4px solid var(--neon-yellow);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 12px;
-            margin-bottom: 20px;
+            border: 3px solid var(--neon-yellow);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            margin-bottom: 12px;
             text-align: left;
         }
 
@@ -90,9 +99,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             border-bottom: 2px dashed #441880;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
 
         .stat-item:last-child {
@@ -107,35 +116,42 @@
 
         .xp-counter {
             color: var(--neon-yellow);
-            font-size: 14px;
+            font-size: 11px;
         }
 
         .lives-container {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .live-icon {
-            width: 22px;
-            height: 22px;
+            width: 16px;
+            height: 16px;
             object-fit: contain;
         }
 
-        .inventory-title {
+        .section-title {
             color: var(--neon-pink);
-            font-size: 10px;
-            margin-bottom: 10px;
+            font-size: 8px;
+            margin: 12px 0 6px 0;
             text-align: left;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
-        .inventory-slots {
+        .grid-slots {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .stickers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
         }
 
         .slot {
@@ -145,12 +161,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 6px;
+            padding: 4px;
+            position: relative;
         }
 
         .slot.active {
             border-color: var(--neon-cyan);
-            box-shadow: 0px 0px 10px var(--neon-cyan);
+            box-shadow: 0px 0px 8px var(--neon-cyan);
         }
 
         .slot img {
@@ -162,28 +179,33 @@
 
         .slot.active img {
             opacity: 1;    
-            filter: drop-shadow(0px 0px 4px var(--neon-cyan));
+            filter: drop-shadow(0px 0px 3px var(--neon-cyan));
         }
 
         .penalty-text {
-            font-size: 11px;
+            font-size: 9px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
         }
 
         .character-desc {
-            font-size: 9px;
+            font-size: 8px;
             color: #bfa6ff;
-            background: rgba(0,0,0,0.4);
-            padding: 12px;
-            border-left: 4px solid var(--neon-pink);
+            background: rgba(0,0,0,0.5);
+            padding: 8px;
+            border-left: 3px solid var(--neon-pink);
             text-align: left;
+            word-wrap: break-word;
         }
 
         .system-msg {
-            margin-top: 100px;
-            font-size: 12px;
+            margin-top: 80px;
+            font-size: 10px;
             color: var(--neon-pink);
             text-shadow: 2px 2px 0px #000;
-            padding: 20px;
+            padding: 15px;
         }
     </style>
 </head>
@@ -214,8 +236,8 @@
             </div>
         </div>
 
-        <div class="inventory-title">ITEMS DE ESTACIÓN</div>
-        <div class="inventory-slots">
+        <div class="section-title">ITEMS DE ESTACIÓN</div>
+        <div class="grid-slots">
             <div class="slot" id="slot-pocion" title="Poción de Vida">
                 <img id="img-pocion" src="" alt="Poción">
             </div>
@@ -230,6 +252,28 @@
             </div>
         </div>
 
+        <div class="section-title">STICKERS DE PREMIO</div>
+        <div class="stickers-grid">
+            <div class="slot" id="stk-grafia" title="Sticker Grafía">
+                <img id="img-stk-grafia" src="" alt="Grafía">
+            </div>
+            <div class="slot" id="stk-matriz" title="Sticker Matriz">
+                <img id="img-stk-matriz" src="" alt="Matriz">
+            </div>
+            <div class="slot" id="stk-simetria" title="Sticker Simetría">
+                <img id="img-stk-simetria" src="" alt="Simetría">
+            </div>
+            <div class="slot" id="stk-ritmo" title="Sticker Ritmo">
+                <img id="img-stk-ritmo" src="" alt="Ritmo">
+            </div>
+            <div class="slot" id="stk-color" title="Sticker Color">
+                <img id="img-stk-color" src="" alt="Color">
+            </div>
+            <div class="slot" id="stk-prisma" title="Sticker Prisma">
+                <img id="img-stk-prisma" src="" alt="Prisma">
+            </div>
+        </div>
+
         <div id="character-desc" class="character-desc"></div>
     </div>
 
@@ -237,30 +281,52 @@
     <div id="error-msg" class="system-msg" style="display: none;">ERROR: DISCO DE JUEGO NO ENCONTRADO</div>
 
     <script>
-        // =========================================================================
-        // ENLACE DIRECTO DE TU EXCEL ACTUALIZADO (.XLSX)
-        // =========================================================================
         const EXCEL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=xlsx'; 
         
-        // Nombres idénticos de tus imágenes en GitHub
         const LOGO_URL = 'logo.png'; 
         const ICONO_VIDA = 'vida.png';
         const ICONO_POCION = '2 Pocion.png';
         const ICONO_TIEMPO = '3 Tiempo extra.png';
         const ICONO_PROTECCION = '4 Protección de vida.png';
         const ICONO_AYUDA = '5 Ayuda.png';
-        // =========================================================================
 
-        // Vinculación de imágenes locales
+        // Rutas directas basadas en tus nuevos archivos cargados en la raíz
+        const STK_GRAFIA = 'premio1.png';
+        const STK_MATRIZ = 'premio2.png';
+        const STK_SIMETRIA = 'premio3.png';
+        const STK_RITMO = 'premio4.png';
+        const STK_COLOR = 'premio5.png';
+        const STK_PRISMA = 'premio6.png';
+
+        // Precarga de elementos visuales
         document.getElementById('game-logo').src = LOGO_URL;
         document.getElementById('img-pocion').src = ICONO_POCION;
         document.getElementById('img-tiempo').src = ICONO_TIEMPO;
         document.getElementById('img-proteccion').src = ICONO_PROTECCION;
         document.getElementById('img-ayuda').src = ICONO_AYUDA;
+        
+        document.getElementById('img-stk-grafia').src = STK_GRAFIA;
+        document.getElementById('img-stk-matriz').src = STK_MATRIZ;
+        document.getElementById('img-stk-simetria').src = STK_SIMETRIA;
+        document.getElementById('img-stk-ritmo').src = STK_RITMO;
+        document.getElementById('img-stk-color').src = STK_COLOR;
+        document.getElementById('img-stk-prisma').src = STK_PRISMA;
 
-        // Lee el parámetro de la URL (?id=1)
         const urlParams = new URLSearchParams(window.location.search);
         const playerId = urlParams.get('id');
+
+        function limpiarString(str) {
+            return String(str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        }
+
+        function buscarColumna(objeto, sugerencias) {
+            for (let sug of sugerencias) {
+                let limpiaSug = limpiarString(sug);
+                let llaveReal = Object.keys(objeto).find(k => limpiarString(k) === limpiaSug);
+                if (llaveReal) return objeto[llaveReal];
+            }
+            return null;
+        }
 
         if(!playerId) {
             document.getElementById('loading-msg').style.display = 'none';
@@ -269,85 +335,128 @@
         } else {
             fetch(EXCEL_URL)
                 .then(res => {
-                    if(!res.ok) throw new Error("Error de conexión");
+                    if(!res.ok) throw new Error("Error de red");
                     return res.arrayBuffer();
                 })
                 .then(buffer => {
                     const workbook = XLSX.read(buffer, { type: 'array' });
                     
-                    // Busca específicamente en la pestaña "Base Datos" que subiste
-                    const sheetName = workbook.SheetNames.find(n => n.toLowerCase().includes('base')) || workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const data = XLSX.utils.sheet_to_json(worksheet);
+                    const dbSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('base')) || workbook.SheetNames[0];
+                    const dbWorksheet = workbook.Sheets[dbSheetName];
+                    const dbData = XLSX.utils.sheet_to_json(dbWorksheet);
                     
-                    // Compara limpiando los símbolos como '#' para evitar incompatibilidades
-                    const player = data.find(row => {
-                        let idCelda = String(row['ID'] || row['id'] || '').trim().toLowerCase().replace('#', '');
-                        let idBuscado = String(playerId).trim().toLowerCase().replace('#', '');
+                    const basePlayer = dbData.find(row => {
+                        let idCelda = limpiarString(row['ID'] || row['id'] || '').replace('#', '');
+                        let idBuscado = limpiarString(playerId).replace('#', '');
                         return idCelda === idBuscado;
                     });
 
-                    document.getElementById('loading-msg').style.display = 'none';
-
-                    if(player) {
-                        document.getElementById('game-card').style.display = 'block';
-                        
-                        // Mapeo exacto de tus nuevas columnas
-                        const gamertagVal = player['Gamer Tag'] || player['ID'];
-                        const xpVal = player['Puntaje Total'] || '0';
-                        const hpVal = player['Salud HP'] || '3';
-                        const avatarVal = player['Avatar URL'] || '';
-                        const descVal = player['Descripción Personaje'] || 'SISTEMA DE JUEGO CONECTADO';
-                        const penaltyVal = player['Penalizaciones'] || '0';
-                        const inventarioVal = String(player['Inventario Ítems'] || '').toLowerCase();
-
-                        // Carga de datos de texto
-                        document.getElementById('player-id-val').innerText = String(player['ID'] || playerId);
-                        document.getElementById('gamertag').innerText = String(gamertagVal).toUpperCase();
-                        document.getElementById('avatar').src = avatarVal || 'https://via.placeholder.com/140/000000/ffffff?text=AVATAR';
-                        document.getElementById('xp-points').innerText = xpVal;
-                        document.getElementById('character-desc').innerText = descVal;
-                        
-                        // Estado de Infracciones o Alertas
-                        if(penaltyVal && penaltyVal !== '0' && String(penaltyVal).toLowerCase() !== 'ninguna') {
-                            document.getElementById('penalty-status').innerText = String(penaltyVal).toUpperCase();
-                            document.getElementById('penalty-status').style.color = "#ff3333";
-                        } else {
-                            document.getElementById('penalty-status').innerText = "NINGUNA";
-                            document.getElementById('penalty-status').style.color = "#00ffff";
-                        }
-
-                        // Renderizado de corazones con "vida.png"
-                        const hpCount = parseInt(hpVal) || 0;
-                        const livesDisplay = document.getElementById('lives-display');
-                        livesDisplay.innerHTML = ''; 
-                        
-                        if(hpCount <= 0) {
-                            livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:10px;">GAME OVER</span>';
-                        } else {
-                            for(let i = 0; i < hpCount; i++) {
-                                const img = document.createElement('img');
-                                img.src = ICONO_VIDA;
-                                img.className = 'live-icon';
-                                livesDisplay.appendChild(img);
-                            }
-                        }
-
-                        // Activación de slots iluminados según la columna "Inventario Ítems"
-                        if(inventarioVal.includes('pocion') || inventarioVal.includes('poción')) document.getElementById('slot-pocion').classList.add('active');
-                        if(inventarioVal.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
-                        if(inventarioVal.includes('proteccion') || inventarioVal.includes('protección')) document.getElementById('slot-proteccion').classList.add('active');
-                        if(inventarioVal.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
-
-                    } else {
-                        document.getElementById('error-msg').innerText = "JUGADOR NO REGISTRADO EN LA BASE DE DATOS";
+                    if(!basePlayer) {
+                        document.getElementById('loading-msg').style.display = 'none';
+                        document.getElementById('error-msg').innerText = "JUGADOR NO ENCONTRADO EN BASE DATOS";
                         document.getElementById('error-msg').style.display = 'block';
+                        return;
                     }
+
+                    let gamertag = basePlayer['Gamer Tag'] || basePlayer['ID'] || playerId;
+                    let avatarUrl = basePlayer['Avatar URL'] || '';
+                    let descripcion = basePlayer['Descripción Personaje'] || 'SISTEMA OPERATIVO LEVEL UP CONECTADO.';
+                    
+                    let xpAcumulada = parseInt(buscarColumna(basePlayer, ['Puntaje Total', 'XP'])) || 0;
+                    let hpAcumulada = parseInt(buscarColumna(basePlayer, ['Salud HP', 'HP'])) || 3;
+                    let penalizacionActual = String(buscarColumna(basePlayer, ['Penalizaciones', 'Alerta']) || 'NINGUNA');
+                    
+                    let inventarioX = limpiarString(basePlayer['Inventario Ítems']);
+                    let stickersX = limpiarString(basePlayer['Stickers Premio']);
+
+                    // PROCESAR TRANSACCIONES DEL FORMULARIO DE GOOGLE
+                    const formSheetName = workbook.SheetNames.find(n => limpiarString(n).includes('respuesta') || limpiarString(n).includes('formulario'));
+                    if(formSheetName) {
+                        const formWorksheet = workbook.Sheets[formSheetName];
+                        const formData = XLSX.utils.sheet_to_json(formWorksheet);
+
+                        formData.forEach(itemForm => {
+                            let formPlayerId = limpiarString(buscarColumna(itemForm, ['ID del Jugador', 'ID del Jugador ', 'ID']) || '').replace('#', '');
+                            let targetId = limpiarString(playerId).replace('#', '');
+
+                            if(formPlayerId === targetId) {
+                                let puntosSumar = parseInt(buscarColumna(itemForm, ['Puntos a SUMAR', '  Puntos a SUMAR  ', 'Puntos'])) || 0;
+                                xpAcumulada += puntosSumar;
+
+                                let itemGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a GANAR?', '¿Qué Ítem va a GANAR? ']));
+                                if(itemGanado && itemGanado !== 'ninguno') {
+                                    inventarioX += " " + itemGanado;
+                                }
+
+                                let itemUsado = limpiarString(buscarColumna(itemForm, ['¿Qué Ítem va a USAR / GASTAR?', '¿Qué Ítem va a USAR / GASTAR? ']));
+                                if(itemUsado && itemUsado !== 'ninguno') {
+                                    inventarioX = inventarioX.replace(itemUsado, '');
+                                }
+
+                                let penalizacionForm = limpiarString(buscarColumna(itemForm, ['Penalizaciones a APLICAR', 'Penalizaciones a APLICAR ']));
+                                if(penalizacionForm && penalizacionForm !== 'ninguna' && penalizacionForm !== '0') {
+                                    penalizacionActual = penalizacionForm.toUpperCase();
+                                    if(penalizacionForm.includes('falli')) hpAcumulada -= 1;
+                                    if(penalizacionForm.includes('falt')) hpAcumulada -= 2; 
+                                }
+
+                                let stickerGanado = limpiarString(buscarColumna(itemForm, ['¿Qué Sticker de Premio se ganó?', '¿Qué Sticker de Premio se ganó?  ']));
+                                if(stickerGanado && stickerGanado !== 'ninguno') {
+                                    stickersX += " " + stickerGanado;
+                                }
+                            }
+                        });
+                    }
+
+                    document.getElementById('loading-msg').style.display = 'none';
+                    document.getElementById('game-card').style.display = 'block';
+
+                    document.getElementById('player-id-val').innerText = String(basePlayer['ID']).toUpperCase();
+                    document.getElementById('gamertag').innerText = String(gamertag).toUpperCase();
+                    document.getElementById('avatar').src = avatarUrl || 'https://via.placeholder.com/110/000000/ffffff?text=ARCADE';
+                    document.getElementById('xp-points').innerText = xpAcumulada;
+                    document.getElementById('character-desc').innerText = descripcion;
+                    
+                    if(penalizacionActual && penalizacionActual !== '0' && penalizacionActual.toLowerCase() !== 'ninguna') {
+                        document.getElementById('penalty-status').innerText = penalizacionActual;
+                        document.getElementById('penalty-status').style.color = "#ff3333";
+                    } else {
+                        document.getElementById('penalty-status').innerText = "NINGUNA";
+                        document.getElementById('penalty-status').style.color = "#00ffff";
+                    }
+
+                    const livesDisplay = document.getElementById('lives-display');
+                    livesDisplay.innerHTML = '';
+                    if(hpAcumulada <= 0) {
+                        livesDisplay.innerHTML = '<span style="color:#ff007f; font-size:8px;">GAME OVER</span>';
+                    } else {
+                        for(let i = 0; i < Math.min(hpAcumulada, 6); i++) { 
+                            const img = document.createElement('img');
+                            img.src = ICONO_VIDA;
+                            img.className = 'live-icon';
+                            livesDisplay.appendChild(img);
+                        }
+                    }
+
+                    // Validación tolerante para ítems del inventario (incluyendo variaciones de protección)
+                    if(inventarioX.includes('pocion')) document.getElementById('slot-pocion').classList.add('active');
+                    if(inventarioX.includes('tiempo')) document.getElementById('slot-tiempo').classList.add('active');
+                    if(inventarioX.includes('protec') || inventarioX.includes('escudo')) document.getElementById('slot-proteccion').classList.add('active');
+                    if(inventarioX.includes('ayuda')) document.getElementById('slot-ayuda').classList.add('active');
+
+                    // Encendido automático de medallas por número o nombre de mundo
+                    if(stickersX.includes('grafia') || stickersX.includes('premio1') || stickersX.includes('1')) document.getElementById('stk-grafia').classList.add('active');
+                    if(stickersX.includes('matriz') || stickersX.includes('premio2') || stickersX.includes('2')) document.getElementById('stk-matriz').classList.add('active');
+                    if(stickersX.includes('simetria') || stickersX.includes('premio3') || stickersX.includes('3')) document.getElementById('stk-simetria').classList.add('active');
+                    if(stickersX.includes('ritmo') || stickersX.includes('premio4') || stickersX.includes('4')) document.getElementById('stk-ritmo').classList.add('active');
+                    if(stickersX.includes('color') || stickersX.includes('premio5') || stickersX.includes('5')) document.getElementById('stk-color').classList.add('active');
+                    if(stickersX.includes('prisma') || stickersX.includes('premio6') || stickersX.includes('6')) document.getElementById('stk-prisma').classList.add('active');
+
                 })
                 .catch(err => {
                     console.error(err);
                     document.getElementById('loading-msg').style.display = 'none';
-                    document.getElementById('error-msg').innerText = "ERROR DE LECTURA DE EXCEL ARCADE";
+                    document.getElementById('error-msg').innerText = "ERROR AL INTERCONECTAR HOJA DE EXCEL";
                     document.getElementById('error-msg').style.display = 'block';
                 });
         }
