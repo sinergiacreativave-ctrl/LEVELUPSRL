@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEVEL UP! - Arena de Combate</title>
+    <!-- Tu fuente retro preferida -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Iconos para las barras de estadísticas (puedes usar FontAwesome o tus propios emojis/pixelart) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Aquí irá toda la magia del CSS Cyberpunk (Gradientes rosa/azul, neones y layouts de image_5c78bf.jpg) */
+    </style>
+</head>
+<body>
+
+    <!-- 1. PANEL DE CONTROL DE ADMINISTRADOR (Ocultable o discreto en la parte superior) -->
+    <header class="admin-panel">
+        <div class="control-group">
+            <label for="mode-select">MODO DE JUEGO:</label>
+            <select id="mode-select">
+                <option value="individual">SOLO (1 JUGADOR)</option>
+                <option value="1v1">DUELO (1 VS 1)</option>
+                <option value="5v5">ESCUADRÓN (5 VS 5)</option>
+            </select>
+        </div>
+        
+        <!-- Contador para asegurar que TODOS jueguen antes de reiniciar -->
+        <div class="arena-stats">
+            <span>DISPONIBLES: <span id="count-available">0</span></span>
+            <span>| JUGARON: <span id="count-played">0</span></span>
+        </div>
+
+        <button id="btn-shuffle" class="pulse-yellow">¡START SHUFFLE!</button>
+    </header>
+
+    <!-- LOGO OFICIAL DEL PROYECTO (Ubicado estratégicamente arriba de la arena) -->
+    <div class="game-logo-container">
+        <img src="TU_LOGO_OFICIAL.png" alt="LEVEL UP! LOGO" class="game-logo">
+    </div>
+
+    <!-- 2. LA ARENA DE COMBATE PRINCIPAL -->
+    <!-- Este contenedor cambiará su clase de CSS dinámicamente según el modo (view-individual, view-1v1, view-5v5) -->
+    <main id="battle-arena" class="view-1v1">
+        
+        <!-- LADO IZQUIERDO: JUGADOR 1 / EQUIPO AZUL -->
+        <section id="side-left" class="arena-side">
+            <!-- Los slots de jugadores se generarán aquí con JavaScript usando las fotos de ImgBB -->
+        </section>
+
+        <!-- EJE CENTRAL: EL DIVISOR MECÁNICO -->
+        <section id="center-axis">
+            <div class="axis-line line-top"></div>
+            <div class="vs-box">
+                <span class="vs-text">VS</span>
+            </div>
+            <div class="axis-line line-bottom"></div>
+        </section>
+
+        <!-- LADO DERECHO: JUGADOR 2 / EQUIPO ROSA -->
+        <section id="side-right" class="arena-side">
+            <!-- Los slots de jugadores se generarán aquí con JavaScript en espejo -->
+        </section>
+
+    </main>
+
+    <!-- 3. PANEL DE ACCIÓN INFERIOR (Aparece al terminar la ruleta) -->
+    <footer id="arena-actions" class="hidden">
+        <div class="announcer-text">¡COMBATE LISTO!</div>
+        <!-- Botón brillante que llevará a los niños a los retos o plataformas de minijuegos -->
+        <a href="URL_DE_TUS_MINIJUEGOS" target="_blank" id="btn-minigames" class="pulse-green">
+            🎮 ENTRAR A LA ARENA DE MINIJUEGOS
+        </a>
+    </footer>
+
+    <!-- LIBRERÍAS EXTERNAS (La misma que usas para leer el Excel) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        // Aquí programaremos la lógica de la cola de espera, la ruleta y la conexión con Sheets/ImgBB
+    </script>
+</body>
+</html>
