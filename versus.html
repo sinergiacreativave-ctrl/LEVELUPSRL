@@ -3,82 +3,554 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEVEL UP! - Arena de Combate</title>
-    <!-- Tu fuente retro preferida -->
+    <title>LEVEL UP! - Arena Versus</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <!-- Iconos para las barras de estadísticas (puedes usar FontAwesome o tus propios emojis/pixelart) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        /* Aquí irá toda la magia del CSS Cyberpunk (Gradientes rosa/azul, neones y layouts de image_5c78bf.jpg) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0d0814;
+            background-image: radial-gradient(circle, #1a0f2e 10%, #0d0814 90%);
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        /* PANEL DE CONTROL SUPERIOR */
+        .admin-panel {
+            background: rgba(20, 12, 36, 0.95);
+            border-bottom: 4px solid #3d2466;
+            width: 100%;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 10px;
+            color: #00ffff;
+        }
+
+        .admin-panel select {
+            background: #0d0814;
+            border: 2px solid #00ffff;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            padding: 5px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .arena-stats {
+            font-size: 10px;
+            color: #ff007f;
+            display: flex;
+            gap: 15px;
+        }
+
+        #btn-shuffle {
+            background: #ffcc00;
+            border: 3px solid #b38f00;
+            color: #0d0814;
+            font-family: 'Press Start 2P', monospace;
+            padding: 10px 20px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #b38f00;
+            transition: all 0.1s ease;
+        }
+
+        #btn-shuffle:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* LOGO PRINCIPAL */
+        .game-logo-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .game-logo {
+            max-width: 180px;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 127, 0.5));
+        }
+
+        /* CONTENEDOR DE LA ARENA (ESTILO SIMÉTRICO image_5c78bf.jpg) */
+        #battle-arena {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 95%;
+            max-width: 1100px;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .arena-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 400px;
+            justify-content: center;
+        }
+
+        /* EJE CENTRAL VS */
+        #center-axis {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+        }
+
+        .axis-line {
+            width: 8px;
+            background: linear-gradient(to bottom, #ff007f, #00ffff);
+            flex: 1;
+            box-shadow: 0 0 10px #ff007f, 0 0 10px #00ffff;
+        }
+
+        .vs-box {
+            background: #140c24;
+            border: 4px solid #fff;
+            padding: 15px 5px;
+            transform: rotate(-5deg);
+            box-shadow: 4px 4px 0 #ff007f;
+            margin: 20px 0;
+        }
+
+        .vs-text {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 0 #ff007f, -2px -2px 0 #00ffff;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* DISEÑO DE LAS TARJETAS (ESTILO CYBERPUNK ARCADE) */
+        .player-card {
+            background: #1c1230;
+            border: 4px solid #ff007f;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: inset 0 0 15px rgba(255, 0, 127, 0.3), 0 0 15px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        #side-right .player-card {
+            border-color: #00ffff;
+            box-shadow: inset 0 0 15px rgba(0, 255, 255, 0.3), 0 0 15px rgba(0,0,0,0.6);
+        }
+
+        .player-header {
+            border-bottom: 2px dashed #3d2466;
+            padding-bottom: 8px;
+            font-size: 12px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .player-body {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .avatar-frame {
+            width: 90px;
+            height: 90px;
+            border: 3px solid #ff007f;
+            background: #0d0814;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #side-right .avatar-frame {
+            border-color: #00ffff;
+        }
+
+        .avatar-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            font-size: 36px;
+            color: #3d2466;
+            animation: blink 1s infinite;
+        }
+
+        .player-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .player-name {
+            font-size: 14px;
+            color: #ffcc00;
+            margin-bottom: 4px;
+        }
+
+        /* BARRAS DE ESTADÍSTICAS */
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 8px;
+        }
+
+        .stat-label {
+            width: 35px;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 10px;
+            background: #0d0814;
+            border: 1px solid #3d2466;
+            padding: 1px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-out;
+        }
+
+        .bar-hp { background: #ff0055; }
+        .bar-xp { background: #00ff66; }
+
+        .player-bio {
+            background: rgba(13, 8, 20, 0.6);
+            border: 2px solid #3d2466;
+            padding: 8px;
+            font-size: 8px;
+            line-height: 1.4;
+            color: #a29bb0;
+            min-height: 40px;
+        }
+
+        /* ADAPTACIÓN MODO 5V5 (SLOTS COMPACTOS) */
+        .view-5v5 .player-card {
+            padding: 6px;
+            gap: 4px;
+        }
+        .view-5v5 .player-body { gap: 8px; }
+        .view-5v5 .avatar-frame { width: 45px; height: 45px; }
+        .view-5v5 .player-bio { display: none; }
+        .view-5v5 .player-name { font-size: 10px; margin: 0; }
+        .view-5v5 .stat-row { display: none; }
+
+        /* ADAPTACIÓN MODO INDIVIDUAL */
+        .view-individual #side-right, 
+        .view-individual #center-axis {
+            display: none !important;
+        }
+        .view-individual #side-left {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* PANEL INFERIOR Y BOTÓN MINIJUEGOS */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .announcer-text {
+            font-size: 12px;
+            color: #ffcc00;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        #btn-minigames {
+            display: inline-block;
+            background: #00ff66;
+            border: 4px solid #00993d;
+            color: #0d0814;
+            font-family: 'Press Start 2P', monospace;
+            padding: 15px 25px;
+            font-size: 11px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 6px 0 #00993d, 0 10px 20px rgba(0,255,102,0.3);
+            animation: pulseBtn 1.5s infinite alternate;
+        }
+
+        .hidden { display: none !important; }
+
+        /* ANIMACIONES */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        @keyframes pulseBtn {
+            0% { box-shadow: 0 6px 0 #00993d, 0 5px 10px rgba(0,255,102,0.2); }
+            100% { box-shadow: 0 6px 0 #00993d, 0 15px 25px rgba(0,255,102,0.5); transform: translateY(-2px); }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. PANEL DE CONTROL DE ADMINISTRADOR (Ocultable o discreto en la parte superior) -->
     <header class="admin-panel">
         <div class="control-group">
-            <label for="mode-select">MODO DE JUEGO:</label>
+            <label for="mode-select">MODO:</label>
             <select id="mode-select">
-                <option value="individual">SOLO (1 JUGADOR)</option>
                 <option value="1v1">DUELO (1 VS 1)</option>
+                <option value="individual">INDIVIDUAL (1 JUGADOR)</option>
                 <option value="5v5">ESCUADRÓN (5 VS 5)</option>
             </select>
         </div>
-        
-        <!-- Contador para asegurar que TODOS jueguen antes de reiniciar -->
         <div class="arena-stats">
             <span>DISPONIBLES: <span id="count-available">0</span></span>
             <span>| JUGARON: <span id="count-played">0</span></span>
         </div>
-
-        <button id="btn-shuffle" class="pulse-yellow">¡START SHUFFLE!</button>
+        <button id="btn-shuffle">¡START SHUFFLE!</button>
     </header>
 
-    <!-- LOGO OFICIAL DEL PROYECTO (Ubicado estratégicamente arriba de la arena) -->
     <div class="game-logo-container">
-        <img src="TU_LOGO_OFICIAL.png" alt="LEVEL UP! LOGO" class="game-logo">
+        <!-- Puedes cambiar esta URL por la ruta real de tu logo en tu repositorio -->
+        <img src="https://sinergiacreativave-ctrl.github.io/LEVELUPSRL/logo.png" alt="LEVEL UP!" class="game-logo" onerror="this.style.display='none'">
     </div>
 
-    <!-- 2. LA ARENA DE COMBATE PRINCIPAL -->
-    <!-- Este contenedor cambiará su clase de CSS dinámicamente según el modo (view-individual, view-1v1, view-5v5) -->
     <main id="battle-arena" class="view-1v1">
-        
-        <!-- LADO IZQUIERDO: JUGADOR 1 / EQUIPO AZUL -->
-        <section id="side-left" class="arena-side">
-            <!-- Los slots de jugadores se generarán aquí con JavaScript usando las fotos de ImgBB -->
-        </section>
-
-        <!-- EJE CENTRAL: EL DIVISOR MECÁNICO -->
+        <section id="side-left" class="arena-side"></section>
         <section id="center-axis">
-            <div class="axis-line line-top"></div>
-            <div class="vs-box">
-                <span class="vs-text">VS</span>
-            </div>
-            <div class="axis-line line-bottom"></div>
+            <div class="axis-line"></div>
+            <div class="vs-box"><span class="vs-text">VS</span></div>
+            <div class="axis-line"></div>
         </section>
-
-        <!-- LADO DERECHO: JUGADOR 2 / EQUIPO ROSA -->
-        <section id="side-right" class="arena-side">
-            <!-- Los slots de jugadores se generarán aquí con JavaScript en espejo -->
-        </section>
-
+        <section id="side-right" class="arena-side"></section>
     </main>
 
-    <!-- 3. PANEL DE ACCIÓN INFERIOR (Aparece al terminar la ruleta) -->
     <footer id="arena-actions" class="hidden">
-        <div class="announcer-text">¡COMBATE LISTO!</div>
-        <!-- Botón brillante que llevará a los niños a los retos o plataformas de minijuegos -->
-        <a href="URL_DE_TUS_MINIJUEGOS" target="_blank" id="btn-minigames" class="pulse-green">
-            🎮 ENTRAR A LA ARENA DE MINIJUEGOS
+        <div class="announcer-text">¡CHALLENGE READY!</div>
+        <!-- Vincula aquí tu suite externa de juegos como Wordwall o Educaplay -->
+        <a href="https://wordwall.net/es" target="_blank" id="btn-minigames">
+            🎮 ARENA DE MINIJUEGOS
         </a>
     </footer>
 
-    <!-- LIBRERÍAS EXTERNAS (La misma que usas para leer el Excel) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
     <script>
-        // Aquí programaremos la lógica de la cola de espera, la ruleta y la conexión con Sheets/ImgBB
+        // Tu URL exacta de Google Sheets (la misma del index.html)
+        const EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6l8ZtS95v4U_C2-Iu_B0Ww_GqX8lV-N6Fk2A5uI4G0Fmsm9gCstW-96pYx1q_8S_hH-vFpLwJ6vYQ/pub?output=xlsx";
+        
+        let poolJugadores = [];
+        let jugadoresJugados = new Set();
+        let modoActual = "1v1";
+        let shuffleInterval;
+
+        const modeSelect = document.getElementById('mode-select');
+        const battleArena = document.getElementById('battle-arena');
+        const sideLeft = document.getElementById('side-left');
+        const sideRight = document.getElementById('side-right');
+        const btnShuffle = document.getElementById('btn-shuffle');
+        const arenaActions = document.getElementById('arena-actions');
+
+        modeSelect.addEventListener('change', (e) => {
+            modoActual = e.target.value;
+            battleArena.className = `view-${modoActual}`;
+            limpiarArena();
+        });
+
+        async function cargarDatos() {
+            try {
+                const response = await fetch(EXCEL_URL);
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                // Mapeo flexible de columnas. Adapta los nombres entre corchetes si en tu Excel cambian
+                poolJugadores = jsonData.map(row => ({
+                    id: row["ID"] || row["id"] || "",
+                    nombre: row["NOMBRE"] || row["Nombre"] || "Gamer",
+                    avatar: row["AVATAR"] || row["Avatar"] || "",
+                    hp: parseInt(row["VIDAS HP"] || row["HP"] || 100),
+                    xp: parseInt(row["SCORE XP"] || row["XP"] || 0),
+                    bio: row["HABILIDAD"] || row["Bio"] || "Listo para el combate."
+                })).filter(j => j.id && j.hp > 0); // Filtra los caídos en GAME OVER
+                
+                actualizarContadores();
+                limpiarArena();
+            } catch (error) {
+                console.error("Error cargando el servidor arcade:", error);
+            }
+        }
+
+        function actualizarContadores() {
+            const disponibles = poolJugadores.filter(j => !jugadoresJugados.has(j.id)).length;
+            document.getElementById('count-available').textContent = disponibles;
+            document.getElementById('count-played').textContent = jugadoresJugados.size;
+            
+            // Si todos jugaron, reiniciar el ciclo de participación justa
+            if (disponibles === 0 && poolJugadores.length > 0) {
+                alert("🎮 ¡Todos los alumnos han participado! Reiniciando cola de espera...");
+                jugadoresJugados.clear();
+                actualizarContadores();
+            }
+        }
+
+        function limpiarArena() {
+            sideLeft.innerHTML = "";
+            sideRight.innerHTML = "";
+            arenaActions.classList.add('hidden');
+            
+            const numSlots = modoActual === '5v5' ? 5 : 1;
+            for(let i=0; i<numSlots; i++) {
+                sideLeft.appendChild(crearSlotVacio(modoActual === '5v5' ? `P${i+1}` : 'PLAYER 1'));
+                if(modoActual !== 'individual') {
+                    sideRight.appendChild(crearSlotVacio(modoActual === '5v5' ? `P${i+6}` : 'PLAYER 2'));
+                }
+            }
+        }
+
+        function crearSlotVacio(label) {
+            const card = document.createElement('div');
+            card.className = 'player-card';
+            card.innerHTML = `
+                <div class="player-header">${label}</div>
+                <div class="player-body">
+                    <div class="avatar-frame"><span class="avatar-placeholder">?</span></div>
+                    <div class="player-info">
+                        <div class="player-name">¿Quién será?</div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        function renderJugador(jugador, label, esDerecha = false) {
+            const card = document.createElement('div');
+            card.className = 'player-card';
+            
+            const hpPct = Math.min(100, jugador.hp); 
+            const xpPct = Math.min(100, jugador.xp);
+
+            card.innerHTML = `
+                <div class="player-header">${label}</div>
+                <div class="player-body">
+                    <div class="avatar-frame">
+                        ${jugador.avatar ? `<img src="${jugador.avatar}" alt="${jugador.nombre}">` : `<span class="avatar-placeholder">?</span>`}
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">${jugador.nombre}</div>
+                        <div class="stat-row">
+                            <span class="stat-label">HP</span>
+                            <div class="bar-container"><div class="bar-fill bar-hp" style="width: ${hpPct}%"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">XP</span>
+                            <div class="bar-container"><div class="bar-fill bar-xp" style="width: ${xpPct}%"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-bio">${jugador.bio}</div>
+            `;
+            return card;
+        }
+
+        btnShuffle.addEventListener('click', () => {
+            if (poolJugadores.length === 0) return;
+            
+            let disponibles = poolJugadores.filter(j => !jugadoresJugados.has(j.id));
+            let reqPlayers = modoActual === 'individual' ? 1 : (modoActual === '1v1' ? 2 : 10);
+            
+            // Validar si quedan suficientes alumnos en la cola, sino reiniciar
+            if (disponibles.length < reqPlayers) {
+                alert("No quedan suficientes alumnos disponibles para este modo. ¡Reiniciando ciclo para completar!");
+                jugadoresJugados.clear();
+                disponibles = [...poolJugadores];
+            }
+
+            arenaActions.classList.add('hidden');
+            let ticks = 0;
+            
+            // Efecto de ruleta giratoria ultra rápida
+            clearInterval(shuffleInterval);
+            shuffleInterval = setInterval(() => {
+                // Mezclar de mentira visualmente
+                const tempDispo = [...disponibles].sort(() => 0.5 - Math.random());
+                mostrarSeleccionados(tempDispo.slice(0, reqPlayers), false);
+                ticks++;
+                
+                if (ticks > 15) { // Duración de la animación
+                    clearInterval(shuffleInterval);
+                    // Selección real definitiva
+                    const finalSelection = [];
+                    for(let i=0; i<reqPlayers; i++) {
+                        const elegido = disponibles.splice(Math.floor(Math.random() * disponibles.length), 1)[0];
+                        finalSelection.push(elegido);
+                        jugadoresJugados.add(elegido.id); // Registrar que ya jugó
+                    }
+                    
+                    mostrarSeleccionados(finalSelection, true);
+                    actualizarContadores();
+                    arenaActions.classList.remove('hidden');
+                }
+            }, 100);
+        });
+
+        function mostrarSeleccionados(lista, definitivo) {
+            sideLeft.innerHTML = "";
+            sideRight.innerHTML = "";
+            
+            if (modoActual === 'individual') {
+                sideLeft.appendChild(renderJugador(lista[0], "HÉROE SELECCIONADO"));
+            } else if (modoActual === '1v1') {
+                sideLeft.appendChild(renderJugador(lista[0], "PLAYER 1"));
+                sideRight.appendChild(renderJugador(lista[1], "PLAYER 2", true));
+            } else if (modoActual === '5v5') {
+                for(let i=0; i<5; i++) {
+                    sideLeft.appendChild(renderJugador(lista[i], `SQUAD A - P${i+1}`));
+                    sideRight.appendChild(renderJugador(lista[i+5], `SQUAD B - P${i+1}`, true));
+                }
+            }
+        }
+
+        // Ejecutar carga inicial
+        cargarDatos();
     </script>
 </body>
 </html>
