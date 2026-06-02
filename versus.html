@@ -287,37 +287,6 @@
             margin: 0 auto;
         }
 
-        /* PANEL INFERIOR Y BOTÓN MINIJUEGOS */
-        footer {
-            margin-top: 30px;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-        }
-
-        .announcer-text {
-            font-size: 12px;
-            color: #ffcc00;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-        }
-
-        #btn-minigames {
-            display: inline-block;
-            background: #00ff66;
-            border: 4px solid #00993d;
-            color: #0d0814;
-            font-family: 'Press Start 2P', monospace;
-            padding: 15px 25px;
-            font-size: 11px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 6px 0 #00993d, 0 10px 20px rgba(0,255,102,0.3);
-            animation: pulseBtn 1.5s infinite alternate;
-        }
-
-        .hidden { display: none !important; }
-
         /* ANIMACIONES */
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -328,10 +297,6 @@
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
         }
-        @keyframes pulseBtn {
-            0% { box-shadow: 0 6px 0 #00993d, 0 5px 10px rgba(0,255,102,0.2); }
-            100% { box-shadow: 0 6px 0 #00993d, 0 15px 25px rgba(0,255,102,0.5); transform: translateY(-2px); }
-        }
     </style>
 </head>
 <body>
@@ -340,7 +305,8 @@
         <div class="control-group">
             <label for="mode-select">MODO:</label>
             <select id="mode-select">
-                <option value="1v1">DUELO (1 VS 1)</option>
+                <option value="1v1">DUELO ALEATORIO (1 VS 1)</option>
+                <option value="1v1-same-level">DUELO (MISMO NIVEL)</option>
                 <option value="individual">INDIVIDUAL</option>
                 <option value="5v5">ESCUADRÓN (5 VS 5)</option>
             </select>
@@ -375,13 +341,7 @@
         <section id="side-right" class="arena-side"></section>
     </main>
 
-    <footer id="arena-actions" class="hidden">
-        <div class="announcer-text">¡CHALLENGE READY!</div>
-        <a href="https://wordwall.net/es" target="_blank" id="btn-minigames">
-            🎮 ARENA DE MINIJUEGOS
-        </a>
-    </footer>
-
+    <!-- Librería XLSX para leer los datos -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         const EXCEL_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=csv";
@@ -397,11 +357,15 @@
         const sideLeft = document.getElementById('side-left');
         const sideRight = document.getElementById('side-right');
         const btnShuffle = document.getElementById('btn-shuffle');
-        const arenaActions = document.getElementById('arena-actions');
 
         modeSelect.addEventListener('change', (e) => {
             modoActual = e.target.value;
-            battleArena.className = `view-${modoActual}`;
+            // Para términos visuales de CSS, el modo mismo nivel comparte la estructura 1v1
+            if (modoActual === '1v1-same-level') {
+                battleArena.className = `view-1v1`;
+            } else {
+                battleArena.className = `view-${modoActual}`;
+            }
             limpiarArena();
         });
 
@@ -412,45 +376,34 @@
 
         async function cargarDatos() {
             try {
-                // Lectura robusta mediante ArrayBuffer
                 const response = await fetch(EXCEL_URL);
                 const buffer = await response.arrayBuffer();
                 const workbook = XLSX.read(buffer, { type: 'array' });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                if (!Array.isArray(jsonData)) {
-                    throw new Error("El archivo no se pudo convertir en lista.");
-                }
-
-                // MAPEADO EXACTO A TU BASE DE DATOS REAL (Base Datos.csv)
                 poolJugadores = jsonData.map(row => ({
                     id: String(row["ID"] || "").trim(),
                     nombre: String(row["Gamer Tag"] || "").trim(),
                     avatar: row["Avatar URL"] || "",
-                    hp: parseInt(row["Salud HP"]) || 3, // Asumimos 3 vidas si viene vacío en Excel
+                    hp: parseInt(row["Salud HP"]) || 3,
                     xp: parseInt(row["XP (Puntaje Total)"]) || 0,
                     nivel: parseInt(row["Nivel"]) || 1,
-                    bio: row["Descripción Personaje"] || row["Habilidad"] || "Listo para el combate."
+                    bio: row["Descripción Personaje"] || "Listo para el combate."
                 })).filter(j => j.id !== "" && j.nombre !== ""); 
-                // Filtramos campos vacíos (ID y Nombres en blanco)
                 
                 actualizarContadores();
                 limpiarArena();
             } catch (error) {
                 console.error("Error cargando el servidor arcade:", error);
-                alert("Hubo un error cargando los datos. Revisa la consola (F12).");
             }
         }
 
-        // Filtro de Categoría por Nivel
         function obtenerPoolPorCategoria() {
             const rango = catSelect.value;
             const minNivel = rango === "1-3" ? 1 : 4;
             const maxNivel = rango === "1-3" ? 3 : 6;
-            
             return poolJugadores.filter(j => j.nivel >= minNivel && j.nivel <= maxNivel);
         }
 
@@ -472,7 +425,6 @@
         function limpiarArena() {
             sideLeft.innerHTML = "";
             sideRight.innerHTML = "";
-            arenaActions.classList.add('hidden');
             
             const numSlots = modoActual === '5v5' ? 5 : 1;
             for(let i=0; i<numSlots; i++) {
@@ -503,8 +455,7 @@
         function renderJugador(jugador, label, esDerecha = false) {
             const card = document.createElement('div');
             card.className = 'player-card';
-            
-            const hpPct = Math.min(100, (jugador.hp / 3) * 100); // Vida base de 3 para el % de la barra
+            const hpPct = Math.min(100, (jugador.hp / 3) * 100);
             const xpPct = Math.min(100, jugador.xp);
 
             card.innerHTML = `
@@ -539,24 +490,82 @@
                 alert("No hay alumnos en la base de datos para esta categoría.");
                 return;
             }
-            
+
+            // --- LÓGICA ESPECIAL PARA DUELO DEL MISMO NIVEL ---
+            if (modoActual === '1v1-same-level') {
+                let disponibles = poolFiltrado.filter(j => !jugadoresJugados.has(j.id));
+                
+                // Agrupamos los disponibles por nivel para ver si hay parejas listas
+                let gruposDispo = {};
+                disponibles.forEach(j => {
+                    if (!gruposDispo[j.nivel]) gruposDispo[j.nivel] = [];
+                    gruposDispo[j.nivel].push(j);
+                });
+
+                let nivelesValidos = Object.keys(gruposDispo).filter(lvl => gruposDispo[lvl].length >= 2);
+
+                // Si no hay parejas del mismo nivel libres, reiniciamos la cola para cumplir la regla de participación
+                if (nivelesValidos.length === 0) {
+                    alert("¡No quedan más combinaciones del mismo nivel disponibles! Reiniciando ciclo de la categoría para emparejar.");
+                    poolFiltrado.forEach(j => jugadoresJugados.delete(j.id));
+                    disponibles = [...poolFiltrado];
+                    gruposDispo = {};
+                    disponibles.forEach(j => {
+                        if (!gruposDispo[j.nivel]) gruposDispo[j.nivel] = [];
+                        gruposDispo[j.nivel].push(j);
+                    });
+                    nivelesValidos = Object.keys(gruposDispo).filter(lvl => gruposDispo[lvl].length >= 2);
+                }
+
+                if (nivelesValidos.length === 0) {
+                    alert("No existen suficientes alumnos con niveles repetidos en la base de datos para este rango.");
+                    return;
+                }
+
+                let ticks = 0;
+                clearInterval(shuffleInterval);
+                shuffleInterval = setInterval(() => {
+                    // Mezcla visual usando un nivel válido aleatorio
+                    let lvlVisual = nivelesValidos[Math.floor(Math.random() * nivelesValidos.length)];
+                    let mezclaVisual = [...gruposDispo[lvlVisual]].sort(() => 0.5 - Math.random());
+                    mostrarSeleccionados([mezclaVisual[0], mezclaVisual[1]], false);
+                    ticks++;
+
+                    if (ticks > 15) {
+                        clearInterval(shuffleInterval);
+                        // Selección real definitiva
+                        let lvlFinal = nivelesValidos[Math.floor(Math.random() * nivelesValidos.length)];
+                        let candidatos = gruposDispo[lvlFinal];
+                        
+                        let p1 = candidatos.splice(Math.floor(Math.random() * candidatos.length), 1)[0];
+                        let p2 = candidatos.splice(Math.floor(Math.random() * candidatos.length), 1)[0];
+
+                        jugadoresJugados.add(p1.id);
+                        jugadoresJugados.add(p2.id);
+
+                        mostrarSeleccionados([p1, p2], true);
+                        actualizarContadores();
+                    }
+                }, 100);
+                return; 
+            }
+
+            // --- LÓGICA PARA LOS DEMÁS MODOS (ALEATORIOS) ---
             let disponibles = poolFiltrado.filter(j => !jugadoresJugados.has(j.id));
             let reqPlayers = modoActual === 'individual' ? 1 : (modoActual === '1v1' ? 2 : 10);
             
             if (poolFiltrado.length < reqPlayers) {
-                alert(`No tienes suficientes estudiantes en esta categoría para jugar un ${modoActual}. Cambia de modo o añade alumnos.`);
+                alert(`No hay suficientes estudiantes en esta categoría para el modo ${modoActual}.`);
                 return;
             }
 
             if (disponibles.length < reqPlayers) {
-                alert("No quedan suficientes alumnos disponibles en la cola. ¡Reiniciando ciclo para completar!");
+                alert("¡Completando la ronda! Reiniciando cola para emparejar a los alumnos restantes.");
                 poolFiltrado.forEach(j => jugadoresJugados.delete(j.id));
                 disponibles = [...poolFiltrado];
             }
 
-            arenaActions.classList.add('hidden');
             let ticks = 0;
-            
             clearInterval(shuffleInterval);
             shuffleInterval = setInterval(() => {
                 const tempDispo = [...disponibles].sort(() => 0.5 - Math.random());
@@ -571,10 +580,8 @@
                         finalSelection.push(elegido);
                         jugadoresJugados.add(elegido.id); 
                     }
-                    
                     mostrarSeleccionados(finalSelection, true);
                     actualizarContadores();
-                    arenaActions.classList.remove('hidden');
                 }
             }, 100);
         });
@@ -585,7 +592,7 @@
             
             if (modoActual === 'individual') {
                 sideLeft.appendChild(renderJugador(lista[0], "HÉROE SELECCIONADO"));
-            } else if (modoActual === '1v1') {
+            } else if (modoActual === '1v1' || modoActual === '1v1-same-level') {
                 sideLeft.appendChild(renderJugador(lista[0], "PLAYER 1"));
                 sideRight.appendChild(renderJugador(lista[1], "PLAYER 2", true));
             } else if (modoActual === '5v5') {
@@ -596,7 +603,6 @@
             }
         }
 
-        // Ejecutar carga inicial
         cargarDatos();
     </script>
 </body>
