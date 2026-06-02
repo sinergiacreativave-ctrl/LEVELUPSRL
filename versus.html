@@ -111,7 +111,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            min-height: 400px;
+            min-height: 350px;
             justify-content: center;
         }
 
@@ -148,7 +148,7 @@
             animation: pulse 1.5s infinite;
         }
 
-        /* DISEÑO DE LAS TARJETAS */
+        /* DISEÑO DE LAS TARJETAS MINIMALISTAS */
         .player-card {
             background: #1c1230;
             border: 4px solid #ff007f;
@@ -169,15 +169,17 @@
         .player-header {
             border-bottom: 2px dashed #3d2466;
             padding-bottom: 8px;
-            font-size: 12px;
-            color: #fff;
+            font-size: 10px;
+            color: #a29bb0;
             text-align: center;
             display: flex;
             justify-content: space-between;
         }
 
-        .lvl-badge {
-            color: #ffcc00;
+        .xp-text {
+            color: #00ff66;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
         .player-body {
@@ -222,60 +224,20 @@
         }
 
         .player-name {
-            font-size: 14px;
+            font-size: 15px;
             color: #ffcc00;
-            margin-bottom: 4px;
-        }
-
-        /* BARRAS DE ESTADÍSTICAS */
-        .stat-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 8px;
-        }
-
-        .stat-label {
-            width: 35px;
-        }
-
-        .bar-container {
-            flex: 1;
-            height: 10px;
-            background: #0d0814;
-            border: 1px solid #3d2466;
-            padding: 1px;
-        }
-
-        .bar-fill {
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s ease-out;
-        }
-
-        .bar-hp { background: #ff0055; }
-        .bar-xp { background: #00ff66; }
-
-        .player-bio {
-            background: rgba(13, 8, 20, 0.6);
-            border: 2px solid #3d2466;
-            padding: 8px;
-            font-size: 8px;
-            line-height: 1.4;
-            color: #a29bb0;
-            min-height: 40px;
+            line-height: 1.2;
         }
 
         /* ADAPTACIÓN MODO 5V5 */
         .view-5v5 .player-card {
-            padding: 6px;
+            padding: 8px;
             gap: 4px;
         }
         .view-5v5 .player-body { gap: 8px; }
         .view-5v5 .avatar-frame { width: 45px; height: 45px; }
-        .view-5v5 .player-bio { display: none; }
-        .view-5v5 .player-name { font-size: 10px; margin: 0; }
-        .view-5v5 .stat-row { display: none; }
+        .view-5v5 .player-name { font-size: 10px; }
+        .view-5v5 .xp-text { font-size: 8px; }
 
         /* ADAPTACIÓN MODO INDIVIDUAL */
         .view-individual #side-right, 
@@ -286,6 +248,8 @@
             max-width: 500px;
             margin: 0 auto;
         }
+
+        .hidden { display: none !important; }
 
         /* ANIMACIONES */
         @keyframes pulse {
@@ -317,6 +281,14 @@
             <select id="cat-select">
                 <option value="1-3">RANGO BAJO (Nv 1 a 3)</option>
                 <option value="4-6">RANGO ALTO (Nv 4 a 6)</option>
+            </select>
+        </div>
+
+        <!-- SELECTOR DINÁMICO DE NIVEL EXACTO (SOLO PARA MODO MISMO NIVEL) -->
+        <div class="control-group hidden" id="exact-level-container">
+            <label for="level-select">NIVEL:</label>
+            <select id="level-select">
+                <!-- Se llena dinámicamente según la categoría activa -->
             </select>
         </div>
 
@@ -353,6 +325,8 @@
 
         const modeSelect = document.getElementById('mode-select');
         const catSelect = document.getElementById('cat-select');
+        const levelSelect = document.getElementById('level-select');
+        const exactLevelContainer = document.getElementById('exact-level-container');
         const battleArena = document.getElementById('battle-arena');
         const sideLeft = document.getElementById('side-left');
         const sideRight = document.getElementById('side-right');
@@ -360,19 +334,43 @@
 
         modeSelect.addEventListener('change', (e) => {
             modoActual = e.target.value;
-            // Para términos visuales de CSS, el modo mismo nivel comparte la estructura 1v1
             if (modoActual === '1v1-same-level') {
                 battleArena.className = `view-1v1`;
+                exactLevelContainer.classList.remove('hidden');
+                actualizarOpcionesDeNivel();
             } else {
                 battleArena.className = `view-${modoActual}`;
+                exactLevelContainer.classList.add('hidden');
             }
+            actualizarContadores();
             limpiarArena();
         });
 
         catSelect.addEventListener('change', () => {
+            if (modoActual === '1v1-same-level') {
+                actualizarOpcionesDeNivel();
+            }
             actualizarContadores();
             limpiarArena();
         });
+
+        levelSelect.addEventListener('change', () => {
+            actualizarContadores();
+            limpiarArena();
+        });
+
+        function actualizarOpcionesDeNivel() {
+            levelSelect.innerHTML = "";
+            const rango = catSelect.value;
+            const niveles = rango === "1-3" ? [1, 2, 3] : [4, 5, 6];
+            
+            niveles.forEach(lvl => {
+                const opt = document.createElement('option');
+                opt.value = lvl;
+                opt.textContent = `Nivel ${lvl}`;
+                levelSelect.appendChild(opt);
+            });
+        }
 
         async function cargarDatos() {
             try {
@@ -387,10 +385,8 @@
                     id: String(row["ID"] || "").trim(),
                     nombre: String(row["Gamer Tag"] || "").trim(),
                     avatar: row["Avatar URL"] || "",
-                    hp: parseInt(row["Salud HP"]) || 3,
                     xp: parseInt(row["XP (Puntaje Total)"]) || 0,
-                    nivel: parseInt(row["Nivel"]) || 1,
-                    bio: row["Descripción Personaje"] || "Listo para el combate."
+                    nivel: parseInt(row["Nivel"]) || 1
                 })).filter(j => j.id !== "" && j.nombre !== ""); 
                 
                 actualizarContadores();
@@ -400,15 +396,20 @@
             }
         }
 
-        function obtenerPoolPorCategoria() {
-            const rango = catSelect.value;
-            const minNivel = rango === "1-3" ? 1 : 4;
-            const maxNivel = rango === "1-3" ? 3 : 6;
-            return poolJugadores.filter(j => j.nivel >= minNivel && j.nivel <= maxNivel);
+        function obtenerPoolFiltrado() {
+            if (modoActual === '1v1-same-level') {
+                const nivelExacto = parseInt(levelSelect.value) || 1;
+                return poolJugadores.filter(j => j.nivel === nivelExacto);
+            } else {
+                const rango = catSelect.value;
+                const minNivel = rango === "1-3" ? 1 : 4;
+                const maxNivel = rango === "1-3" ? 3 : 6;
+                return poolJugadores.filter(j => j.nivel >= minNivel && j.nivel <= maxNivel);
+            }
         }
 
         function actualizarContadores() {
-            const poolFiltrado = obtenerPoolPorCategoria();
+            const poolFiltrado = obtenerPoolFiltrado();
             const disponibles = poolFiltrado.filter(j => !jugadoresJugados.has(j.id)).length;
             const jugaron = poolFiltrado.filter(j => jugadoresJugados.has(j.id)).length;
 
@@ -416,7 +417,7 @@
             document.getElementById('count-played').textContent = jugaron;
             
             if (disponibles === 0 && poolFiltrado.length > 0) {
-                alert(`🎮 ¡Ronda completada para la Categoría ${catSelect.options[catSelect.selectedIndex].text}! Reiniciando cola...`);
+                alert(`🎮 ¡Ronda completada! Reiniciando la cola de este grupo para que todos vuelvan a participar.`);
                 poolFiltrado.forEach(j => jugadoresJugados.delete(j.id));
                 actualizarContadores();
             }
@@ -452,16 +453,14 @@
             return card;
         }
 
-        function renderJugador(jugador, label, esDerecha = false) {
+        function renderJugador(jugador, label) {
             const card = document.createElement('div');
             card.className = 'player-card';
-            const hpPct = Math.min(100, (jugador.hp / 3) * 100);
-            const xpPct = Math.min(100, jugador.xp);
 
             card.innerHTML = `
                 <div class="player-header">
-                    <span>${label}</span>
-                    <span class="lvl-badge">Nv.${jugador.nivel}</span>
+                    <span>ID: ${jugador.id}</span>
+                    <span>Nv.${jugador.nivel}</span>
                 </div>
                 <div class="player-body">
                     <div class="avatar-frame">
@@ -469,96 +468,29 @@
                     </div>
                     <div class="player-info">
                         <div class="player-name">${jugador.nombre}</div>
-                        <div class="stat-row">
-                            <span class="stat-label">HP</span>
-                            <div class="bar-container"><div class="bar-fill bar-hp" style="width: ${hpPct}%"></div></div>
-                        </div>
-                        <div class="stat-row">
-                            <span class="stat-label">XP</span>
-                            <div class="bar-container"><div class="bar-fill bar-xp" style="width: ${xpPct}%"></div></div>
-                        </div>
+                        <div class="xp-text">XP: ${jugador.xp}</div>
                     </div>
                 </div>
-                <div class="player-bio">${jugador.bio}</div>
             `;
             return card;
         }
 
         btnShuffle.addEventListener('click', () => {
-            const poolFiltrado = obtenerPoolPorCategoria();
+            const poolFiltrado = obtenerPoolFiltrado();
             if (poolFiltrado.length === 0) {
-                alert("No hay alumnos en la base de datos para esta categoría.");
+                alert("No hay alumnos cargados para este nivel o categoría.");
                 return;
             }
 
-            // --- LÓGICA ESPECIAL PARA DUELO DEL MISMO NIVEL ---
-            if (modoActual === '1v1-same-level') {
-                let disponibles = poolFiltrado.filter(j => !jugadoresJugados.has(j.id));
-                
-                // Agrupamos los disponibles por nivel para ver si hay parejas listas
-                let gruposDispo = {};
-                disponibles.forEach(j => {
-                    if (!gruposDispo[j.nivel]) gruposDispo[j.nivel] = [];
-                    gruposDispo[j.nivel].push(j);
-                });
-
-                let nivelesValidos = Object.keys(gruposDispo).filter(lvl => gruposDispo[lvl].length >= 2);
-
-                // Si no hay parejas del mismo nivel libres, reiniciamos la cola para cumplir la regla de participación
-                if (nivelesValidos.length === 0) {
-                    alert("¡No quedan más combinaciones del mismo nivel disponibles! Reiniciando ciclo de la categoría para emparejar.");
-                    poolFiltrado.forEach(j => jugadoresJugados.delete(j.id));
-                    disponibles = [...poolFiltrado];
-                    gruposDispo = {};
-                    disponibles.forEach(j => {
-                        if (!gruposDispo[j.nivel]) gruposDispo[j.nivel] = [];
-                        gruposDispo[j.nivel].push(j);
-                    });
-                    nivelesValidos = Object.keys(gruposDispo).filter(lvl => gruposDispo[lvl].length >= 2);
-                }
-
-                if (nivelesValidos.length === 0) {
-                    alert("No existen suficientes alumnos con niveles repetidos en la base de datos para este rango.");
-                    return;
-                }
-
-                let ticks = 0;
-                clearInterval(shuffleInterval);
-                shuffleInterval = setInterval(() => {
-                    // Mezcla visual usando un nivel válido aleatorio
-                    let lvlVisual = nivelesValidos[Math.floor(Math.random() * nivelesValidos.length)];
-                    let mezclaVisual = [...gruposDispo[lvlVisual]].sort(() => 0.5 - Math.random());
-                    mostrarSeleccionados([mezclaVisual[0], mezclaVisual[1]], false);
-                    ticks++;
-
-                    if (ticks > 15) {
-                        clearInterval(shuffleInterval);
-                        // Selección real definitiva
-                        let lvlFinal = nivelesValidos[Math.floor(Math.random() * nivelesValidos.length)];
-                        let candidatos = gruposDispo[lvlFinal];
-                        
-                        let p1 = candidatos.splice(Math.floor(Math.random() * candidatos.length), 1)[0];
-                        let p2 = candidatos.splice(Math.floor(Math.random() * candidatos.length), 1)[0];
-
-                        jugadoresJugados.add(p1.id);
-                        jugadoresJugados.add(p2.id);
-
-                        mostrarSeleccionados([p1, p2], true);
-                        actualizarContadores();
-                    }
-                }, 100);
-                return; 
-            }
-
-            // --- LÓGICA PARA LOS DEMÁS MODOS (ALEATORIOS) ---
             let disponibles = poolFiltrado.filter(j => !jugadoresJugados.has(j.id));
-            let reqPlayers = modoActual === 'individual' ? 1 : (modoActual === '1v1' ? 2 : 10);
+            let reqPlayers = (modoActual === 'individual') ? 1 : ((modoActual === '5v5') ? 10 : 2);
             
             if (poolFiltrado.length < reqPlayers) {
-                alert(`No hay suficientes estudiantes en esta categoría para el modo ${modoActual}.`);
+                alert(`No hay suficientes alumnos registrados (mínimo ${reqPlayers}) para este modo.`);
                 return;
             }
 
+            // Si quedan pocos disponibles, reiniciamos la cola del grupo para asegurar participación sin trancarse
             if (disponibles.length < reqPlayers) {
                 alert("¡Completando la ronda! Reiniciando cola para emparejar a los alumnos restantes.");
                 poolFiltrado.forEach(j => jugadoresJugados.delete(j.id));
@@ -569,7 +501,7 @@
             clearInterval(shuffleInterval);
             shuffleInterval = setInterval(() => {
                 const tempDispo = [...disponibles].sort(() => 0.5 - Math.random());
-                mostrarSeleccionados(tempDispo.slice(0, reqPlayers), false);
+                mostrarSeleccionados(tempDispo.slice(0, reqPlayers));
                 ticks++;
                 
                 if (ticks > 15) {
@@ -580,25 +512,25 @@
                         finalSelection.push(elegido);
                         jugadoresJugados.add(elegido.id); 
                     }
-                    mostrarSeleccionados(finalSelection, true);
+                    mostrarSeleccionados(finalSelection);
                     actualizarContadores();
                 }
             }, 100);
         });
 
-        function mostrarSeleccionados(lista, definitivo) {
+        function mostrarSeleccionados(lista) {
             sideLeft.innerHTML = "";
             sideRight.innerHTML = "";
             
             if (modoActual === 'individual') {
-                sideLeft.appendChild(renderJugador(lista[0], "HÉROE SELECCIONADO"));
+                sideLeft.appendChild(renderJugador(lista[0], "HÉROE"));
             } else if (modoActual === '1v1' || modoActual === '1v1-same-level') {
                 sideLeft.appendChild(renderJugador(lista[0], "PLAYER 1"));
-                sideRight.appendChild(renderJugador(lista[1], "PLAYER 2", true));
+                sideRight.appendChild(renderJugador(lista[1], "PLAYER 2"));
             } else if (modoActual === '5v5') {
                 for(let i=0; i<5; i++) {
                     sideLeft.appendChild(renderJugador(lista[i], `SQUAD A - P${i+1}`));
-                    sideRight.appendChild(renderJugador(lista[i+5], `SQUAD B - P${i+1}`, true));
+                    sideRight.appendChild(renderJugador(lista[i+5], `SQUAD B - P${i+1}`));
                 }
             }
         }
