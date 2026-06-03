@@ -270,8 +270,9 @@
             <label for="mode-select">MODO:</label>
             <select id="mode-select">
                 <option value="1v1">DUELO ALEATORIO (1 VS 1)</option>
-                <option value="1v1-same-level">DUELO (MISMO NIVEL)</option>
-                <option value="individual">INDIVIDUAL</option>
+                <option value="1v1-same-level">DUELO (NIVEL EXACTO)</option>
+                <option value="individual">INDIVIDUAL ALEATORIO</option>
+                <option value="individual-same-level">INDIVIDUAL (NIVEL EXACTO)</option>
                 <option value="5v5">ESCUADRÓN (5 VS 5)</option>
             </select>
         </div>
@@ -284,7 +285,7 @@
             </select>
         </div>
 
-        <!-- SELECTOR DINÁMICO DE NIVEL EXACTO (SOLO PARA MODO MISMO NIVEL) -->
+        <!-- SELECTOR DINÁMICO DE NIVEL EXACTO -->
         <div class="control-group hidden" id="exact-level-container">
             <label for="level-select">NIVEL:</label>
             <select id="level-select">
@@ -334,20 +335,30 @@
 
         modeSelect.addEventListener('change', (e) => {
             modoActual = e.target.value;
-            if (modoActual === '1v1-same-level') {
-                battleArena.className = `view-1v1`;
+            
+            // Configurar diseño de la arena
+            if (modoActual.includes('1v1')) {
+                battleArena.className = 'view-1v1';
+            } else if (modoActual.includes('individual')) {
+                battleArena.className = 'view-individual';
+            } else {
+                battleArena.className = `view-${modoActual}`;
+            }
+
+            // Mostrar/Ocultar el selector de Nivel Exacto
+            if (modoActual.includes('same-level')) {
                 exactLevelContainer.classList.remove('hidden');
                 actualizarOpcionesDeNivel();
             } else {
-                battleArena.className = `view-${modoActual}`;
                 exactLevelContainer.classList.add('hidden');
             }
+
             actualizarContadores();
             limpiarArena();
         });
 
         catSelect.addEventListener('change', () => {
-            if (modoActual === '1v1-same-level') {
+            if (modoActual.includes('same-level')) {
                 actualizarOpcionesDeNivel();
             }
             actualizarContadores();
@@ -397,7 +408,7 @@
         }
 
         function obtenerPoolFiltrado() {
-            if (modoActual === '1v1-same-level') {
+            if (modoActual.includes('same-level')) {
                 const nivelExacto = parseInt(levelSelect.value) || 1;
                 return poolJugadores.filter(j => j.nivel === nivelExacto);
             } else {
@@ -430,7 +441,7 @@
             const numSlots = modoActual === '5v5' ? 5 : 1;
             for(let i=0; i<numSlots; i++) {
                 sideLeft.appendChild(crearSlotVacio(modoActual === '5v5' ? `P${i+1}` : 'PLAYER 1'));
-                if(modoActual !== 'individual') {
+                if(!modoActual.includes('individual')) {
                     sideRight.appendChild(crearSlotVacio(modoActual === '5v5' ? `P${i+6}` : 'PLAYER 2'));
                 }
             }
@@ -478,12 +489,12 @@
         btnShuffle.addEventListener('click', () => {
             const poolFiltrado = obtenerPoolFiltrado();
             if (poolFiltrado.length === 0) {
-                alert("No hay alumnos cargados para este nivel o categoría.");
+                alert("No hay alumnos cargados para esta configuración.");
                 return;
             }
 
             let disponibles = poolFiltrado.filter(j => !jugadoresJugados.has(j.id));
-            let reqPlayers = (modoActual === 'individual') ? 1 : ((modoActual === '5v5') ? 10 : 2);
+            let reqPlayers = modoActual.includes('individual') ? 1 : ((modoActual === '5v5') ? 10 : 2);
             
             if (poolFiltrado.length < reqPlayers) {
                 alert(`No hay suficientes alumnos registrados (mínimo ${reqPlayers}) para este modo.`);
@@ -522,9 +533,9 @@
             sideLeft.innerHTML = "";
             sideRight.innerHTML = "";
             
-            if (modoActual === 'individual') {
-                sideLeft.appendChild(renderJugador(lista[0], "HÉROE"));
-            } else if (modoActual === '1v1' || modoActual === '1v1-same-level') {
+            if (modoActual.includes('individual')) {
+                sideLeft.appendChild(renderJugador(lista[0], "HÉROE SELECCIONADO"));
+            } else if (modoActual.includes('1v1')) {
                 sideLeft.appendChild(renderJugador(lista[0], "PLAYER 1"));
                 sideRight.appendChild(renderJugador(lista[1], "PLAYER 2"));
             } else if (modoActual === '5v5') {
