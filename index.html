@@ -185,7 +185,12 @@
         .arena-header { background: #111; display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 2px solid var(--neon-pink); }
         .rotate-notice { font-size: 8px; color: var(--neon-yellow); animation: flashEffect 1s infinite alternate; }
         .close-game-btn { background: #ff0000; color: white; padding: 8px 12px; border: 2px solid white; cursor: pointer; font-family: inherit; font-size: 10px; }
-        /* ---------------------------------------------- */
+        
+        /* --- NUEVO CSS: VALIDADOR DE CÓDIGOS --- */
+        .keycard-box { border: 2px dashed var(--neon-pink); background: rgba(0,0,0,0.8); padding: 12px; margin-top: 15px; margin-bottom: 5px; display: block; }
+        .input-code { width: 100%; padding: 10px; background: #000; color: var(--neon-yellow); border: 1px solid var(--neon-yellow); font-family: 'Press Start 2P', monospace; font-size: 9px; text-align: center; margin-bottom: 8px; text-transform: uppercase; }
+        .btn-validate { width: 100%; padding: 10px; background: var(--neon-yellow); color: #000; border: none; cursor: pointer; font-family: 'Press Start 2P', monospace; font-size: 9px; }
+        #recompensa-msg { margin-top:10px; color:var(--neon-cyan); font-size:8px; line-height:1.4; }
 
     </style>
 </head>
@@ -249,6 +254,13 @@
             <div class="slot" id="stk-cronicas" title="Sticker Crónicas"><span class="slot-locked-x">X</span><img id="img-stk-cronicas" src="" alt="Crónicas"></div>
             <div class="slot" id="stk-turbo" title="Sticker Turbo"><span class="slot-locked-x">X</span><img id="img-stk-turbo" src="" alt="Turbo"></div>
             <div class="slot" id="stk-prisma" title="Sticker Prisma"><span class="slot-locked-x">X</span><img id="img-stk-prisma" src="" alt="Prisma"></div>
+        </div>
+
+        <div id="keycard-box" class="keycard-box">
+            <div style="color:var(--neon-pink); font-size:9px; margin-bottom:8px;">« CLAVE DE RETO ONLINE »</div>
+            <input type="text" id="input-codigo" class="input-code" placeholder="INGRESA CÓDIGO">
+            <button id="btn-validate-code" class="btn-validate">VALIDAR Y RECLAMAR</button>
+            <div id="recompensa-msg"></div>
         </div>
 
         <button id="btn-open-game" class="btn-play">🎮 JUEGA AQUÍ 🎮</button>
@@ -364,12 +376,10 @@
             AUDIO_WIN.play().catch(e => console.log("Error al reproducir audio:", e));
         }
 
-        /* --- NUEVO JS: FUNCIÓN PARA CERRAR EL JUEGO --- */
         function cerrarJuego() {
             document.getElementById('game-arena').style.display = 'none';
             document.getElementById('genially-iframe').src = ""; 
         }
-        /* ---------------------------------------------- */
 
         if(!playerId) {
             document.getElementById('loading-msg').style.display = 'none';
@@ -498,7 +508,6 @@
                     if(tieneTurbo) document.getElementById('stk-turbo').classList.add('active');
                     if(tienePrisma) document.getElementById('stk-prisma').classList.add('active');
 
-                    /* --- NUEVO JS: LÓGICA PARA LEER LA COLUMNA DE GENIALLY --- */
                     let linkGenially = basePlayer['URL Juego'];
                     const btnPlay = document.getElementById('btn-open-game');
                     if(linkGenially && String(linkGenially).trim() !== '') {
@@ -510,9 +519,44 @@
                     } else {
                         btnPlay.style.display = 'none';
                     }
+
+                    /* --- NUEVO JS: LÓGICA DE RECOMPENSA Y VALIDACIÓN --- */
+                    let recompensaEstado = basePlayer['Recompensa Reclamada'] || '';
+                    if (String(recompensaEstado).trim().toUpperCase() === 'ENTREGADO') {
+                        document.getElementById('keycard-box').style.display = 'none';
+                    }
+
+                    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzOLtr5lVWUnxU6eTTvXO9c1yvcxLqWyMoy4xq7zkJdqsXJdYZ-oNtyq43s-jRJ_ea1zQ/exec";
+                    const codigosPorNivel = { 1: "SOY.IMPORTANTE", 2: "SOY.BRILLANTE", 3: "SOY.INOLVIDABLE", 4: "SOY.LEAL", 5: "SOY.PACIENTE", 6: "SOY.CONSTANTE" };
+
+                    document.getElementById('btn-validate-code').onclick = async () => {
+                        const inputVal = document.getElementById('input-codigo').value.trim().toUpperCase();
+                        const msgBox = document.getElementById('recompensa-msg');
+
+                        if (inputVal === codigosPorNivel[nivelActual]) {
+                            const premioElegido = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+                            msgBox.innerText = "¡PROCESANDO...";
+                            
+                            try {
+                                const response = await fetch(`${WEB_APP_URL}?id=${playerId}&premio=${premioElegido}`);
+                                const data = await response.text();
+                                
+                                if(data === "OK") {
+                                    msgBox.innerHTML = `¡CÓDIGO ACEPTADO!<br>PREMIO: ${premioElegido} PUNTOS ESPECIALES.`;
+                                    document.getElementById('input-codigo').style.display = 'none';
+                                    document.getElementById('btn-validate-code').style.display = 'none';
+                                } else {
+                                    msgBox.innerText = "ERROR AL CONECTAR CON EL SERVIDOR.";
+                                }
+                            } catch(err) {
+                                msgBox.innerText = "ERROR DE RED.";
+                            }
+                        } else {
+                            msgBox.innerText = "❌ CÓDIGO INCORRECTO";
+                        }
+                    };
                     /* --------------------------------------------------------- */
 
-                    // LÓGICA DE PANTALLA FINAL
                     if(tieneGrafia && tieneMatriz && tieneBiosfera && tieneCronicas && tieneTurbo && tienePrisma) {
                         document.getElementById('btn-claim-victory').style.display = 'block';
                         
@@ -521,7 +565,6 @@
                         document.getElementById('lu-avatar-img').src = avatarUrl || 'https://via.placeholder.com/110/000000/ffffff?text=ARCADE';
                         
                         if (nivelActual >= 6) {
-                            // FINAL DEL JUEGO PARA SEXTO GRADO
                             document.getElementById('lu-main-title').innerText = "THE END";
                             document.getElementById('lu-main-title').style.color = "#fffb00";
                             document.getElementById('lu-avatar-frame').style.borderColor = "#ffffff";
@@ -530,7 +573,6 @@
                             document.getElementById('lu-sub-msg').innerHTML = "[+] ¡JUGASTE INCREÍBLE! [+]<br><br>GRACIAS POR JUGAR.";
                             document.getElementById('lu-sub-msg').style.color = "#ffffff";
                         } else {
-                            // LEVEL UP REGULAR
                             let siguienteNivel = nivelActual + 1;
                             document.getElementById('lu-main-title').innerText = "LEVEL UP!";
                             document.getElementById('lu-dynamic-msg').innerText = "¡SUBISTE AL NIVEL " + siguienteNivel + "!";
