@@ -186,11 +186,36 @@
         .rotate-notice { font-size: 8px; color: var(--neon-yellow); animation: flashEffect 1s infinite alternate; }
         .close-game-btn { background: #ff0000; color: white; padding: 8px 12px; border: 2px solid white; cursor: pointer; font-family: inherit; font-size: 10px; }
         
-        /* --- NUEVO CSS: VALIDADOR DE CÓDIGOS --- */
+        /* --- NUEVO CSS: VALIDADOR DE CÓDIGOS Y PANTALLA VICTORIA LOCAL --- */
         .keycard-box { border: 2px dashed var(--neon-pink); background: rgba(0,0,0,0.8); padding: 12px; margin-top: 15px; margin-bottom: 5px; display: block; }
         .input-code { width: 100%; padding: 10px; background: #000; color: var(--neon-yellow); border: 1px solid var(--neon-yellow); font-family: 'Press Start 2P', monospace; font-size: 9px; text-align: center; margin-bottom: 8px; text-transform: uppercase; }
-        .btn-validate { width: 100%; padding: 10px; background: var(--neon-yellow); color: #000; border: none; cursor: pointer; font-family: 'Press Start 2P', monospace; font-size: 9px; }
+        .btn-validate { width: 100%; padding: 10px; background: var(--neon-yellow); color: #000; border: none; cursor: pointer; font-family: 'Press Start 2P', monospace; font-size: 9px; transition: 0.2s; }
+        .btn-validate:hover { background: #fff; box-shadow: 0 0 10px #fff; }
         #recompensa-msg { margin-top:10px; color:var(--neon-cyan); font-size:8px; line-height:1.4; }
+
+        .mensaje-neon-whatsapp {
+            margin-top: 15px;
+            padding: 15px;
+            border: 3px dashed #ff007f;
+            color: #ffffff;
+            font-size: 12px;
+            line-height: 1.8;
+            background: rgba(255, 0, 127, 0.15);
+            text-shadow: 0 0 5px #ff007f, 0 0 10px #ff007f, 0 0 20px #ff007f;
+            animation: pulseNeonWhatsapp 1.2s infinite alternate;
+        }
+
+        @keyframes pulseNeonWhatsapp {
+            0% { opacity: 0.9; box-shadow: 0 0 10px #ff007f; }
+            100% { opacity: 1; box-shadow: 0 0 25px #ff007f, inset 0 0 15px #ff007f; }
+        }
+
+        #validation-victory-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(11, 2, 26, 0.98); z-index: 10000; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; box-sizing: border-box; text-align: center;
+        }
 
     </style>
 </head>
@@ -258,7 +283,7 @@
 
         <div id="keycard-box" class="keycard-box">
             <div style="color:var(--neon-pink); font-size:9px; margin-bottom:8px;">« CLAVE DE RETO ONLINE »</div>
-            <input type="text" id="input-codigo" class="input-code" placeholder="INGRESA CÓDIGO">
+            <input type="text" id="input-codigo" class="input-code" placeholder="INGRESA CÓDIGO" autocomplete="off">
             <button id="btn-validate-code" class="btn-validate">VALIDAR Y RECLAMAR</button>
             <div id="recompensa-msg"></div>
         </div>
@@ -276,15 +301,13 @@
         </div>
         <iframe id="genially-iframe" src="" allowfullscreen></iframe>
     </div>
+
     <div id="levelup-screen" style="display: none;">
         <div class="lu-sparkles">[+] -=+=- [+]</div>
-        
         <h1 class="lu-title" id="lu-main-title">LEVEL UP!</h1>
-        
         <div class="avatar-frame lu-avatar" id="lu-avatar-frame">
             <img id="lu-avatar-img" src="" alt="Avatar Ganador">
         </div>
-
         <div class="lu-banner">
             ¡FELICITACIONES <span id="lu-gamertag" style="color:var(--neon-yellow); font-size:11px;"></span>!<br>
             <span style="color:#a393eb; font-size:7px;">ID: <span id="lu-id"></span></span><br><br>
@@ -295,6 +318,26 @@
         <div class="lu-sparkles">[+] -=+=- [+]</div>
     </div>
 
+    <div id="validation-victory-screen">
+        <h2 style="color: #00ffff; text-shadow: 0 0 15px #00ffff; margin-bottom: 20px; font-size: 16px; line-height: 1.5;">¡RETO SUPERADO!</h2>
+        
+        <div class="avatar-frame lu-avatar" style="margin-bottom: 20px; width: 100px; height: 100px;">
+            <img id="vv-avatar" src="" alt="Avatar">
+        </div>
+        
+        <div style="background: rgba(0,0,0,0.8); border: 2px dashed #00ffff; padding: 15px; width: 100%; max-width: 320px; text-align: left; margin-bottom: 20px;">
+            <p style="color: #fffb00; font-size: 10px; margin-bottom: 12px; line-height: 1.4;">XP OBTENIDA: <span id="vv-puntos" style="color: #00ff00;"></span></p>
+            <p style="color: #fffb00; font-size: 10px; margin-bottom: 8px;">ÍTEMS DESBLOQUEADOS:</p>
+            <div id="vv-items" style="color: #ffffff; font-size: 9px; line-height: 2;"></div>
+        </div>
+        
+        <div class="mensaje-neon-whatsapp">
+            ⚠️ ¡CAPTURA ESTA PANTALLA Y ENVÍALA AL GRUPO DE WHATSAPP PARA REGISTRAR TU PREMIO!
+        </div>
+
+        <button onclick="document.getElementById('validation-victory-screen').style.display='none'" style="margin-top: 25px; padding: 12px 20px; background: #00ffff; color: #000; font-family: inherit; font-size: 10px; border: none; cursor: pointer; border: 2px solid #fff;">CERRAR</button>
+    </div>
+
     <div id="loading-msg" class="system-msg">CONECTANDO AL SERVIDOR ARCADE...</div>
     <div id="error-msg" class="system-msg" style="display: none;">ERROR: DISCO DE JUEGO NO ENCONTRADO</div>
 
@@ -302,6 +345,7 @@
         const AUDIO_GO = new Audio('https://files.catbox.moe/8off0f.mp3');
         const AUDIO_WIN = new Audio('https://files.catbox.moe/1uii9y.mp3');
 
+        // Se mantiene la carga del perfil del jugador a través del Excel para no romper la app
         const EXCEL_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT039Y2nAQCxDsSaD4bp_7Up1GkLGWmJ9bQdYRH5qZvLw1Uf-eZFoV07kNN5ztpssrX0YoQaQRs-YqS/pub?output=xlsx'; 
         
         const LOGO_URL = 'https://i.ibb.co/ZzWpn2rM/logo.png'; 
@@ -520,41 +564,57 @@
                         btnPlay.style.display = 'none';
                     }
 
-                    /* --- NUEVO JS: LÓGICA DE RECOMPENSA Y VALIDACIÓN --- */
+                    /* --- NUEVO JS: LÓGICA DE RECOMPENSA LOCAL (OFFLINE & LOCALSTORAGE) --- */
                     let recompensaEstado = basePlayer['Recompensa Reclamada'] || '';
-                    if (String(recompensaEstado).trim().toUpperCase() === 'ENTREGADO') {
-                        document.getElementById('keycard-box').style.display = 'none';
-                    }
+                    let recompensaLocal = localStorage.getItem("reto_reclamado_" + playerId); // Verifica LocalStorage
 
-                    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzOLtr5lVWUnxU6eTTvXO9c1yvcxLqWyMoy4xq7zkJdqsXJdYZ-oNtyq43s-jRJ_ea1zQ/exec";
-                    const codigosPorNivel = { 1: "SOY.IMPORTANTE", 2: "SOY.BRILLANTE", 3: "SOY.INOLVIDABLE", 4: "SOY.LEAL", 5: "SOY.PACIENTE", 6: "SOY.CONSTANTE" };
+                    const keycardBox = document.getElementById('keycard-box');
+                    
+                    if (String(recompensaEstado).trim().toUpperCase() === 'ENTREGADO' || recompensaLocal === "true") {
+                        // Si ya está reclamado, reemplaza el contenido por el mensaje de alerta
+                        keycardBox.innerHTML = `
+                            <div style="padding: 10px;">
+                                <h3 style="color:#ff0000; text-shadow:0 0 10px #ff0000; line-height: 1.5;">⚠️ ¡PREMIO YA RECLAMADO!</h3>
+                                <p style="font-size:8px; margin-top:10px; color:#fff; line-height: 1.6;">El código de este reto ya fue validado en este dispositivo.</p>
+                            </div>
+                        `;
+                    } else {
+                        const codigosPorNivel = { 1: "SOY.IMPORTANTE", 2: "SOY.BRILLANTE", 3: "SOY.INOLVIDABLE", 4: "SOY.LEAL", 5: "SOY.PACIENTE", 6: "SOY.CONSTANTE" };
 
-                    document.getElementById('btn-validate-code').onclick = async () => {
-                        const inputVal = document.getElementById('input-codigo').value.trim().toUpperCase();
-                        const msgBox = document.getElementById('recompensa-msg');
+                        document.getElementById('btn-validate-code').onclick = () => {
+                            const inputVal = document.getElementById('input-codigo').value.trim().toUpperCase();
+                            const msgBox = document.getElementById('recompensa-msg');
 
-                        if (inputVal === codigosPorNivel[nivelActual]) {
-                            const premioElegido = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
-                            msgBox.innerText = "¡PROCESANDO...";
-                            
-                            try {
-                                const response = await fetch(`${WEB_APP_URL}?id=${playerId}&premio=${premioElegido}`);
-                                const data = await response.text();
+                            if (inputVal === codigosPorNivel[nivelActual]) {
+                                // 1. Guardar en LocalStorage para bloquear futuros intentos
+                                localStorage.setItem("reto_reclamado_" + playerId, "true");
+
+                                // 2. Generar recompensas aleatorias locales
+                                const puntosXP = Math.floor(Math.random() * (200 - 100 + 1)) + 100;
+                                const inventarioPosible = ["Cristal de Datos", "Llave Cifrada", "Poción de Red", "Escudo Firewall", "Mapa de Nodos", "Reliquia USB"];
                                 
-                                if(data === "OK") {
-                                    msgBox.innerHTML = `¡CÓDIGO ACEPTADO!<br>PREMIO: ${premioElegido} PUNTOS ESPECIALES.`;
-                                    document.getElementById('input-codigo').style.display = 'none';
-                                    document.getElementById('btn-validate-code').style.display = 'none';
-                                } else {
-                                    msgBox.innerText = "ERROR AL CONECTAR CON EL SERVIDOR.";
-                                }
-                            } catch(err) {
-                                msgBox.innerText = "ERROR DE RED.";
+                                let itemsMezclados = inventarioPosible.sort(() => 0.5 - Math.random());
+                                let itemsGanados = itemsMezclados.slice(0, 2);
+
+                                // 3. Modificar la caja de input para evitar doble validación
+                                document.getElementById('input-codigo').style.display = 'none';
+                                document.getElementById('btn-validate-code').style.display = 'none';
+                                msgBox.innerHTML = "¡CÓDIGO ACEPTADO!";
+
+                                // 4. Preparar y mostrar Pantalla de Victoria Autocontenida
+                                document.getElementById('vv-avatar').src = avatarUrl || 'https://via.placeholder.com/110/000000/ffffff?text=ARCADE';
+                                document.getElementById('vv-puntos').innerText = puntosXP + " PTS";
+                                document.getElementById('vv-items').innerHTML = `> ${itemsGanados[0]}<br>> ${itemsGanados[1]}`;
+                                
+                                document.getElementById('validation-victory-screen').style.display = 'flex';
+                                AUDIO_WIN.play().catch(e => console.log(e));
+
+                            } else {
+                                msgBox.innerText = "❌ CÓDIGO INCORRECTO";
+                                setTimeout(() => msgBox.innerText = "", 2000);
                             }
-                        } else {
-                            msgBox.innerText = "❌ CÓDIGO INCORRECTO";
-                        }
-                    };
+                        };
+                    }
                     /* --------------------------------------------------------- */
 
                     if(tieneGrafia && tieneMatriz && tieneBiosfera && tieneCronicas && tieneTurbo && tienePrisma) {
