@@ -167,6 +167,26 @@
             box-shadow: 0px 0px 15px var(--neon-yellow);
             image-rendering: pixelated;
         }
+
+        /* --- NUEVO CSS: BOTÓN DE JUEGO Y MODO ARENA --- */
+        .btn-play {
+            width: 100%; margin-top: 15px; padding: 12px; background-color: transparent;
+            color: var(--neon-cyan); border: 2px dashed var(--neon-cyan);
+            font-family: 'Press Start 2P', monospace; font-size: 10px; cursor: pointer;
+            box-shadow: 0 0 10px var(--neon-cyan); display: none; margin-bottom: 5px;
+        }
+        .btn-play:hover { background-color: var(--neon-cyan); color: #000; }
+
+        #game-arena {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; display: none; z-index: 9998; flex-direction: column;
+        }
+        #game-arena iframe { width: 100%; height: 100%; border: none; }
+        .arena-header { background: #111; display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 2px solid var(--neon-pink); }
+        .rotate-notice { font-size: 8px; color: var(--neon-yellow); animation: flashEffect 1s infinite alternate; }
+        .close-game-btn { background: #ff0000; color: white; padding: 8px 12px; border: 2px solid white; cursor: pointer; font-family: inherit; font-size: 10px; }
+        /* ---------------------------------------------- */
+
     </style>
 </head>
 <body>
@@ -231,10 +251,19 @@
             <div class="slot" id="stk-prisma" title="Sticker Prisma"><span class="slot-locked-x">X</span><img id="img-stk-prisma" src="" alt="Prisma"></div>
         </div>
 
+        <button id="btn-open-game" class="btn-play">🎮 JUEGA AQUÍ 🎮</button>
         <button id="btn-claim-victory" class="btn-claim" onclick="mostrarPantallaVictoria()">🏆 RECLAMAR VICTORIA 🏆</button>
 
     </div>
 
+    <div id="game-arena">
+        <div class="arena-header">
+            <button class="close-game-btn" onclick="cerrarJuego()">X SALIR</button>
+            <span class="rotate-notice">🔄 ¡GIRA TU TELÉFONO HORIZONTAL!</span>
+            <span></span>
+        </div>
+        <iframe id="genially-iframe" src="" allowfullscreen></iframe>
+    </div>
     <div id="levelup-screen" style="display: none;">
         <div class="lu-sparkles">[+] -=+=- [+]</div>
         
@@ -334,6 +363,13 @@
             document.getElementById('levelup-screen').style.display = 'flex';
             AUDIO_WIN.play().catch(e => console.log("Error al reproducir audio:", e));
         }
+
+        /* --- NUEVO JS: FUNCIÓN PARA CERRAR EL JUEGO --- */
+        function cerrarJuego() {
+            document.getElementById('game-arena').style.display = 'none';
+            document.getElementById('genially-iframe').src = ""; 
+        }
+        /* ---------------------------------------------- */
 
         if(!playerId) {
             document.getElementById('loading-msg').style.display = 'none';
@@ -461,6 +497,20 @@
                     if(tieneCronicas) document.getElementById('stk-cronicas').classList.add('active');
                     if(tieneTurbo) document.getElementById('stk-turbo').classList.add('active');
                     if(tienePrisma) document.getElementById('stk-prisma').classList.add('active');
+
+                    /* --- NUEVO JS: LÓGICA PARA LEER LA COLUMNA DE GENIALLY --- */
+                    let linkGenially = basePlayer['URL Juego'];
+                    const btnPlay = document.getElementById('btn-open-game');
+                    if(linkGenially && String(linkGenially).trim() !== '') {
+                        btnPlay.style.display = 'block';
+                        btnPlay.onclick = () => {
+                            document.getElementById('genially-iframe').src = linkGenially;
+                            document.getElementById('game-arena').style.display = 'flex';
+                        };
+                    } else {
+                        btnPlay.style.display = 'none';
+                    }
+                    /* --------------------------------------------------------- */
 
                     // LÓGICA DE PANTALLA FINAL
                     if(tieneGrafia && tieneMatriz && tieneBiosfera && tieneCronicas && tieneTurbo && tienePrisma) {
